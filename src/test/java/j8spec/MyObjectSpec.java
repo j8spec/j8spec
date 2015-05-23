@@ -1,9 +1,9 @@
 package j8spec;
 
+import static j8spec.J8Spec.*;
+import static j8spec.Var.var;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static j8spec.Spec.*;
-import static j8spec.Var.*;
 
 public class MyObjectSpec {{
 
