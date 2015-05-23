@@ -1,4 +1,4 @@
-package specs;
+package j8spec;
 
 import java.util.*;
 

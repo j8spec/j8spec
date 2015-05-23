@@ -1,8 +1,8 @@
-package specs;
+package j8spec;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static specs.Specs.*;
+import static j8spec.Specs.*;
 
 public class MyObjectSpec {{
 

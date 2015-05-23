@@ -1,4 +1,4 @@
-package specs;
+package j8spec;
 
 public class MyObject {
     private int value;

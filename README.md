@@ -44,7 +44,7 @@ public class MyObjectSpec {{
 ### Output:
 
 ```
-  specs.MyObject
+  j8spec.MyObject
     when initializing value via constructor
       adds given value to current value [OK]
     has a value property [OK]
