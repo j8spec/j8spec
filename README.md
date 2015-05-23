@@ -1,4 +1,4 @@
-j8spec [![Build Status](https://travis-ci.org/tprado/j8spec.svg?branch=master)](https://travis-ci.org/tprado/j8spec)
+j8spec [![Build Status](https://travis-ci.org/j8spec/j8spec.svg?branch=master)](https://travis-ci.org/j8spec/j8spec)
 ======
 
 RSpec/Jasmine like specs with Java Lambda Expressions.
