@@ -1,0 +1,14 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+    baseName = 'j8spec'
+    version = '1.0'
+}
+
+dependencies {
+    compile group: 'junit', name: 'junit', version: '4.12'
+}
