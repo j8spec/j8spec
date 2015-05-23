@@ -2,7 +2,7 @@ package j8spec;
 
 import java.util.*;
 
-public class Specs {
+public class Spec {
 
     private static Description currentDescription;
 
@@ -62,8 +62,8 @@ public class Specs {
         }
 
         public void run(String indentation, List<Runnable> previousBefores) {
-            Description previousDescription = Specs.currentDescription;
-            Specs.currentDescription = this;
+            Description previousDescription = Spec.currentDescription;
+            Spec.currentDescription = this;
 
             System.out.println(indentation + text);
 
@@ -94,7 +94,7 @@ public class Specs {
 
             }
 
-            Specs.currentDescription = previousDescription;
+            Spec.currentDescription = previousDescription;
         }
     }
 }
