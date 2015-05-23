@@ -6,18 +6,6 @@ public class Specs {
 
     private static Description currentDescription;
 
-    public static <T> Var<T> var() {
-        return new Var<>();
-    }
-
-    public static <T> T var(Var<T> var) {
-        return var.value;
-    }
-
-    public static <T> T var(Var<T> var, T value) {
-        return var.value = value;
-    }
-
     public static void describe(String text, Runnable r) {
         currentDescription.describe(text, r);
     }

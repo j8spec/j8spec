@@ -3,6 +3,7 @@ package j8spec;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static j8spec.Specs.*;
+import static j8spec.Var.*;
 
 public class MyObjectSpec {{
 
