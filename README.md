@@ -1,6 +1,10 @@
-# RSpec like specs with Java Lambda Expressions
+j8spec [![Build Status](https://travis-ci.org/tprado/j8spec.svg?branch=master)](https://travis-ci.org/tprado/j8spec)
+======
 
-Sample Spec:
+RSpec/Jasmine like specs with Java Lambda Expressions.
+
+
+### Sample Spec:
 
 ```java
 public class MyObjectSpec {{
@@ -37,7 +41,7 @@ public class MyObjectSpec {{
 
 ```
 
-Output:
+### Output:
 
 ```
   specs.MyObject
