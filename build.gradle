@@ -1,0 +1,17 @@
+apply plugin: 'java'
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+    baseName = 'j8spec'
+    version = '1.0'
+}
+
+dependencies {
+    compile group: 'junit', name: 'junit', version: '4.12'
+}
