@@ -30,33 +30,33 @@ public class J8Spec {
 
     private static class Spec {
 
-        private final Class<?> testClass;
+        private final Class<?> specClass;
         private final String description;
         private final Runnable body;
         private final List<Spec> describeBlocks = new LinkedList<>();
         private final Map<String, Runnable> itBlocks = new HashMap<>();
         private Runnable beforeEachBlock;
 
-        public Spec(Class<?> testClass) {
-            this.testClass = testClass;
-            this.description = testClass.getName();
+        public Spec(Class<?> specClass) {
+            this.specClass = specClass;
+            this.description = specClass.getName();
             this.body = () -> {
                 try {
-                    testClass.newInstance();
+                    specClass.newInstance();
                 } catch (Exception e) {
                     throw new RuntimeException(e); // FIXME RT exception
                 }
             };
         }
 
-        private Spec(Class<?> testClass, String description, Runnable body) {
-            this.testClass = testClass;
+        private Spec(Class<?> specClass, String description, Runnable body) {
+            this.specClass = specClass;
             this.description = description;
             this.body = body;
         }
 
         public void describe(String description, Runnable body) {
-            describeBlocks.add(new Spec(testClass, description, body));
+            describeBlocks.add(new Spec(specClass, description, body));
         }
 
         public void beforeEach(Runnable body) {
@@ -79,7 +79,7 @@ public class J8Spec {
 
             ExecutionPlan newPlan;
             if (parentPlan == null) {
-                newPlan = new ExecutionPlan(testClass, beforeEachBlock, itBlocks);
+                newPlan = new ExecutionPlan(specClass, beforeEachBlock, itBlocks);
             } else {
                 newPlan = parentPlan.newChildPlan(description, beforeEachBlock, itBlocks);
             }

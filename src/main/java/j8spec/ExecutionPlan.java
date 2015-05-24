@@ -8,22 +8,26 @@ import static java.util.Collections.*;
 
 public class ExecutionPlan {
 
-    public static final String LS = System.getProperty("line.separator");
+    private static final String LS = System.getProperty("line.separator");
+
+    private final ExecutionPlan parent;
     private final String description;
     private final Runnable beforeEachBlock;
     private final Map<String, Runnable> itBlocks;
     private final List<ExecutionPlan> plans = new LinkedList<>();
-    private final Class<?> testClass;
+    private final Class<?> specClass;
 
-    public ExecutionPlan(Class<?> testClass, Runnable beforeEachBlock, Map<String, Runnable> itBlocks) {
-        this.testClass = testClass;
-        this.description = testClass.getName();
+    public ExecutionPlan(Class<?> specClass, Runnable beforeEachBlock, Map<String, Runnable> itBlocks) {
+        this.parent = null;
+        this.specClass = specClass;
+        this.description = specClass.getName();
         this.beforeEachBlock = beforeEachBlock;
         this.itBlocks = unmodifiableMap(itBlocks);
     }
 
     public ExecutionPlan(ExecutionPlan parent, String description, Runnable beforeEachBlock, Map<String, Runnable> itBlocks) {
-        this.testClass = parent.testClass;
+        this.parent = parent;
+        this.specClass = parent.specClass;
         this.description = description;
         this.beforeEachBlock = beforeEachBlock;
         this.itBlocks = unmodifiableMap(itBlocks);
@@ -55,6 +59,10 @@ public class ExecutionPlan {
         }
     }
 
+    public Class<?> specClass() {
+        return specClass;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -67,15 +75,62 @@ public class ExecutionPlan {
         return new LinkedList<>(plans);
     }
 
-    public Class<?> getTestClass() {
-        return testClass;
-    }
-
     public Runnable beforeEachBlock() {
         return beforeEachBlock;
     }
 
     public Runnable itBlock(String itBlockDescription) {
         return itBlocks.get(itBlockDescription);
+    }
+
+    public List<ItBlock> allItBlocks() {
+        LinkedList<ItBlock> blocks = new LinkedList<>();
+        collectItBlocks(blocks);
+        return blocks;
+    }
+
+    private void collectItBlocks(List<ItBlock> blocks) {
+        for (Map.Entry<String, Runnable> itBlock : itBlocks.entrySet()) {
+            blocks.add(new ItBlock(
+                allContainerDescriptions(),
+                itBlock.getKey(),
+                allBeforeEachBlocks(),
+                itBlock.getValue())
+            );
+        }
+
+        for (ExecutionPlan plan : plans) {
+            plan.collectItBlocks(blocks);
+        }
+    }
+
+    private List<String> allContainerDescriptions() {
+        List<String> containerDescriptions;
+
+        if (isRootPlan()) {
+            containerDescriptions = new LinkedList<>();
+        } else {
+            containerDescriptions = parent.allContainerDescriptions();
+        }
+
+        containerDescriptions.add(description);
+        return containerDescriptions;
+    }
+
+    private List<Runnable> allBeforeEachBlocks() {
+        List<Runnable> beforeEachBlocks;
+
+        if (isRootPlan()) {
+            beforeEachBlocks = new LinkedList<>();
+        } else {
+            beforeEachBlocks = parent.allBeforeEachBlocks();
+        }
+
+        beforeEachBlocks.add(beforeEachBlock);
+        return beforeEachBlocks;
+    }
+
+    private boolean isRootPlan() {
+        return parent == null;
     }
 }

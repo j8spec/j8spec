@@ -59,7 +59,7 @@ public class J8SpecTest {
     public void buildsAnExecutionPlanUsingTheGivenSpecAsDescription() {
         ExecutionPlan plan = executionPlanFor(EmptySpec.class);
 
-        assertThat(plan.getTestClass(), equalTo(EmptySpec.class));
+        assertThat(plan.specClass(), equalTo(EmptySpec.class));
         assertThat(plan.getDescription(), is("j8spec.J8SpecTest$EmptySpec"));
     }
 
@@ -79,21 +79,21 @@ public class J8SpecTest {
         assertThat(plan.itBlock("block 2"), is(IT_BLOCK_2));
 
         ExecutionPlan planA = plan.getPlans().get(0);
-        assertThat(planA.getTestClass(), equalTo(SampleSpec.class));
+        assertThat(planA.specClass(), equalTo(SampleSpec.class));
         assertThat(planA.getDescription(), is("describe A"));
         assertThat(planA.beforeEachBlock(), is(BEFORE_EACH_A_BLOCK));
         assertThat(planA.itBlock("block A.1"), is(IT_BLOCK_A1));
         assertThat(planA.itBlock("block A.2"), is(IT_BLOCK_A2));
 
         ExecutionPlan planAA = planA.getPlans().get(0);
-        assertThat(planAA.getTestClass(), equalTo(SampleSpec.class));
+        assertThat(planAA.specClass(), equalTo(SampleSpec.class));
         assertThat(planAA.getDescription(), is("describe A.A"));
         assertThat(planAA.beforeEachBlock(), is(BEFORE_EACH_AA_BLOCK));
         assertThat(planAA.itBlock("block A.A.1"), is(IT_BLOCK_AA1));
         assertThat(planAA.itBlock("block A.A.2"), is(IT_BLOCK_AA2));
 
         ExecutionPlan planB = plan.getPlans().get(1);
-        assertThat(planB.getTestClass(), equalTo(SampleSpec.class));
+        assertThat(planB.specClass(), equalTo(SampleSpec.class));
         assertThat(planB.getDescription(), is("describe B"));
         assertThat(planB.beforeEachBlock(), is(BEFORE_EACH_B_BLOCK));
         assertThat(planB.itBlock("block B.1"), is(IT_BLOCK_B1));
