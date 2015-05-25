@@ -89,7 +89,7 @@ public class J8SpecRunnerTest {
         Description blockA1Description = runner.describeChild(itBlocks.get(2));
 
         assertThat(blockA1Description.getClassName(), is("j8spec.junit.J8SpecRunnerTest$SampleSpec"));
-        assertThat(blockA1Description.getMethodName(), is("describe A block A.1"));
+        assertThat(blockA1Description.getMethodName(), is("block A.1, describe A"));
     }
 
     @Test
