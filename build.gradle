@@ -16,3 +16,7 @@ dependencies {
     compile     group: 'junit',         name: 'junit',          version: '4.12'
     testCompile group: 'org.mockito',   name: 'mockito-core',   version: '1.10.19'
 }
+
+artifacts {
+    archives jar
+}
