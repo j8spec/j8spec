@@ -3,13 +3,19 @@ j8spec [![Build Status](https://travis-ci.org/tprado/j8spec.svg?branch=master)](
 
 RSpec/Jasmine like specs with Java Lambda Expressions.
 
+### Release 1.0.0
+
+- `describe`, `beforeEach`, and `it`
+
+### Next Releases
+
+- `afterEach`, `beforeAll`, `afterAll`, `xdescribe`, `xit`, `fdescribe`, and `fit`
 
 ### Sample Spec:
 
 ```java
 @RunWith(J8SpecRunner.class)
 public class MyObjectTest {{
-
 
     final Var<MyObject> myObject = var();
 
