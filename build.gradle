@@ -9,9 +9,14 @@ repositories {
 
 jar {
     baseName = 'j8spec'
-    version = '1.0'
+    version = '1.0.0-SNAPSHOT'
 }
 
 dependencies {
-    compile group: 'junit', name: 'junit', version: '4.12'
+    compile     group: 'junit',         name: 'junit',          version: '4.12'
+    testCompile group: 'org.mockito',   name: 'mockito-core',   version: '1.10.19'
+}
+
+artifacts {
+    archives jar
 }
