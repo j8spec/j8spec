@@ -5,8 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class J8Spec {
+public final class J8Spec {
 
+    // FIXME: make it thread-safe
     private static Spec currentSpec;
 
     public static void describe(String description, Runnable body) {
@@ -93,4 +94,6 @@ public class J8Spec {
             return newPlan;
         }
     }
+
+    private J8Spec() {}
 }
