@@ -108,4 +108,19 @@ public class J8SpecTest {
     public void throwsExceptionWhenFailsToEvaluateSpec() {
         executionPlanFor(BadSpec.class);
     }
+
+    @Test(expected = J8SpecException.class)
+    public void doesNotAllowDescribeMethodToBeInvokedDirectly() {
+        J8Spec.describe("some text", () -> {});
+    }
+
+    @Test(expected = J8SpecException.class)
+    public void doesNotAllowBeforeEachMethodToBeInvokedDirectly() {
+        J8Spec.beforeEach(() -> {});
+    }
+
+    @Test(expected = J8SpecException.class)
+    public void doesNotAllowItMethodToBeInvokedDirectly() {
+        J8Spec.it("some text", () -> {});
+    }
 }

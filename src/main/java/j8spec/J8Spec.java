@@ -11,15 +11,24 @@ public final class J8Spec {
     private static Spec currentSpec;
 
     public static void describe(String description, Runnable body) {
+        isValidContext("describe");
         currentSpec.describe(description, body); // TODO check if currentSpec is null
     }
 
     public static void beforeEach(Runnable body) {
+        isValidContext("beforeEach");
         currentSpec.beforeEach(body);
     }
 
     public static void it(String description, Runnable body) {
+        isValidContext("it");
         currentSpec.it(description, body);
+    }
+
+    private static void isValidContext(final String methodName) {
+        if (currentSpec == null) {
+            throw new J8SpecException("'" + methodName + "' should not be invoked from outside a spec definition.");
+        }
     }
 
     public static ExecutionPlan executionPlanFor(Class<?> testClass) {
