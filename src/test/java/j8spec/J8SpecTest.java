@@ -2,7 +2,10 @@ package j8spec;
 
 import org.junit.Test;
 
+import java.util.Collections;
+
 import static j8spec.J8Spec.*;
+import static j8spec.Var.var;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -26,6 +29,32 @@ public class J8SpecTest {
     private static final Runnable IT_BLOCK_B2 = () -> {};
 
     static class EmptySpec {}
+
+    static class BadSpec {
+        private BadSpec() {}
+    }
+
+    static class BeforeEachBlockOverwrittenSpec {{
+        beforeEach(() -> {});
+        beforeEach(() -> {});
+    }}
+
+    static class ItBlockOverwrittenSpec {{
+        it("some text", () -> {});
+        it("some text", () -> {});
+    }}
+
+    static class ThreadThatSleeps2sSpec {{
+        describe("forces thread to sleep", () -> {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            it("block", () -> {});
+        });
+    }}
 
     static class SampleSpec {{
         beforeEach(BEFORE_EACH_BLOCK);
@@ -98,5 +127,72 @@ public class J8SpecTest {
         assertThat(planB.beforeEachBlock(), is(BEFORE_EACH_B_BLOCK));
         assertThat(planB.itBlock("block B.1"), is(IT_BLOCK_B1));
         assertThat(planB.itBlock("block B.2"), is(IT_BLOCK_B2));
+    }
+
+    @Test(expected = SpecInitializationException.class)
+    public void throwsExceptionWhenFailsToEvaluateSpec() {
+        executionPlanFor(BadSpec.class);
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void doesNotAllowDescribeMethodDirectInvocation() {
+        J8Spec.describe("some text", () -> {});
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void forgetsLastSpec() {
+        executionPlanFor(SampleSpec.class);
+        J8Spec.describe("some text", () -> {});
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void forgetsLastSpecAfterTheLastSpecEvaluationFails() {
+        try {
+            executionPlanFor(ItBlockOverwrittenSpec.class);
+        } catch (BlockAlreadyDefinedException e) {
+        }
+
+        J8Spec.it("some text", () -> {});
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void doesNotAllowBeforeEachMethodDirectInvocation() {
+        J8Spec.beforeEach(() -> {});
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void doesNotAllowItMethodDirectInvocation() {
+        J8Spec.it("some text", () -> {});
+    }
+
+    @Test(expected = BlockAlreadyDefinedException.class)
+    public void doesNotAllowBeforeEachBlockToBeReplaced() {
+        executionPlanFor(BeforeEachBlockOverwrittenSpec.class);
+    }
+
+    @Test(expected = BlockAlreadyDefinedException.class)
+    public void doesNotAllowItBlockToBeReplaced() {
+        executionPlanFor(ItBlockOverwrittenSpec.class);
+    }
+
+    @Test()
+    public void allowsMultipleThreadsToBuildPlans() throws InterruptedException {
+        final Var<ExecutionPlan> sleepPlan = var();
+
+        Thread anotherExecutionPlanThread = new Thread(() -> {
+            var(sleepPlan, executionPlanFor(ThreadThatSleeps2sSpec.class));
+        });
+        anotherExecutionPlanThread.start();
+
+        Thread.sleep(1000);
+
+        ExecutionPlan emptyExecutionPlan = executionPlanFor(EmptySpec.class);
+
+        anotherExecutionPlanThread.join();
+
+        assertThat(emptyExecutionPlan.allItBlocks(), is(Collections.<ItBlock>emptyList()));
+
+        assertThat(var(sleepPlan).allItBlocks().size(), is(1));
+        assertThat(var(sleepPlan).allItBlocks().get(0).getDescription(), is("block"));
     }
 }

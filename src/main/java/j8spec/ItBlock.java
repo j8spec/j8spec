@@ -4,7 +4,7 @@ import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
 
-public class ItBlock {
+public final class ItBlock {
 
     private final List<String> containerDescriptions;
     private final String description;

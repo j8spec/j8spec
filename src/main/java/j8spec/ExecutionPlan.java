@@ -6,7 +6,7 @@ import java.util.Map;
 
 import static java.util.Collections.*;
 
-public class ExecutionPlan {
+public final class ExecutionPlan {
 
     private static final String LS = System.getProperty("line.separator");
 

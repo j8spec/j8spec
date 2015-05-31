@@ -1,6 +1,6 @@
 package j8spec;
 
-public class Var<T> {
+public final class Var<T> {
 
     public static <T> Var<T> var() {
         return new Var<>();

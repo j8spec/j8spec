@@ -17,7 +17,7 @@ import java.util.Map;
 import static java.util.Collections.unmodifiableList;
 import static org.junit.runner.Description.createTestDescription;
 
-public class J8SpecRunner extends ParentRunner<ItBlock> {
+public final class J8SpecRunner extends ParentRunner<ItBlock> {
 
     private final ExecutionPlan executionPlan;
     private final Map<ItBlock, Description> descriptions = new HashMap<>();

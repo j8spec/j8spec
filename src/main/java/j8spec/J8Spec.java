@@ -5,27 +5,38 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class J8Spec {
+public final class J8Spec {
 
-    private static Spec currentSpec;
+    private static final ThreadLocal<Spec> currentSpec = new ThreadLocal<>();
 
-    public static void describe(String description, Runnable body) {
-        currentSpec.describe(description, body); // TODO check if currentSpec is null
+    public static synchronized void describe(String description, Runnable body) {
+        isValidContext("describe");
+        currentSpec.get().describe(description, body);
     }
 
-    public static void beforeEach(Runnable body) {
-        currentSpec.beforeEach(body);
+    public static synchronized void beforeEach(Runnable body) {
+        isValidContext("beforeEach");
+        currentSpec.get().beforeEach(body);
     }
 
-    public static void it(String description, Runnable body) {
-        currentSpec.it(description, body);
+    public static synchronized void it(String description, Runnable body) {
+        isValidContext("it");
+        currentSpec.get().it(description, body);
     }
 
-    public static ExecutionPlan executionPlanFor(Class<?> testClass) {
-        currentSpec = new Spec(testClass);
-        ExecutionPlan plan = currentSpec.buildExecutionPlan();
-        currentSpec = null;
-        return plan;
+    private static void isValidContext(final String methodName) {
+        if (currentSpec.get() == null) {
+            throw new IllegalContextException("'" + methodName + "' should not be invoked from outside a spec definition.");
+        }
+    }
+
+    public static synchronized ExecutionPlan executionPlanFor(Class<?> testClass) {
+        currentSpec.set(new Spec(testClass));
+        try {
+            return currentSpec.get().buildExecutionPlan();
+        } finally {
+            currentSpec.set(null);
+        }
     }
 
     private static class Spec {
@@ -43,8 +54,10 @@ public class J8Spec {
             this.body = () -> {
                 try {
                     specClass.newInstance();
+                } catch (J8SpecException e) {
+                    throw e;
                 } catch (Exception e) {
-                    throw new RuntimeException(e); // FIXME RT exception
+                    throw new SpecInitializationException("Failed to create instance of " + specClass + ".", e);
                 }
             };
         }
@@ -60,11 +73,17 @@ public class J8Spec {
         }
 
         public void beforeEach(Runnable body) {
-            beforeEachBlock = body; // TODO warning about replace
+            if (beforeEachBlock != null) {
+                throw new BlockAlreadyDefinedException("beforeEach block already defined");
+            }
+            beforeEachBlock = body;
         }
 
         public void it(String description, Runnable body) {
-            itBlocks.put(description, body); // TODO warning about replace
+            if (itBlocks.containsKey(description)) {
+                throw new BlockAlreadyDefinedException("'" + description + "' block already defined");
+            }
+            itBlocks.put(description, body);
         }
 
         public ExecutionPlan buildExecutionPlan() {
@@ -72,8 +91,8 @@ public class J8Spec {
         }
 
         private ExecutionPlan populateExecutionPlan(ExecutionPlan parentPlan) {
-            Spec previousSpec = J8Spec.currentSpec;
-            J8Spec.currentSpec = this;
+            Spec previousSpec = J8Spec.currentSpec.get();
+            J8Spec.currentSpec.set(this);
 
             body.run();
 
@@ -88,9 +107,11 @@ public class J8Spec {
                 spec.populateExecutionPlan(newPlan);
             }
 
-            J8Spec.currentSpec = previousSpec;
+            J8Spec.currentSpec.set(previousSpec);
 
             return newPlan;
         }
     }
+
+    private J8Spec() {}
 }
