@@ -44,7 +44,7 @@ public class J8Spec {
                 try {
                     specClass.newInstance();
                 } catch (Exception e) {
-                    throw new RuntimeException(e); // FIXME RT exception
+                    throw new J8SpecException("Failed to create instance of " + specClass + ".", e);
                 }
             };
         }

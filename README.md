@@ -10,6 +10,8 @@ RSpec/Jasmine like specs with Java Lambda Expressions.
 ### Next Releases
 
 - `afterEach`, `beforeAll`, `afterAll`, `xdescribe`, `xit`, `fdescribe`, and `fit`
+- timeout
+- expected exception
 
 ### Sample Spec:
 

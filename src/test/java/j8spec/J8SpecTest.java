@@ -27,6 +27,10 @@ public class J8SpecTest {
 
     static class EmptySpec {}
 
+    static class BadSpec {
+        private BadSpec() {}
+    }
+
     static class SampleSpec {{
         beforeEach(BEFORE_EACH_BLOCK);
 
@@ -98,5 +102,10 @@ public class J8SpecTest {
         assertThat(planB.beforeEachBlock(), is(BEFORE_EACH_B_BLOCK));
         assertThat(planB.itBlock("block B.1"), is(IT_BLOCK_B1));
         assertThat(planB.itBlock("block B.2"), is(IT_BLOCK_B2));
+    }
+
+    @Test(expected = J8SpecException.class)
+    public void throwsExceptionWhenFailsToEvaluateSpec() {
+        executionPlanFor(BadSpec.class);
     }
 }
