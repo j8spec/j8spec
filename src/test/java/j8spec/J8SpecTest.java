@@ -114,34 +114,49 @@ public class J8SpecTest {
         assertThat(planB.itBlock("block B.2"), is(IT_BLOCK_B2));
     }
 
-    @Test(expected = J8SpecException.class)
+    @Test(expected = SpecInitializationException.class)
     public void throwsExceptionWhenFailsToEvaluateSpec() {
         executionPlanFor(BadSpec.class);
     }
 
-    @Test(expected = J8SpecException.class)
+    @Test(expected = IllegalContextException.class)
     public void doesNotAllowDescribeMethodDirectInvocation() {
         J8Spec.describe("some text", () -> {});
     }
 
-    @Test(expected = J8SpecException.class)
+    @Test(expected = IllegalContextException.class)
+    public void forgetsLastSpec() {
+        executionPlanFor(SampleSpec.class);
+        J8Spec.describe("some text", () -> {});
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void forgetsLastSpecAfterTheLastSpecEvaluationFails() {
+        try {
+            executionPlanFor(ItBlockOverwrittenSpec.class);
+        } catch (BlockAlreadyDefinedException e) {
+        }
+
+        J8Spec.it("some text", () -> {});
+    }
+
+    @Test(expected = IllegalContextException.class)
     public void doesNotAllowBeforeEachMethodDirectInvocation() {
         J8Spec.beforeEach(() -> {});
     }
 
-    @Test(expected = J8SpecException.class)
+    @Test(expected = IllegalContextException.class)
     public void doesNotAllowItMethodDirectInvocation() {
-        J8Spec.it("some text", () -> {
-        });
+        J8Spec.it("some text", () -> {});
     }
 
-    @Test(expected = J8SpecException.class)
-    public void doesNotAllowBeforeEachBlockToBeReplace() {
+    @Test(expected = BlockAlreadyDefinedException.class)
+    public void doesNotAllowBeforeEachBlockToBeReplaced() {
         executionPlanFor(BeforeEachBlockOverwrittenSpec.class);
     }
 
-    @Test(expected = J8SpecException.class)
-    public void doesNotAllowItBlockToBeReplace() {
+    @Test(expected = BlockAlreadyDefinedException.class)
+    public void doesNotAllowItBlockToBeReplaced() {
         executionPlanFor(ItBlockOverwrittenSpec.class);
     }
 }

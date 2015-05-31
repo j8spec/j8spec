@@ -27,15 +27,17 @@ public final class J8Spec {
 
     private static void isValidContext(final String methodName) {
         if (currentSpec == null) {
-            throw new J8SpecException("'" + methodName + "' should not be invoked from outside a spec definition.");
+            throw new IllegalContextException("'" + methodName + "' should not be invoked from outside a spec definition.");
         }
     }
 
     public static ExecutionPlan executionPlanFor(Class<?> testClass) {
         currentSpec = new Spec(testClass);
-        ExecutionPlan plan = currentSpec.buildExecutionPlan();
-        currentSpec = null;
-        return plan;
+        try {
+            return currentSpec.buildExecutionPlan();
+        } finally {
+            currentSpec = null;
+        }
     }
 
     private static class Spec {
@@ -53,8 +55,10 @@ public final class J8Spec {
             this.body = () -> {
                 try {
                     specClass.newInstance();
+                } catch (J8SpecException e) {
+                    throw e;
                 } catch (Exception e) {
-                    throw new J8SpecException("Failed to create instance of " + specClass + ".", e);
+                    throw new SpecInitializationException("Failed to create instance of " + specClass + ".", e);
                 }
             };
         }
@@ -71,14 +75,14 @@ public final class J8Spec {
 
         public void beforeEach(Runnable body) {
             if (beforeEachBlock != null) {
-                throw new J8SpecException("beforeEach block already defined");
+                throw new BlockAlreadyDefinedException("beforeEach block already defined");
             }
             beforeEachBlock = body;
         }
 
         public void it(String description, Runnable body) {
             if (itBlocks.containsKey(description)) {
-                throw new J8SpecException("'" + description + "' block already defined");
+                throw new BlockAlreadyDefinedException("'" + description + "' block already defined");
             }
             itBlocks.put(description, body);
         }
