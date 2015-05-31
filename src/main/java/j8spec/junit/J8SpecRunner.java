@@ -4,6 +4,7 @@ import j8spec.ExecutionPlan;
 import j8spec.ItBlock;
 import j8spec.J8Spec;
 import org.junit.runner.Description;
+import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.ParentRunner;
 import org.junit.runners.model.InitializationError;
@@ -63,7 +64,11 @@ public class J8SpecRunner extends ParentRunner<ItBlock> {
     @Override
     protected void runChild(ItBlock itBlock, RunNotifier notifier) {
         notifier.fireTestStarted(describeChild(itBlock));
-        // TODO actually run the spec
+        try {
+            itBlock.getBody().run();
+        } catch (Throwable t) {
+            notifier.fireTestFailure(new Failure(describeChild(itBlock), t));
+        }
         notifier.fireTestFinished(describeChild(itBlock));
     }
 }
