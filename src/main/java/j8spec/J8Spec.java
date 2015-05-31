@@ -7,36 +7,35 @@ import java.util.Map;
 
 public final class J8Spec {
 
-    // FIXME: make it thread-safe
-    private static Spec currentSpec;
+    private static final ThreadLocal<Spec> currentSpec = new ThreadLocal<>();
 
-    public static void describe(String description, Runnable body) {
+    public static synchronized void describe(String description, Runnable body) {
         isValidContext("describe");
-        currentSpec.describe(description, body);
+        currentSpec.get().describe(description, body);
     }
 
-    public static void beforeEach(Runnable body) {
+    public static synchronized void beforeEach(Runnable body) {
         isValidContext("beforeEach");
-        currentSpec.beforeEach(body);
+        currentSpec.get().beforeEach(body);
     }
 
-    public static void it(String description, Runnable body) {
+    public static synchronized void it(String description, Runnable body) {
         isValidContext("it");
-        currentSpec.it(description, body);
+        currentSpec.get().it(description, body);
     }
 
     private static void isValidContext(final String methodName) {
-        if (currentSpec == null) {
+        if (currentSpec.get() == null) {
             throw new IllegalContextException("'" + methodName + "' should not be invoked from outside a spec definition.");
         }
     }
 
-    public static ExecutionPlan executionPlanFor(Class<?> testClass) {
-        currentSpec = new Spec(testClass);
+    public static synchronized ExecutionPlan executionPlanFor(Class<?> testClass) {
+        currentSpec.set(new Spec(testClass));
         try {
-            return currentSpec.buildExecutionPlan();
+            return currentSpec.get().buildExecutionPlan();
         } finally {
-            currentSpec = null;
+            currentSpec.set(null);
         }
     }
 
@@ -92,8 +91,8 @@ public final class J8Spec {
         }
 
         private ExecutionPlan populateExecutionPlan(ExecutionPlan parentPlan) {
-            Spec previousSpec = J8Spec.currentSpec;
-            J8Spec.currentSpec = this;
+            Spec previousSpec = J8Spec.currentSpec.get();
+            J8Spec.currentSpec.set(this);
 
             body.run();
 
@@ -108,7 +107,7 @@ public final class J8Spec {
                 spec.populateExecutionPlan(newPlan);
             }
 
-            J8Spec.currentSpec = previousSpec;
+            J8Spec.currentSpec.set(previousSpec);
 
             return newPlan;
         }

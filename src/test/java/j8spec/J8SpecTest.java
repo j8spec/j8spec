@@ -2,7 +2,10 @@ package j8spec;
 
 import org.junit.Test;
 
+import java.util.Collections;
+
 import static j8spec.J8Spec.*;
+import static j8spec.Var.var;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -39,6 +42,18 @@ public class J8SpecTest {
     static class ItBlockOverwrittenSpec {{
         it("some text", () -> {});
         it("some text", () -> {});
+    }}
+
+    static class ThreadThatSleeps2sSpec {{
+        describe("forces thread to sleep", () -> {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            it("block", () -> {});
+        });
     }}
 
     static class SampleSpec {{
@@ -158,5 +173,26 @@ public class J8SpecTest {
     @Test(expected = BlockAlreadyDefinedException.class)
     public void doesNotAllowItBlockToBeReplaced() {
         executionPlanFor(ItBlockOverwrittenSpec.class);
+    }
+
+    @Test()
+    public void allowsMultipleThreadsToBuildPlans() throws InterruptedException {
+        final Var<ExecutionPlan> sleepPlan = var();
+
+        Thread anotherExecutionPlanThread = new Thread(() -> {
+            var(sleepPlan, executionPlanFor(ThreadThatSleeps2sSpec.class));
+        });
+        anotherExecutionPlanThread.start();
+
+        Thread.sleep(1000);
+
+        ExecutionPlan emptyExecutionPlan = executionPlanFor(EmptySpec.class);
+
+        anotherExecutionPlanThread.join();
+
+        assertThat(emptyExecutionPlan.allItBlocks(), is(Collections.<ItBlock>emptyList()));
+
+        assertThat(var(sleepPlan).allItBlocks().size(), is(1));
+        assertThat(var(sleepPlan).allItBlocks().get(0).getDescription(), is("block"));
     }
 }
