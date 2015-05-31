@@ -31,6 +31,16 @@ public class J8SpecTest {
         private BadSpec() {}
     }
 
+    static class BeforeEachBlockOverwrittenSpec {{
+        beforeEach(() -> {});
+        beforeEach(() -> {});
+    }}
+
+    static class ItBlockOverwrittenSpec {{
+        it("some text", () -> {});
+        it("some text", () -> {});
+    }}
+
     static class SampleSpec {{
         beforeEach(BEFORE_EACH_BLOCK);
 
@@ -110,17 +120,28 @@ public class J8SpecTest {
     }
 
     @Test(expected = J8SpecException.class)
-    public void doesNotAllowDescribeMethodToBeInvokedDirectly() {
+    public void doesNotAllowDescribeMethodDirectInvocation() {
         J8Spec.describe("some text", () -> {});
     }
 
     @Test(expected = J8SpecException.class)
-    public void doesNotAllowBeforeEachMethodToBeInvokedDirectly() {
+    public void doesNotAllowBeforeEachMethodDirectInvocation() {
         J8Spec.beforeEach(() -> {});
     }
 
     @Test(expected = J8SpecException.class)
-    public void doesNotAllowItMethodToBeInvokedDirectly() {
-        J8Spec.it("some text", () -> {});
+    public void doesNotAllowItMethodDirectInvocation() {
+        J8Spec.it("some text", () -> {
+        });
+    }
+
+    @Test(expected = J8SpecException.class)
+    public void doesNotAllowBeforeEachBlockToBeReplace() {
+        executionPlanFor(BeforeEachBlockOverwrittenSpec.class);
+    }
+
+    @Test(expected = J8SpecException.class)
+    public void doesNotAllowItBlockToBeReplace() {
+        executionPlanFor(ItBlockOverwrittenSpec.class);
     }
 }

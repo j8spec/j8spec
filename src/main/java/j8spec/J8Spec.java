@@ -12,7 +12,7 @@ public final class J8Spec {
 
     public static void describe(String description, Runnable body) {
         isValidContext("describe");
-        currentSpec.describe(description, body); // TODO check if currentSpec is null
+        currentSpec.describe(description, body);
     }
 
     public static void beforeEach(Runnable body) {
@@ -70,11 +70,17 @@ public final class J8Spec {
         }
 
         public void beforeEach(Runnable body) {
-            beforeEachBlock = body; // TODO warning about replace
+            if (beforeEachBlock != null) {
+                throw new J8SpecException("beforeEach block already defined");
+            }
+            beforeEachBlock = body;
         }
 
         public void it(String description, Runnable body) {
-            itBlocks.put(description, body); // TODO warning about replace
+            if (itBlocks.containsKey(description)) {
+                throw new J8SpecException("'" + description + "' block already defined");
+            }
+            itBlocks.put(description, body);
         }
 
         public ExecutionPlan buildExecutionPlan() {
