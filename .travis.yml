@@ -1,4 +1,7 @@
 language: java
-
 jdk:
   - oraclejdk8
+
+before_install:
+  - openssl aes-256-cbc -K $encrypted_18b3524e999c_key -iv $encrypted_18b3524e999c_iv -in secrets.tar.enc -out secrets.tar -d
+  - tar xf secrets.tar
