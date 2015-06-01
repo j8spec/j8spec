@@ -1,15 +1,24 @@
+defaultTasks 'clean', 'install'
+
 apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+group = 'io.github.j8spec'
+version = '1.0.0-SNAPSHOT'
+ext.isReleaseBuild = !version.endsWith("SNAPSHOT")
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
-repositories {
-    mavenCentral()
+if (isReleaseBuild) {
+    ext.'signing.keyId' = System.env.J8SPEC_SIGNING_KEY_ID
+    ext.'signing.secretKeyRingFile' = System.env.J8SPEC_SIGNING_KEY_RING_FILE
+    ext.'signing.password' = System.env.J8SPEC_SIGNING_PASSWORD
 }
 
-jar {
-    baseName = 'j8spec'
-    version = '1.0.0-SNAPSHOT'
+repositories {
+    mavenCentral()
 }
 
 dependencies {
@@ -17,6 +26,76 @@ dependencies {
     testCompile group: 'org.mockito',   name: 'mockito-core',   version: '1.10.19'
 }
 
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
 artifacts {
     archives jar
+    archives javadocJar
+    archives sourcesJar
 }
+
+signing {
+    required { isReleaseBuild }
+    sign configurations.archives
+}
+
+uploadArchives {
+    doFirst {
+        if (!System.env.J8SPEC_SONATYPE_USERNAME || !System.env.J8SPEC_SONATYPE_PASSWORD) {
+            throw new GradleException('J8SPEC_SONATYPE_USERNAME or J8SPEC_SONATYPE_PASSWORD environment variables not defined (required for uploading artifacts).')
+        }
+    }
+
+    repositories {
+        mavenDeployer {
+            beforeDeployment { deployment -> signing.signPom(deployment) }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
+                authentication(userName: System.env.J8SPEC_SONATYPE_USERNAME, password: System.env.J8SPEC_SONATYPE_PASSWORD)
+            }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
+                authentication(userName: System.env.J8SPEC_SONATYPE_USERNAME, password: System.env.J8SPEC_SONATYPE_PASSWORD)
+            }
+
+            pom.project {
+                name 'j8spec'
+                description 'RSpec/Jasmine like specs with Java 8 Lambda Expressions'
+
+                url 'http://j8spec.github.io'
+
+                scm {
+                    url 'scm:https://github.com/j8spec/j8spec.git'
+                    connection 'scm:https://github.com/j8spec/j8spec.git'
+                    developerConnection 'scm:https://github.com/j8spec/j8spec.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'tprado'
+                        name 'Thiago Prado'
+                        email 'tprado@thoughtworks.com'
+                    }
+                }
+            }
+        }
+    }
+}
+
+install.dependsOn check, test

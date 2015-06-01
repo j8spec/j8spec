@@ -1,7 +1,7 @@
 j8spec [![Build Status](https://travis-ci.org/j8spec/j8spec.svg?branch=master)](https://travis-ci.org/j8spec/j8spec)
 ======
 
-RSpec/Jasmine like specs with Java Lambda Expressions.
+[RSpec](http://rspec.info/)/[Jasmine](http://jasmine.github.io/) like specs with Java 8 Lambda Expressions.
 
 ### Release 1.0.0
 
