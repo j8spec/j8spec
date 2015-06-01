@@ -80,12 +80,11 @@ uploadArchives {
 
                 licenses {
                     license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        name 'The MIT License'
+                        url 'http://github.com/j8spec/j8spec/blob/master/LICENSE'
                         distribution 'repo'
                     }
                 }
-
                 developers {
                     developer {
                         id 'tprado'
