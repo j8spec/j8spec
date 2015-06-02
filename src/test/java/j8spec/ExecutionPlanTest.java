@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.join;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -128,5 +129,20 @@ public class ExecutionPlanTest {
         assertThat(blocks.get(2).beforeEachBlocks().get(0), is(beforeEachBlock));
         assertThat(blocks.get(2).beforeEachBlocks().get(1), is(beforeEachBlockA));
         assertThat(blocks.get(2).getBody(), is(blockA1));
+    }
+
+    @Test
+    public void supportsNullBeforeEachBlocks() {
+        Map<String, Runnable> itBlocks = new HashMap<>();
+        itBlocks.put("block 1", () -> {});
+        itBlocks.put("block 2", () -> {});
+
+        ExecutionPlan plan = new ExecutionPlan(
+            SampleSpec.class,
+            null,
+            itBlocks
+        );
+
+        assertThat(plan.allItBlocks().get(0).beforeEachBlocks(), is(emptyList()));
     }
 }
