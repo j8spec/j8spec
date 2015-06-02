@@ -126,7 +126,10 @@ public final class ExecutionPlan {
             beforeEachBlocks = parent.allBeforeEachBlocks();
         }
 
-        beforeEachBlocks.add(beforeEachBlock);
+        if (beforeEachBlock != null) {
+            beforeEachBlocks.add(beforeEachBlock);
+        }
+
         return beforeEachBlocks;
     }
 
