@@ -5,7 +5,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'io.github.j8spec'
-version = '1.0.0-SNAPSHOT'
+version = '1.0.0'
 ext.isReleaseBuild = !version.endsWith("SNAPSHOT")
 
 sourceCompatibility = '1.8'
