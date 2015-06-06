@@ -7,14 +7,14 @@ import org.junit.runner.notification.RunListener;
 public class RunListenerHelper extends RunListener {
 
     private Description description;
-    private Throwable expection;
+    private Throwable exception;
 
     @Override
     public void testFailure(Failure failure) throws Exception {
         super.testFailure(failure);
 
         description = failure.getDescription();
-        expection = failure.getException();
+        exception = failure.getException();
     }
 
 
@@ -22,7 +22,7 @@ public class RunListenerHelper extends RunListener {
         return description;
     }
 
-    public Throwable getExpection() {
-        return expection;
+    public Throwable getException() {
+        return exception;
     }
 }
