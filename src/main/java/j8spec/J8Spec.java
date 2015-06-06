@@ -26,7 +26,9 @@ public final class J8Spec {
 
     private static void isValidContext(final String methodName) {
         if (currentSpec.get() == null) {
-            throw new IllegalContextException("'" + methodName + "' should not be invoked from outside a spec definition.");
+            throw new IllegalContextException(
+                "'" + methodName + "' should not be invoked from outside a spec definition."
+            );
         }
     }
 

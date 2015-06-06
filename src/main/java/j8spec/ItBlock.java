@@ -11,11 +11,21 @@ public final class ItBlock implements Runnable {
     private final List<Runnable> beforeEachBlocks;
     private final Runnable body;
 
-    public static ItBlock newItBlock(List<String> containerDescriptions, String description, List<Runnable> beforeEachBlocks, Runnable body) {
+    public static ItBlock newItBlock(
+        List<String> containerDescriptions,
+        String description,
+        List<Runnable> beforeEachBlocks,
+        Runnable body
+    ) {
         return new ItBlock(containerDescriptions, description, beforeEachBlocks, body);
     }
 
-    private ItBlock(List<String> containerDescriptions, String description, List<Runnable> beforeEachBlocks, Runnable body) {
+    private ItBlock(
+        List<String> containerDescriptions,
+        String description,
+        List<Runnable> beforeEachBlocks,
+        Runnable body
+    ) {
         this.containerDescriptions = unmodifiableList(containerDescriptions);
         this.description = description;
         this.beforeEachBlocks = unmodifiableList(beforeEachBlocks);

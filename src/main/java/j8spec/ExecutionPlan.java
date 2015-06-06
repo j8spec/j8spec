@@ -26,7 +26,12 @@ public final class ExecutionPlan {
         this.itBlocks = unmodifiableMap(itBlocks);
     }
 
-    public ExecutionPlan(ExecutionPlan parent, String description, Runnable beforeEachBlock, Map<String, Runnable> itBlocks) {
+    public ExecutionPlan(
+        ExecutionPlan parent,
+        String description,
+        Runnable beforeEachBlock,
+        Map<String, Runnable> itBlocks
+    ) {
         this.parent = parent;
         this.specClass = parent.specClass;
         this.description = description;
