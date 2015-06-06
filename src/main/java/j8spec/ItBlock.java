@@ -32,7 +32,7 @@ public final class ItBlock implements Runnable {
         this.body = body;
     }
 
-    public String getDescription() {
+    public String description() {
         return description;
     }
 
@@ -50,7 +50,7 @@ public final class ItBlock implements Runnable {
         return beforeBlocks;
     }
 
-    Runnable getBody() {
+    Runnable body() {
         return body;
     }
 }

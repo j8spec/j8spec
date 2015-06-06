@@ -73,8 +73,8 @@ public class J8SpecRunnerTest {
 
         List<ItBlock> itBlocks = runner.getChildren();
 
-        assertThat(itBlocks.get(0).getDescription(), is(BLOCK_1));
-        assertThat(itBlocks.get(1).getDescription(), is(BLOCK_2));
+        assertThat(itBlocks.get(0).description(), is(BLOCK_1));
+        assertThat(itBlocks.get(1).description(), is(BLOCK_2));
     }
 
     @Test

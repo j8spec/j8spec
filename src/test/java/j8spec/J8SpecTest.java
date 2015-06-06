@@ -193,6 +193,6 @@ public class J8SpecTest {
         assertThat(emptyExecutionPlan.allItBlocks(), is(Collections.<ItBlock>emptyList()));
 
         assertThat(var(sleepPlan).allItBlocks().size(), is(1));
-        assertThat(var(sleepPlan).allItBlocks().get(0).getDescription(), is("block"));
+        assertThat(var(sleepPlan).allItBlocks().get(0).description(), is("block"));
     }
 }
