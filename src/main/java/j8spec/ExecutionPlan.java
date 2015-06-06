@@ -103,6 +103,10 @@ public final class ExecutionPlan {
         return new LinkedList<>(plans);
     }
 
+    Runnable beforeAllBlock() {
+        return beforeAllBlock;
+    }
+
     Runnable beforeEachBlock() {
         return beforeEachBlock;
     }
