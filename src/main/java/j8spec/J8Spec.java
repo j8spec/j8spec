@@ -100,9 +100,9 @@ public final class J8Spec {
 
             ExecutionPlan newPlan;
             if (parentPlan == null) {
-                newPlan = new ExecutionPlan(specClass, beforeEachBlock, itBlocks);
+                newPlan = new ExecutionPlan(specClass, null, beforeEachBlock, itBlocks);
             } else {
-                newPlan = parentPlan.newChildPlan(description, beforeEachBlock, itBlocks);
+                newPlan = parentPlan.newChildPlan(description, null, beforeEachBlock, itBlocks);
             }
 
             for (Spec spec : describeBlocks) {
