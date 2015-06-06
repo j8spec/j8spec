@@ -115,19 +115,19 @@ public class ExecutionPlanTest {
 
         assertThat(blocks.get(0).description(), is("block 1"));
         assertThat(blocks.get(0).containerDescriptions().get(0), is("j8spec.ExecutionPlanTest$SampleSpec"));
-        assertThat(blocks.get(0).beforeEachBlocks().get(0), is(beforeEachBlock));
+        assertThat(blocks.get(0).beforeBlocks().get(0), is(beforeEachBlock));
         assertThat(blocks.get(0).body(), is(block1));
 
         assertThat(blocks.get(1).description(), is("block 2"));
         assertThat(blocks.get(1).containerDescriptions().get(0), is("j8spec.ExecutionPlanTest$SampleSpec"));
-        assertThat(blocks.get(1).beforeEachBlocks().get(0), is(beforeEachBlock));
+        assertThat(blocks.get(1).beforeBlocks().get(0), is(beforeEachBlock));
         assertThat(blocks.get(1).body(), is(block2));
 
         assertThat(blocks.get(2).description(), is("block A1"));
         assertThat(blocks.get(2).containerDescriptions().get(0), is("j8spec.ExecutionPlanTest$SampleSpec"));
         assertThat(blocks.get(2).containerDescriptions().get(1), is("describe A"));
-        assertThat(blocks.get(2).beforeEachBlocks().get(0), is(beforeEachBlock));
-        assertThat(blocks.get(2).beforeEachBlocks().get(1), is(beforeEachBlockA));
+        assertThat(blocks.get(2).beforeBlocks().get(0), is(beforeEachBlock));
+        assertThat(blocks.get(2).beforeBlocks().get(1), is(beforeEachBlockA));
         assertThat(blocks.get(2).body(), is(blockA1));
     }
 
@@ -143,6 +143,6 @@ public class ExecutionPlanTest {
             itBlocks
         );
 
-        assertThat(plan.allItBlocks().get(0).beforeEachBlocks(), is(emptyList()));
+        assertThat(plan.allItBlocks().get(0).beforeBlocks(), is(emptyList()));
     }
 }

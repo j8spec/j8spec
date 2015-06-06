@@ -46,7 +46,7 @@ public final class ItBlock implements Runnable {
         body.run();
     }
 
-    List<Runnable> beforeEachBlocks() {
+    List<Runnable> beforeBlocks() {
         return beforeBlocks;
     }
 
