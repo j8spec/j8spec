@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static j8spec.BeforeBlock.newBeforeEachBlock;
 import static j8spec.ItBlock.newItBlock;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
@@ -21,8 +22,8 @@ public class ItBlockTest {
             Collections.<String>emptyList(),
             "it block",
             asList(
-                () -> executionOrder.add("beforeEach1"),
-                () -> executionOrder.add("beforeEach2")
+                newBeforeEachBlock(() -> executionOrder.add("beforeEach1")),
+                newBeforeEachBlock(() -> executionOrder.add("beforeEach2"))
             ),
             () -> executionOrder.add("body")
         ).run();

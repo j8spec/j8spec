@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static j8spec.BeforeBlock.newBeforeEachBlock;
 import static j8spec.ItBlock.newItBlock;
 import static java.util.Collections.*;
 
@@ -105,7 +106,7 @@ public final class ExecutionPlan {
                 newItBlock(
                     allContainerDescriptions(),
                     itBlock.getKey(),
-                    allBeforeEachBlocks(),
+                    allBeforeBlocks(),
                     itBlock.getValue()
                 )
             );
@@ -129,17 +130,17 @@ public final class ExecutionPlan {
         return containerDescriptions;
     }
 
-    private List<Runnable> allBeforeEachBlocks() {
-        List<Runnable> beforeEachBlocks;
+    private List<BeforeBlock> allBeforeBlocks() {
+        List<BeforeBlock> beforeEachBlocks;
 
         if (isRootPlan()) {
             beforeEachBlocks = new LinkedList<>();
         } else {
-            beforeEachBlocks = parent.allBeforeEachBlocks();
+            beforeEachBlocks = parent.allBeforeBlocks();
         }
 
         if (beforeEachBlock != null) {
-            beforeEachBlocks.add(beforeEachBlock);
+            beforeEachBlocks.add(newBeforeEachBlock(beforeEachBlock));
         }
 
         return beforeEachBlocks;

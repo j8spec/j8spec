@@ -8,13 +8,13 @@ public final class ItBlock implements Runnable {
 
     private final List<String> containerDescriptions;
     private final String description;
-    private final List<Runnable> beforeBlocks;
+    private final List<BeforeBlock> beforeBlocks;
     private final Runnable body;
 
     static ItBlock newItBlock(
         List<String> containerDescriptions,
         String description,
-        List<Runnable> beforeBlocks,
+        List<BeforeBlock> beforeBlocks,
         Runnable body
     ) {
         return new ItBlock(containerDescriptions, description, beforeBlocks, body);
@@ -23,7 +23,7 @@ public final class ItBlock implements Runnable {
     private ItBlock(
         List<String> containerDescriptions,
         String description,
-        List<Runnable> beforeBlocks,
+        List<BeforeBlock> beforeBlocks,
         Runnable body
     ) {
         this.containerDescriptions = unmodifiableList(containerDescriptions);
@@ -46,7 +46,7 @@ public final class ItBlock implements Runnable {
         body.run();
     }
 
-    List<Runnable> beforeBlocks() {
+    List<BeforeBlock> beforeBlocks() {
         return beforeBlocks;
     }
 
