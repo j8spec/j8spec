@@ -40,6 +40,7 @@ public final class ItBlock implements Runnable {
 
     @Override
     public void run() {
+        beforeEachBlocks.forEach(Runnable::run);
         body.run();
     }
 }

@@ -2,25 +2,33 @@ package j8spec;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static j8spec.ItBlock.newItBlock;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class ItBlockTest {
 
     @Test
-    public void runsGivenBody() {
-        Runnable body = mock(Runnable.class);
+    public void runsBeforeEachBlocksBeforeBody() {
+        final List<String> executionOrder = new ArrayList<>();
 
         newItBlock(
             Collections.<String>emptyList(),
             "it block",
-            Collections.<Runnable>emptyList(),
-            body
+            asList(
+                () -> executionOrder.add("beforeEach1"),
+                () -> executionOrder.add("beforeEach2")
+            ),
+            () -> executionOrder.add("body")
         ).run();
 
-        verify(body).run();
+        assertThat(executionOrder.get(0), is("beforeEach1"));
+        assertThat(executionOrder.get(1), is("beforeEach2"));
+        assertThat(executionOrder.get(2), is("body"));
     }
 }
