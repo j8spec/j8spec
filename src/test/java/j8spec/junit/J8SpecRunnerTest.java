@@ -23,30 +23,11 @@ public class J8SpecRunnerTest {
     private static final String BLOCK_2 = "block 2";
 
     public static class SampleSpec {{
-        beforeEach(() -> {});
-
         it(BLOCK_1, newBlock(BLOCK_1));
         it(BLOCK_2, () -> {});
 
         describe("describe A", () -> {
-            beforeEach(() -> {});
-
             it("block A.1", () -> {});
-            it("block A.2", () -> {});
-
-            describe("describe A.A", () -> {
-                beforeEach(() -> {});
-
-                it("block A.A.1", () -> {});
-                it("block A.A.2", () -> {});
-            });
-        });
-
-        describe("describe B", () -> {
-            beforeEach(() -> {});
-
-            it("block B.1", () -> {});
-            it("block B.2", () -> {});
         });
     }}
 
