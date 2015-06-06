@@ -8,27 +8,27 @@ public final class ItBlock implements Runnable {
 
     private final List<String> containerDescriptions;
     private final String description;
-    private final List<Runnable> beforeEachBlocks;
+    private final List<Runnable> beforeBlocks;
     private final Runnable body;
 
     public static ItBlock newItBlock(
         List<String> containerDescriptions,
         String description,
-        List<Runnable> beforeEachBlocks,
+        List<Runnable> beforeBlocks,
         Runnable body
     ) {
-        return new ItBlock(containerDescriptions, description, beforeEachBlocks, body);
+        return new ItBlock(containerDescriptions, description, beforeBlocks, body);
     }
 
     private ItBlock(
         List<String> containerDescriptions,
         String description,
-        List<Runnable> beforeEachBlocks,
+        List<Runnable> beforeBlocks,
         Runnable body
     ) {
         this.containerDescriptions = unmodifiableList(containerDescriptions);
         this.description = description;
-        this.beforeEachBlocks = unmodifiableList(beforeEachBlocks);
+        this.beforeBlocks = unmodifiableList(beforeBlocks);
         this.body = body;
     }
 
@@ -41,7 +41,7 @@ public final class ItBlock implements Runnable {
     }
 
     public List<Runnable> beforeEachBlocks() {
-        return beforeEachBlocks;
+        return beforeBlocks;
     }
 
     public List<String> containerDescriptions() {
@@ -50,7 +50,7 @@ public final class ItBlock implements Runnable {
 
     @Override
     public void run() {
-        beforeEachBlocks.forEach(Runnable::run);
+        beforeBlocks.forEach(Runnable::run);
         body.run();
     }
 }

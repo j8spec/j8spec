@@ -14,7 +14,7 @@ import static org.junit.Assert.assertThat;
 public class ItBlockTest {
 
     @Test
-    public void runsBeforeEachBlocksBeforeBody() {
+    public void runsBeforeBlocksAndThenBody() {
         final List<String> executionOrder = new ArrayList<>();
 
         newItBlock(
