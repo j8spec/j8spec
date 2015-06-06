@@ -18,7 +18,11 @@ public final class ExecutionPlan {
     private final List<ExecutionPlan> plans = new LinkedList<>();
     private final Class<?> specClass;
 
-    public ExecutionPlan(Class<?> specClass, Runnable beforeEachBlock, Map<String, Runnable> itBlocks) {
+    ExecutionPlan(
+        Class<?> specClass,
+        Runnable beforeEachBlock,
+        Map<String, Runnable> itBlocks
+    ) {
         this.parent = null;
         this.specClass = specClass;
         this.description = specClass.getName();
@@ -26,7 +30,7 @@ public final class ExecutionPlan {
         this.itBlocks = unmodifiableMap(itBlocks);
     }
 
-    public ExecutionPlan(
+    ExecutionPlan(
         ExecutionPlan parent,
         String description,
         Runnable beforeEachBlock,

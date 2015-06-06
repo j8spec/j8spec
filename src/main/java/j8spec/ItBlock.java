@@ -11,7 +11,7 @@ public final class ItBlock implements Runnable {
     private final List<Runnable> beforeBlocks;
     private final Runnable body;
 
-    public static ItBlock newItBlock(
+    static ItBlock newItBlock(
         List<String> containerDescriptions,
         String description,
         List<Runnable> beforeBlocks,
