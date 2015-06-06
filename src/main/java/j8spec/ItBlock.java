@@ -36,14 +36,6 @@ public final class ItBlock implements Runnable {
         return description;
     }
 
-    public Runnable getBody() {
-        return body;
-    }
-
-    public List<Runnable> beforeEachBlocks() {
-        return beforeBlocks;
-    }
-
     public List<String> containerDescriptions() {
         return containerDescriptions;
     }
@@ -52,5 +44,13 @@ public final class ItBlock implements Runnable {
     public void run() {
         beforeBlocks.forEach(Runnable::run);
         body.run();
+    }
+
+    List<Runnable> beforeEachBlocks() {
+        return beforeBlocks;
+    }
+
+    Runnable getBody() {
+        return body;
     }
 }
