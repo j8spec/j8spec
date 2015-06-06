@@ -73,30 +73,30 @@ public final class ExecutionPlan {
         return specClass;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public boolean hasItBlocks() {
-        return !itBlocks.isEmpty();
-    }
-
-    public List<ExecutionPlan> getPlans() {
-        return new LinkedList<>(plans);
-    }
-
-    public Runnable beforeEachBlock() {
-        return beforeEachBlock;
-    }
-
-    public Runnable itBlock(String itBlockDescription) {
-        return itBlocks.get(itBlockDescription);
-    }
-
     public List<ItBlock> allItBlocks() {
         LinkedList<ItBlock> blocks = new LinkedList<>();
         collectItBlocks(blocks);
         return blocks;
+    }
+
+    String description() {
+        return description;
+    }
+
+    boolean hasItBlocks() {
+        return !itBlocks.isEmpty();
+    }
+
+    List<ExecutionPlan> plans() {
+        return new LinkedList<>(plans);
+    }
+
+    Runnable beforeEachBlock() {
+        return beforeEachBlock;
+    }
+
+    Runnable itBlock(String itBlockDescription) {
+        return itBlocks.get(itBlockDescription);
     }
 
     private void collectItBlocks(List<ItBlock> blocks) {
