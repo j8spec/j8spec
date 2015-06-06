@@ -66,7 +66,7 @@ public final class J8SpecRunner extends ParentRunner<ItBlock> {
         notifier.fireTestStarted(describeChild(itBlock));
         try {
             itBlock.beforeEachBlocks().forEach(Runnable::run);
-            itBlock.getBody().run();
+            itBlock.run();
         } catch (Throwable t) {
             notifier.fireTestFailure(new Failure(describeChild(itBlock), t));
         }

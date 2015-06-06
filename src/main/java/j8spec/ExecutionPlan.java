@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static j8spec.ItBlock.newItBlock;
 import static java.util.Collections.*;
 
 public final class ExecutionPlan {
@@ -91,11 +92,13 @@ public final class ExecutionPlan {
 
     private void collectItBlocks(List<ItBlock> blocks) {
         for (Map.Entry<String, Runnable> itBlock : itBlocks.entrySet()) {
-            blocks.add(new ItBlock(
-                allContainerDescriptions(),
-                itBlock.getKey(),
-                allBeforeEachBlocks(),
-                itBlock.getValue())
+            blocks.add(
+                newItBlock(
+                    allContainerDescriptions(),
+                    itBlock.getKey(),
+                    allBeforeEachBlocks(),
+                    itBlock.getValue()
+                )
             );
         }
 
