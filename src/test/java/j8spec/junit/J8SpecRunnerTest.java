@@ -1,12 +1,15 @@
 package j8spec.junit;
 
 import j8spec.ItBlock;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static j8spec.J8Spec.*;
 import static org.hamcrest.CoreMatchers.is;
@@ -16,33 +19,34 @@ import static org.mockito.Mockito.*;
 
 public class J8SpecRunnerTest {
 
-    public static class SampleSpec {{
-        beforeEach(mock(Runnable.class));
+    private static final String BLOCK_1 = "block 1";
+    private static final String BLOCK_2 = "block 2";
 
-        it("block 1", mock(Runnable.class));
-        it("block 2", () -> {});
+    public static class SampleSpec {{
+        it(BLOCK_1, newBlock(BLOCK_1));
+        it(BLOCK_2, () -> {});
 
         describe("describe A", () -> {
-            beforeEach(() -> {});
-
             it("block A.1", () -> {});
-            it("block A.2", () -> {});
-
-            describe("describe A.A", () -> {
-                beforeEach(() -> {});
-
-                it("block A.A.1", () -> {});
-                it("block A.A.2", () -> {});
-            });
-        });
-
-        describe("describe B", () -> {
-            beforeEach(() -> {});
-
-            it("block B.1", () -> {});
-            it("block B.2", () -> {});
         });
     }}
+
+    private static Map<String, Runnable> blocks;
+
+    private static Runnable newBlock(String id) {
+        Runnable block = mock(Runnable.class);
+        blocks.put(id, block);
+        return block;
+    }
+
+    private static Runnable block(String id) {
+        return blocks.get(id);
+    }
+
+    @Before
+    public void resetBlocks() {
+        blocks = new HashMap<>();
+    }
 
     @Test
     public void buildsListOfChildDescriptions() throws InitializationError {
@@ -50,8 +54,8 @@ public class J8SpecRunnerTest {
 
         List<ItBlock> itBlocks = runner.getChildren();
 
-        assertThat(itBlocks.get(0).getDescription(), is("block 1"));
-        assertThat(itBlocks.get(1).getDescription(), is("block 2"));
+        assertThat(itBlocks.get(0).description(), is(BLOCK_1));
+        assertThat(itBlocks.get(1).description(), is(BLOCK_2));
     }
 
     @Test
@@ -62,12 +66,12 @@ public class J8SpecRunnerTest {
         Description block1Description = runner.describeChild(itBlocks.get(0));
 
         assertThat(block1Description.getClassName(), is("j8spec.junit.J8SpecRunnerTest$SampleSpec"));
-        assertThat(block1Description.getMethodName(), is("block 1"));
+        assertThat(block1Description.getMethodName(), is(BLOCK_1));
 
         Description block2Description = runner.describeChild(itBlocks.get(1));
 
         assertThat(block2Description.getClassName(), is("j8spec.junit.J8SpecRunnerTest$SampleSpec"));
-        assertThat(block2Description.getMethodName(), is("block 2"));
+        assertThat(block2Description.getMethodName(), is(BLOCK_2));
 
         Description blockA1Description = runner.describeChild(itBlocks.get(2));
 
@@ -89,41 +93,13 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void runsBeforeEachChild() throws InitializationError {
+    public void runsTheGivenItBlock() throws InitializationError {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 
         runner.runChild(itBlocks.get(0), mock(RunNotifier.class));
 
-        verify(itBlocks.get(0).beforeEachBlocks().get(0)).run();
-    }
-
-    @Test
-    public void runsAChild() throws InitializationError {
-        J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
-        List<ItBlock> itBlocks = runner.getChildren();
-
-        runner.runChild(itBlocks.get(0), mock(RunNotifier.class));
-
-        verify(itBlocks.get(0).getBody()).run();
-    }
-
-    @Test
-    public void notifiesThatAChildFailsBecauseOfTheBeforeEachBlock() throws InitializationError {
-        J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
-        List<ItBlock> itBlocks = runner.getChildren();
-
-        RunNotifier runNotifier = new RunNotifier();
-        RunListenerHelper listener = new RunListenerHelper();
-        runNotifier.addListener(listener);
-
-        RuntimeException runtimeException = new RuntimeException();
-        doThrow(runtimeException).when(itBlocks.get(0).beforeEachBlocks().get(0)).run();
-
-        runner.runChild(itBlocks.get(0), runNotifier);
-
-        assertThat(listener.getDescription(), is(runner.describeChild(itBlocks.get(0))));
-        assertThat(listener.getExpection(), is(runtimeException));
+        verify(block(BLOCK_1)).run();
     }
 
     @Test
@@ -136,12 +112,12 @@ public class J8SpecRunnerTest {
         runNotifier.addListener(listener);
 
         RuntimeException runtimeException = new RuntimeException();
-        doThrow(runtimeException).when(itBlocks.get(0).getBody()).run();
+        doThrow(runtimeException).when(block(BLOCK_1)).run();
 
         runner.runChild(itBlocks.get(0), runNotifier);
 
         assertThat(listener.getDescription(), is(runner.describeChild(itBlocks.get(0))));
-        assertThat(listener.getExpection(), is(runtimeException));
+        assertThat(listener.getException(), is(runtimeException));
     }
 
     @Test
@@ -161,7 +137,7 @@ public class J8SpecRunnerTest {
     public void notifiesWhenAChildFinishesEvenWhenItFails() throws InitializationError {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
-        doThrow(new RuntimeException()).when(itBlocks.get(0).getBody()).run();
+        doThrow(new RuntimeException()).when(block(BLOCK_1)).run();
         RunNotifier runNotifier = mock(RunNotifier.class);
 
         runner.runChild(itBlocks.get(0), runNotifier);

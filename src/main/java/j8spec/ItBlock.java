@@ -4,33 +4,53 @@ import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
 
-public final class ItBlock {
+public final class ItBlock implements Runnable {
 
     private final List<String> containerDescriptions;
     private final String description;
-    private final List<Runnable> beforeEachBlocks;
+    private final List<BeforeBlock> beforeBlocks;
     private final Runnable body;
 
-    public ItBlock(List<String> containerDescriptions, String description, List<Runnable> beforeEachBlocks, Runnable body) {
+    static ItBlock newItBlock(
+        List<String> containerDescriptions,
+        String description,
+        List<BeforeBlock> beforeBlocks,
+        Runnable body
+    ) {
+        return new ItBlock(containerDescriptions, description, beforeBlocks, body);
+    }
+
+    private ItBlock(
+        List<String> containerDescriptions,
+        String description,
+        List<BeforeBlock> beforeBlocks,
+        Runnable body
+    ) {
         this.containerDescriptions = unmodifiableList(containerDescriptions);
         this.description = description;
-        this.beforeEachBlocks = unmodifiableList(beforeEachBlocks);
+        this.beforeBlocks = unmodifiableList(beforeBlocks);
         this.body = body;
     }
 
-    public String getDescription() {
+    public String description() {
         return description;
-    }
-
-    public Runnable getBody() {
-        return body;
-    }
-
-    public List<Runnable> beforeEachBlocks() {
-        return beforeEachBlocks;
     }
 
     public List<String> containerDescriptions() {
         return containerDescriptions;
+    }
+
+    @Override
+    public void run() {
+        beforeBlocks.forEach(Runnable::run);
+        body.run();
+    }
+
+    List<BeforeBlock> beforeBlocks() {
+        return beforeBlocks;
+    }
+
+    Runnable body() {
+        return body;
     }
 }

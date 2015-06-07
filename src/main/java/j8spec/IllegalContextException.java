@@ -1,7 +1,7 @@
 package j8spec;
 
 public class IllegalContextException extends J8SpecException {
-    public IllegalContextException(String message) {
+    IllegalContextException(String message) {
         super(message);
     }
 }

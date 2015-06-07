@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 
 public final class J8Spec {
 
@@ -12,6 +15,11 @@ public final class J8Spec {
     public static synchronized void describe(String description, Runnable body) {
         isValidContext("describe");
         currentSpec.get().describe(description, body);
+    }
+
+    public static synchronized void beforeAll(Runnable body) {
+        isValidContext("beforeAll");
+        currentSpec.get().beforeAll(body);
     }
 
     public static synchronized void beforeEach(Runnable body) {
@@ -26,7 +34,9 @@ public final class J8Spec {
 
     private static void isValidContext(final String methodName) {
         if (currentSpec.get() == null) {
-            throw new IllegalContextException("'" + methodName + "' should not be invoked from outside a spec definition.");
+            throw new IllegalContextException(
+                "'" + methodName + "' should not be invoked from outside a spec definition."
+            );
         }
     }
 
@@ -46,6 +56,7 @@ public final class J8Spec {
         private final Runnable body;
         private final List<Spec> describeBlocks = new LinkedList<>();
         private final Map<String, Runnable> itBlocks = new HashMap<>();
+        private Runnable beforeAllBlock;
         private Runnable beforeEachBlock;
 
         public Spec(Class<?> specClass) {
@@ -72,18 +83,25 @@ public final class J8Spec {
             describeBlocks.add(new Spec(specClass, description, body));
         }
 
-        public void beforeEach(Runnable body) {
-            if (beforeEachBlock != null) {
-                throw new BlockAlreadyDefinedException("beforeEach block already defined");
-            }
-            beforeEachBlock = body;
+        public void beforeAll(Runnable beforeAllBlock) {
+            ensureIsNotAlreadyDefined("beforeAll", this.beforeAllBlock != null);
+            this.beforeAllBlock = beforeAllBlock;
+        }
+
+        public void beforeEach(Runnable beforeEachBlock) {
+            ensureIsNotAlreadyDefined("beforeEach", this.beforeEachBlock != null);
+            this.beforeEachBlock = beforeEachBlock;
         }
 
         public void it(String description, Runnable body) {
-            if (itBlocks.containsKey(description)) {
-                throw new BlockAlreadyDefinedException("'" + description + "' block already defined");
-            }
+            ensureIsNotAlreadyDefined(description, itBlocks.containsKey(description));
             itBlocks.put(description, body);
+        }
+
+        private void ensureIsNotAlreadyDefined(String blockName, boolean result) {
+            if (result) {
+                throw new BlockAlreadyDefinedException(blockName + " block already defined");
+            }
         }
 
         public ExecutionPlan buildExecutionPlan() {
@@ -98,9 +116,9 @@ public final class J8Spec {
 
             ExecutionPlan newPlan;
             if (parentPlan == null) {
-                newPlan = new ExecutionPlan(specClass, beforeEachBlock, itBlocks);
+                newPlan = new ExecutionPlan(specClass, beforeAllBlock, beforeEachBlock, itBlocks);
             } else {
-                newPlan = parentPlan.newChildPlan(description, beforeEachBlock, itBlocks);
+                newPlan = parentPlan.newChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
             }
 
             for (Spec spec : describeBlocks) {
