@@ -44,7 +44,7 @@ public class J8SpecRunnerTest {
     }
 
     @Before
-    public void createRunner() {
+    public void resetBlocks() {
         blocks = new HashMap<>();
     }
 
