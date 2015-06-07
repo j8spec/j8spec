@@ -4,6 +4,7 @@ public final class BeforeBlock implements Runnable {
 
     private final Runnable body;
     private final boolean justOnce;
+    private boolean onceAlready;
 
     static BeforeBlock newBeforeAllBlock(Runnable body) {
         return new BeforeBlock(body, true);
@@ -16,14 +17,20 @@ public final class BeforeBlock implements Runnable {
     private BeforeBlock(Runnable body, boolean justOnce) {
         this.body = body;
         this.justOnce = justOnce;
+        this.onceAlready = false;
     }
 
     @Override
     public void run() {
+        if (this.justOnce && this.onceAlready) {
+            return;
+        }
+
+        onceAlready = true;
         body.run();
     }
 
-    public boolean justOnce() {
+    boolean justOnce() {
         return justOnce;
     }
 
