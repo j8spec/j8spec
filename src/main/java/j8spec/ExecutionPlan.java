@@ -35,7 +35,7 @@ public final class ExecutionPlan {
         this.itBlocks = unmodifiableMap(itBlocks);
     }
 
-    ExecutionPlan(
+    private ExecutionPlan(
         ExecutionPlan parent,
         String description,
         Runnable beforeAllBlock,
