@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 
 public final class J8Spec {
 
@@ -81,24 +84,24 @@ public final class J8Spec {
         }
 
         public void beforeAll(Runnable beforeAllBlock) {
-            if (this.beforeAllBlock != null) {
-                throw new BlockAlreadyDefinedException("beforeAll block already defined");
-            }
+            ensureIsNotAlreadyDefined("beforeAll", this.beforeAllBlock != null);
             this.beforeAllBlock = beforeAllBlock;
         }
 
         public void beforeEach(Runnable beforeEachBlock) {
-            if (this.beforeEachBlock != null) {
-                throw new BlockAlreadyDefinedException("beforeEach block already defined");
-            }
+            ensureIsNotAlreadyDefined("beforeEach", this.beforeEachBlock != null);
             this.beforeEachBlock = beforeEachBlock;
         }
 
         public void it(String description, Runnable body) {
-            if (itBlocks.containsKey(description)) {
-                throw new BlockAlreadyDefinedException("'" + description + "' block already defined");
-            }
+            ensureIsNotAlreadyDefined(description, itBlocks.containsKey(description));
             itBlocks.put(description, body);
+        }
+
+        private void ensureIsNotAlreadyDefined(String blockName, boolean result) {
+            if (result) {
+                throw new BlockAlreadyDefinedException(blockName + " block already defined");
+            }
         }
 
         public ExecutionPlan buildExecutionPlan() {
