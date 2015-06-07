@@ -87,7 +87,7 @@ public final class ExecutionPlan {
 
     public List<ItBlock> allItBlocks() {
         LinkedList<ItBlock> blocks = new LinkedList<>();
-        collectItBlocks(blocks);
+        collectItBlocks(blocks, new LinkedList<>());
         return blocks;
     }
 
@@ -115,20 +115,21 @@ public final class ExecutionPlan {
         return itBlocks.get(itBlockDescription);
     }
 
-    private void collectItBlocks(List<ItBlock> blocks) {
+    private void collectItBlocks(List<ItBlock> blocks, List<BeforeBlock> parentBeforeAllBlocks) {
+        if (this.beforeAllBlock != null) {
+            parentBeforeAllBlocks.add(newBeforeAllBlock(this.beforeAllBlock));
+        }
+
+        List<BeforeBlock> beforeBlocks = new LinkedList<>();
+        beforeBlocks.addAll(parentBeforeAllBlocks);
+        beforeBlocks.addAll(collectBeforeEachBlocks());
+
         for (Map.Entry<String, Runnable> itBlock : itBlocks.entrySet()) {
-            blocks.add(
-                newItBlock(
-                    allContainerDescriptions(),
-                    itBlock.getKey(),
-                    allBeforeBlocks(),
-                    itBlock.getValue()
-                )
-            );
+            blocks.add(newItBlock(allContainerDescriptions(), itBlock.getKey(), beforeBlocks, itBlock.getValue()));
         }
 
         for (ExecutionPlan plan : plans) {
-            plan.collectItBlocks(blocks);
+            plan.collectItBlocks(blocks, parentBeforeAllBlocks);
         }
     }
 
@@ -145,36 +146,13 @@ public final class ExecutionPlan {
         return containerDescriptions;
     }
 
-    private List<BeforeBlock> allBeforeBlocks() {
-        List<BeforeBlock> beforeBlocks = new LinkedList<>();
-        beforeBlocks.addAll(allBeforeAllBlocks());
-        beforeBlocks.addAll(allBeforeEachBlocks());
-        return beforeBlocks;
-    }
-
-    private List<BeforeBlock> allBeforeAllBlocks() {
-        List<BeforeBlock> beforeAllBlocks;
-
-        if (isRootPlan()) {
-            beforeAllBlocks = new LinkedList<>();
-        } else {
-            beforeAllBlocks = parent.allBeforeAllBlocks();
-        }
-
-        if (beforeAllBlock != null) {
-            beforeAllBlocks.add(newBeforeAllBlock(beforeAllBlock));
-        }
-
-        return beforeAllBlocks;
-    }
-
-    private List<BeforeBlock> allBeforeEachBlocks() {
+    private List<BeforeBlock> collectBeforeEachBlocks() {
         List<BeforeBlock> beforeEachBlocks;
 
         if (isRootPlan()) {
             beforeEachBlocks = new LinkedList<>();
         } else {
-            beforeEachBlocks = parent.allBeforeEachBlocks();
+            beforeEachBlocks = parent.collectBeforeEachBlocks();
         }
 
         if (beforeEachBlock != null) {

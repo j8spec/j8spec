@@ -120,6 +120,21 @@ public class ExecutionPlanTest {
     }
 
     @Test
+    public void ensuresBeforeAllBlocksAreReusedAcrossItBlocks() {
+        ExecutionPlan planWithInnerPlans = anExecutionPlanWithInnerPlan();
+
+        List<ItBlock> itBlocks = planWithInnerPlans.allItBlocks();
+
+        BeforeBlock beforeAllBlock = itBlocks.get(0).beforeBlocks().get(0);
+        assertThat(itBlocks.get(1).beforeBlocks().get(0), is(beforeAllBlock));
+        assertThat(itBlocks.get(2).beforeBlocks().get(0), is(beforeAllBlock));
+        assertThat(itBlocks.get(3).beforeBlocks().get(0), is(beforeAllBlock));
+
+        BeforeBlock beforeAllBlockA = itBlocks.get(2).beforeBlocks().get(1);
+        assertThat(itBlocks.get(3).beforeBlocks().get(1), is(beforeAllBlockA));
+    }
+
+    @Test
     public void ensuresBeforeEachBlocksAreConfiguredToAlwaysRun() {
         ExecutionPlan planWithInnerPlans = anExecutionPlanWithInnerPlan();
 
