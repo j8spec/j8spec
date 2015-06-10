@@ -4,9 +4,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.function.BooleanSupplier;
-import java.util.function.Predicate;
 
 public final class J8Spec {
 

@@ -6,6 +6,7 @@ import java.util.Collections;
 
 import static j8spec.J8Spec.*;
 import static j8spec.Var.var;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -109,7 +110,7 @@ public class J8SpecTest {
     public void buildsAnExecutionPlanBasedOnAnEmptySpec() {
         ExecutionPlan plan = executionPlanFor(EmptySpec.class);
 
-        assertThat(plan.hasItBlocks(), is(false));
+        assertThat(plan.allItBlocks(), is(emptyList()));
     }
 
     @Test

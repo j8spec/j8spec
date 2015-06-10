@@ -95,10 +95,6 @@ public final class ExecutionPlan {
         return description;
     }
 
-    boolean hasItBlocks() {
-        return !itBlocks.isEmpty();
-    }
-
     List<ExecutionPlan> plans() {
         return new LinkedList<>(plans);
     }
