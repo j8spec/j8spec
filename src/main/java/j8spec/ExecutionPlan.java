@@ -7,7 +7,7 @@ import java.util.Map;
 import static j8spec.BeforeBlock.newBeforeAllBlock;
 import static j8spec.BeforeBlock.newBeforeEachBlock;
 import static j8spec.ItBlock.newItBlock;
-import static java.util.Collections.*;
+import static java.util.Collections.unmodifiableMap;
 
 public final class ExecutionPlan {
 
@@ -17,7 +17,7 @@ public final class ExecutionPlan {
     private final String description;
     private final Runnable beforeAllBlock;
     private final Runnable beforeEachBlock;
-    private final Map<String, Runnable> itBlocks;
+    private final Map<String, ItBlockConfig> itBlocks;
     private final List<ExecutionPlan> plans = new LinkedList<>();
     private final Class<?> specClass;
 
@@ -25,7 +25,7 @@ public final class ExecutionPlan {
         Class<?> specClass,
         Runnable beforeAllBlock,
         Runnable beforeEachBlock,
-        Map<String, Runnable> itBlocks
+        Map<String, ItBlockConfig> itBlocks
     ) {
         this.parent = null;
         this.specClass = specClass;
@@ -40,7 +40,7 @@ public final class ExecutionPlan {
         String description,
         Runnable beforeAllBlock,
         Runnable beforeEachBlock,
-        Map<String, Runnable> itBlocks
+        Map<String, ItBlockConfig> itBlocks
     ) {
         this.parent = parent;
         this.specClass = parent.specClass;
@@ -54,7 +54,7 @@ public final class ExecutionPlan {
         String description,
         Runnable beforeAllBlock,
         Runnable beforeEachBlock,
-        Map<String, Runnable> itBlocks
+        Map<String, ItBlockConfig> itBlocks
     ) {
         ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks);
         plans.add(plan);
@@ -71,7 +71,7 @@ public final class ExecutionPlan {
     private void toString(StringBuilder sb, String indentation) {
         sb.append(indentation).append(description);
 
-        for (Map.Entry<String, Runnable> behavior : itBlocks.entrySet()) {
+        for (Map.Entry<String, ItBlockConfig> behavior : itBlocks.entrySet()) {
             sb.append(LS).append(indentation).append("  ").append(behavior.getKey());
         }
 
@@ -107,7 +107,7 @@ public final class ExecutionPlan {
         return beforeEachBlock;
     }
 
-    Runnable itBlock(String itBlockDescription) {
+    ItBlockConfig itBlock(String itBlockDescription) {
         return itBlocks.get(itBlockDescription);
     }
 
@@ -120,8 +120,8 @@ public final class ExecutionPlan {
         beforeBlocks.addAll(parentBeforeAllBlocks);
         beforeBlocks.addAll(collectBeforeEachBlocks());
 
-        for (Map.Entry<String, Runnable> itBlock : itBlocks.entrySet()) {
-            blocks.add(newItBlock(allContainerDescriptions(), itBlock.getKey(), beforeBlocks, itBlock.getValue()));
+        for (Map.Entry<String, ItBlockConfig> itBlock : itBlocks.entrySet()) {
+            blocks.add(newItBlock(allContainerDescriptions(), itBlock.getKey(), beforeBlocks, itBlock.getValue().body()));
         }
 
         for (ExecutionPlan plan : plans) {

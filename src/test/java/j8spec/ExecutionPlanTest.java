@@ -2,11 +2,11 @@ package j8spec;
 
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static j8spec.ItBlockConfig.newItBlockConfig;
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -162,9 +162,9 @@ public class ExecutionPlanTest {
     }
 
     private ExecutionPlan anExecutionPlanWithNoBeforeBlocks() {
-        Map<String, Runnable> itBlocks = new HashMap<>();
-        itBlocks.put("block 1", NOOP);
-        itBlocks.put("block 2", NOOP);
+        Map<String, ItBlockConfig> itBlocks = new HashMap<>();
+        itBlocks.put("block 1", newItBlockConfig(NOOP));
+        itBlocks.put("block 2", newItBlockConfig(NOOP));
 
         ExecutionPlan planWithInnerPlans = new ExecutionPlan(SampleSpec.class, null, null, itBlocks);
 
@@ -175,9 +175,9 @@ public class ExecutionPlanTest {
     }
 
     private ExecutionPlan anExecutionPlanWithInnerPlan() {
-        Map<String, Runnable> itBlocks = new HashMap<>();
-        itBlocks.put("block 1", BLOCK_1);
-        itBlocks.put("block 2", BLOCK_2);
+        Map<String, ItBlockConfig> itBlocks = new HashMap<>();
+        itBlocks.put("block 1", newItBlockConfig(BLOCK_1));
+        itBlocks.put("block 2", newItBlockConfig(BLOCK_2));
 
         ExecutionPlan planWithInnerPlans = new ExecutionPlan(
             SampleSpec.class,
@@ -186,9 +186,9 @@ public class ExecutionPlanTest {
             itBlocks
         );
 
-        Map<String, Runnable> itBlocksA = new HashMap<>();
-        itBlocksA.put("block A1", BLOCK_A_1);
-        itBlocksA.put("block A2", BLOCK_A_2);
+        Map<String, ItBlockConfig> itBlocksA = new HashMap<>();
+        itBlocksA.put("block A1", newItBlockConfig(BLOCK_A_1));
+        itBlocksA.put("block A2", newItBlockConfig(BLOCK_A_2));
 
         planWithInnerPlans.newChildPlan(
             "describe A",
