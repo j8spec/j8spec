@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static j8spec.ItBlockConfig.newItBlockConfig;
+import static j8spec.ItBlockDefinition.newItBlockDefinition;
 
 public final class J8Spec {
 
@@ -54,7 +54,7 @@ public final class J8Spec {
         private final String description;
         private final Runnable body;
         private final List<Spec> describeBlocks = new LinkedList<>();
-        private final Map<String, ItBlockConfig> itBlocks = new HashMap<>();
+        private final Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         private Runnable beforeAllBlock;
         private Runnable beforeEachBlock;
 
@@ -94,7 +94,7 @@ public final class J8Spec {
 
         public void it(String description, Runnable body) {
             ensureIsNotAlreadyDefined(description, itBlocks.containsKey(description));
-            itBlocks.put(description, newItBlockConfig(body));
+            itBlocks.put(description, newItBlockDefinition(body));
         }
 
         private void ensureIsNotAlreadyDefined(String blockName, boolean result) {

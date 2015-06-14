@@ -17,7 +17,7 @@ public final class ExecutionPlan {
     private final String description;
     private final Runnable beforeAllBlock;
     private final Runnable beforeEachBlock;
-    private final Map<String, ItBlockConfig> itBlocks;
+    private final Map<String, ItBlockDefinition> itBlocks;
     private final List<ExecutionPlan> plans = new LinkedList<>();
     private final Class<?> specClass;
 
@@ -25,7 +25,7 @@ public final class ExecutionPlan {
         Class<?> specClass,
         Runnable beforeAllBlock,
         Runnable beforeEachBlock,
-        Map<String, ItBlockConfig> itBlocks
+        Map<String, ItBlockDefinition> itBlocks
     ) {
         this.parent = null;
         this.specClass = specClass;
@@ -40,7 +40,7 @@ public final class ExecutionPlan {
         String description,
         Runnable beforeAllBlock,
         Runnable beforeEachBlock,
-        Map<String, ItBlockConfig> itBlocks
+        Map<String, ItBlockDefinition> itBlocks
     ) {
         this.parent = parent;
         this.specClass = parent.specClass;
@@ -54,7 +54,7 @@ public final class ExecutionPlan {
         String description,
         Runnable beforeAllBlock,
         Runnable beforeEachBlock,
-        Map<String, ItBlockConfig> itBlocks
+        Map<String, ItBlockDefinition> itBlocks
     ) {
         ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks);
         plans.add(plan);
@@ -71,7 +71,7 @@ public final class ExecutionPlan {
     private void toString(StringBuilder sb, String indentation) {
         sb.append(indentation).append(description);
 
-        for (Map.Entry<String, ItBlockConfig> behavior : itBlocks.entrySet()) {
+        for (Map.Entry<String, ItBlockDefinition> behavior : itBlocks.entrySet()) {
             sb.append(LS).append(indentation).append("  ").append(behavior.getKey());
         }
 
@@ -107,7 +107,7 @@ public final class ExecutionPlan {
         return beforeEachBlock;
     }
 
-    ItBlockConfig itBlock(String itBlockDescription) {
+    ItBlockDefinition itBlock(String itBlockDescription) {
         return itBlocks.get(itBlockDescription);
     }
 
@@ -120,7 +120,7 @@ public final class ExecutionPlan {
         beforeBlocks.addAll(parentBeforeAllBlocks);
         beforeBlocks.addAll(collectBeforeEachBlocks());
 
-        for (Map.Entry<String, ItBlockConfig> itBlock : itBlocks.entrySet()) {
+        for (Map.Entry<String, ItBlockDefinition> itBlock : itBlocks.entrySet()) {
             blocks.add(newItBlock(allContainerDescriptions(), itBlock.getKey(), beforeBlocks, itBlock.getValue().body()));
         }
 
