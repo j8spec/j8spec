@@ -17,6 +17,7 @@ public class J8SpecTest {
     private static final Runnable BEFORE_EACH_BLOCK = () -> {};
     private static final Runnable IT_BLOCK_1 = () -> {};
     private static final Runnable IT_BLOCK_2 = () -> {};
+    private static final Runnable IT_BLOCK_3 = () -> {};
 
     private static final Runnable BEFORE_ALL_A_BLOCK = () -> {};
     private static final Runnable BEFORE_EACH_A_BLOCK = () -> {};
@@ -54,6 +55,13 @@ public class J8SpecTest {
         it("some text", () -> {});
     }}
 
+    static class XitBlockOverwrittenSpec {{
+        xit("some text", () -> {
+        });
+        xit("some text", () -> {
+        });
+    }}
+
     static class ThreadThatSleeps2sSpec {{
         describe("forces thread to sleep", () -> {
             try {
@@ -72,6 +80,7 @@ public class J8SpecTest {
 
         it("block 1", IT_BLOCK_1);
         it("block 2", IT_BLOCK_2);
+        xit("block 3", IT_BLOCK_3);
 
         describe("describe A", () -> {
             beforeAll(BEFORE_ALL_A_BLOCK);
@@ -114,37 +123,89 @@ public class J8SpecTest {
     }
 
     @Test
-    public void buildsAnExecutionPlanBasedOnASpecThatContainsInnerDescribeBlocks() {
+    public void buildsAnExecutionPlanWhereAllInnerPlansHaveTheSameSpecClass() {
         ExecutionPlan plan = executionPlanFor(SampleSpec.class);
-
-        assertThat(plan.beforeAllBlock(), is(BEFORE_ALL_BLOCK));
-        assertThat(plan.beforeEachBlock(), is(BEFORE_EACH_BLOCK));
-        assertThat(plan.itBlock("block 1").body(), is(IT_BLOCK_1));
-        assertThat(plan.itBlock("block 2").body(), is(IT_BLOCK_2));
 
         ExecutionPlan planA = plan.plans().get(0);
         assertThat(planA.specClass(), equalTo(SampleSpec.class));
+
+        ExecutionPlan planAA = planA.plans().get(0);
+        assertThat(planAA.specClass(), equalTo(SampleSpec.class));
+
+        ExecutionPlan planB = plan.plans().get(1);
+        assertThat(planB.specClass(), equalTo(SampleSpec.class));
+    }
+
+    @Test
+    public void buildsAnExecutionPlanUsingTheDescriptionFromTheSpecDefinition() {
+        ExecutionPlan plan = executionPlanFor(SampleSpec.class);
+
+        ExecutionPlan planA = plan.plans().get(0);
         assertThat(planA.description(), is("describe A"));
+
+        ExecutionPlan planAA = planA.plans().get(0);
+        assertThat(planAA.description(), is("describe A.A"));
+
+        ExecutionPlan planB = plan.plans().get(1);
+        assertThat(planB.description(), is("describe B"));
+    }
+
+    @Test
+    public void buildsAnExecutionPlanUsingBeforeAllBlocksFromTheSpecDefinition() {
+        ExecutionPlan plan = executionPlanFor(SampleSpec.class);
+        assertThat(plan.beforeAllBlock(), is(BEFORE_ALL_BLOCK));
+
+        ExecutionPlan planA = plan.plans().get(0);
         assertThat(planA.beforeAllBlock(), is(BEFORE_ALL_A_BLOCK));
+
+        ExecutionPlan planAA = planA.plans().get(0);
+        assertThat(planAA.beforeAllBlock(), is(BEFORE_ALL_AA_BLOCK));
+
+        ExecutionPlan planB = plan.plans().get(1);
+        assertThat(planB.beforeAllBlock(), is(BEFORE_ALL_B_BLOCK));
+    }
+
+    @Test
+    public void buildsAnExecutionPlanUsingBeforeEachBlocksFromTheSpecDefinition() {
+        ExecutionPlan plan = executionPlanFor(SampleSpec.class);
+        assertThat(plan.beforeEachBlock(), is(BEFORE_EACH_BLOCK));
+
+        ExecutionPlan planA = plan.plans().get(0);
         assertThat(planA.beforeEachBlock(), is(BEFORE_EACH_A_BLOCK));
+
+        ExecutionPlan planAA = planA.plans().get(0);
+        assertThat(planAA.beforeEachBlock(), is(BEFORE_EACH_AA_BLOCK));
+
+        ExecutionPlan planB = plan.plans().get(1);
+        assertThat(planB.beforeEachBlock(), is(BEFORE_EACH_B_BLOCK));
+    }
+
+    @Test
+    public void buildsAnExecutionPlanUsingItBlocksFromTheSpecDefinition() {
+        ExecutionPlan plan = executionPlanFor(SampleSpec.class);
+
+        assertThat(plan.itBlock("block 1").body(), is(IT_BLOCK_1));
+        assertThat(plan.itBlock("block 2").body(), is(IT_BLOCK_2));
+        assertThat(plan.itBlock("block 3").body(), is(IT_BLOCK_3));
+
+        ExecutionPlan planA = plan.plans().get(0);
         assertThat(planA.itBlock("block A.1").body(), is(IT_BLOCK_A1));
         assertThat(planA.itBlock("block A.2").body(), is(IT_BLOCK_A2));
 
         ExecutionPlan planAA = planA.plans().get(0);
-        assertThat(planAA.specClass(), equalTo(SampleSpec.class));
-        assertThat(planAA.description(), is("describe A.A"));
-        assertThat(planAA.beforeAllBlock(), is(BEFORE_ALL_AA_BLOCK));
-        assertThat(planAA.beforeEachBlock(), is(BEFORE_EACH_AA_BLOCK));
         assertThat(planAA.itBlock("block A.A.1").body(), is(IT_BLOCK_AA1));
         assertThat(planAA.itBlock("block A.A.2").body(), is(IT_BLOCK_AA2));
 
         ExecutionPlan planB = plan.plans().get(1);
-        assertThat(planB.specClass(), equalTo(SampleSpec.class));
-        assertThat(planB.description(), is("describe B"));
-        assertThat(planB.beforeAllBlock(), is(BEFORE_ALL_B_BLOCK));
-        assertThat(planB.beforeEachBlock(), is(BEFORE_EACH_B_BLOCK));
         assertThat(planB.itBlock("block B.1").body(), is(IT_BLOCK_B1));
         assertThat(planB.itBlock("block B.2").body(), is(IT_BLOCK_B2));
+    }
+
+    @Test
+    public void buildsAnExecutionPlanMarkingXitBlocksFromTheSpecDefinitionAsIgnored() {
+        ExecutionPlan plan = executionPlanFor(SampleSpec.class);
+
+        assertThat(plan.itBlock("block 3").ignored(), is(true));
     }
 
     @Test(expected = SpecInitializationException.class)
@@ -188,6 +249,12 @@ public class J8SpecTest {
         J8Spec.it("some text", () -> {});
     }
 
+    @Test(expected = IllegalContextException.class)
+    public void doesNotAllowXitMethodDirectInvocation() {
+        J8Spec.xit("some text", () -> {
+        });
+    }
+
     @Test(expected = BlockAlreadyDefinedException.class)
     public void doesNotAllowBeforeAllBlockToBeReplaced() {
         executionPlanFor(BeforeAllBlockOverwrittenSpec.class);
@@ -201,6 +268,11 @@ public class J8SpecTest {
     @Test(expected = BlockAlreadyDefinedException.class)
     public void doesNotAllowItBlockToBeReplaced() {
         executionPlanFor(ItBlockOverwrittenSpec.class);
+    }
+
+    @Test(expected = BlockAlreadyDefinedException.class)
+    public void doesNotAllowXitBlockToBeReplaced() {
+        executionPlanFor(XitBlockOverwrittenSpec.class);
     }
 
     @Test()
