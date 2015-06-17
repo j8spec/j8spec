@@ -21,14 +21,14 @@ public class J8SpecRunnerTest {
 
     private static final String BLOCK_1 = "block 1";
     private static final String BLOCK_2 = "block 2";
+    private static final String BLOCK_3 = "block 3";
 
     public static class SampleSpec {{
         it(BLOCK_1, newBlock(BLOCK_1));
         it(BLOCK_2, () -> {});
+        xit(BLOCK_3, newBlock(BLOCK_3));
 
-        describe("describe A", () -> {
-            it("block A.1", () -> {});
-        });
+        describe("describe A", () -> it("block A.1", () -> {}));
     }}
 
     private static Map<String, Runnable> blocks;
@@ -73,7 +73,12 @@ public class J8SpecRunnerTest {
         assertThat(block2Description.getClassName(), is("j8spec.junit.J8SpecRunnerTest$SampleSpec"));
         assertThat(block2Description.getMethodName(), is(BLOCK_2));
 
-        Description blockA1Description = runner.describeChild(itBlocks.get(2));
+        Description block3Description = runner.describeChild(itBlocks.get(2));
+
+        assertThat(block3Description.getClassName(), is("j8spec.junit.J8SpecRunnerTest$SampleSpec"));
+        assertThat(block3Description.getMethodName(), is(BLOCK_3));
+
+        Description blockA1Description = runner.describeChild(itBlocks.get(3));
 
         assertThat(blockA1Description.getClassName(), is("j8spec.junit.J8SpecRunnerTest$SampleSpec"));
         assertThat(blockA1Description.getMethodName(), is("block A.1, describe A"));
@@ -118,6 +123,23 @@ public class J8SpecRunnerTest {
 
         assertThat(listener.getDescription(), is(runner.describeChild(itBlocks.get(0))));
         assertThat(listener.getException(), is(runtimeException));
+    }
+
+    @Test
+    public void notifiesWhenAChildIsIgnored() throws InitializationError {
+        J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
+        List<ItBlock> itBlocks = runner.getChildren();
+
+        RunNotifier runNotifier = new RunNotifier();
+        RunListenerHelper listener = new RunListenerHelper();
+        runNotifier.addListener(listener);
+
+        runner.runChild(itBlocks.get(2), runNotifier);
+
+        assertThat(listener.getDescription(), is(runner.describeChild(itBlocks.get(2))));
+        assertThat(listener.isIgnored(), is(true));
+
+        verify(block(BLOCK_3), never()).run();
     }
 
     @Test

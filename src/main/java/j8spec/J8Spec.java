@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.function.BooleanSupplier;
-import java.util.function.Predicate;
+
+import static j8spec.ItBlockDefinition.newIgnoredItBlockDefinition;
+import static j8spec.ItBlockDefinition.newItBlockDefinition;
 
 public final class J8Spec {
 
@@ -32,6 +32,11 @@ public final class J8Spec {
         currentSpec.get().it(description, body);
     }
 
+    public static synchronized void xit(String description, Runnable body) {
+        isValidContext("xit");
+        currentSpec.get().xit(description, body);
+    }
+
     private static void isValidContext(final String methodName) {
         if (currentSpec.get() == null) {
             throw new IllegalContextException(
@@ -55,7 +60,7 @@ public final class J8Spec {
         private final String description;
         private final Runnable body;
         private final List<Spec> describeBlocks = new LinkedList<>();
-        private final Map<String, Runnable> itBlocks = new HashMap<>();
+        private final Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         private Runnable beforeAllBlock;
         private Runnable beforeEachBlock;
 
@@ -95,7 +100,12 @@ public final class J8Spec {
 
         public void it(String description, Runnable body) {
             ensureIsNotAlreadyDefined(description, itBlocks.containsKey(description));
-            itBlocks.put(description, body);
+            itBlocks.put(description, newItBlockDefinition(body));
+        }
+
+        public void xit(String description, Runnable body) {
+            ensureIsNotAlreadyDefined(description, itBlocks.containsKey(description));
+            itBlocks.put(description, newIgnoredItBlockDefinition(body));
         }
 
         private void ensureIsNotAlreadyDefined(String blockName, boolean result) {

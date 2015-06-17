@@ -2,15 +2,15 @@ package j8spec;
 
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static j8spec.ItBlockDefinition.newIgnoredItBlockDefinition;
+import static j8spec.ItBlockDefinition.newItBlockDefinition;
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
+import static java.util.Collections.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -78,8 +78,8 @@ public class ExecutionPlanTest {
 
         List<ItBlock> itBlocks = planWithInnerPlans.allItBlocks();
 
-        assertThat(itBlocks.get(0).containerDescriptions(), is(asList("j8spec.ExecutionPlanTest$SampleSpec")));
-        assertThat(itBlocks.get(1).containerDescriptions(), is(asList("j8spec.ExecutionPlanTest$SampleSpec")));
+        assertThat(itBlocks.get(0).containerDescriptions(), is(singletonList("j8spec.ExecutionPlanTest$SampleSpec")));
+        assertThat(itBlocks.get(1).containerDescriptions(), is(singletonList("j8spec.ExecutionPlanTest$SampleSpec")));
         assertThat(itBlocks.get(2).containerDescriptions(), is(asList("j8spec.ExecutionPlanTest$SampleSpec", "describe A")));
         assertThat(itBlocks.get(3).containerDescriptions(), is(asList("j8spec.ExecutionPlanTest$SampleSpec", "describe A")));
     }
@@ -94,6 +94,15 @@ public class ExecutionPlanTest {
         assertThat(itBlocks.get(1).body(), is(BLOCK_2));
         assertThat(itBlocks.get(2).body(), is(BLOCK_A_1));
         assertThat(itBlocks.get(3).body(), is(BLOCK_A_2));
+    }
+
+    @Test
+    public void buildsItBlocksMarkedToBeIgnored() {
+        ExecutionPlan planWithInnerPlans = anExecutionPlanWithIgnoredItBlocks();
+
+        List<ItBlock> itBlocks = planWithInnerPlans.allItBlocks();
+
+        assertThat(itBlocks.get(0).shouldBeIgnored(), is(true));
     }
 
     @Test
@@ -162,9 +171,9 @@ public class ExecutionPlanTest {
     }
 
     private ExecutionPlan anExecutionPlanWithNoBeforeBlocks() {
-        Map<String, Runnable> itBlocks = new HashMap<>();
-        itBlocks.put("block 1", NOOP);
-        itBlocks.put("block 2", NOOP);
+        Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
+        itBlocks.put("block 1", newItBlockDefinition(NOOP));
+        itBlocks.put("block 2", newItBlockDefinition(NOOP));
 
         ExecutionPlan planWithInnerPlans = new ExecutionPlan(SampleSpec.class, null, null, itBlocks);
 
@@ -175,9 +184,9 @@ public class ExecutionPlanTest {
     }
 
     private ExecutionPlan anExecutionPlanWithInnerPlan() {
-        Map<String, Runnable> itBlocks = new HashMap<>();
-        itBlocks.put("block 1", BLOCK_1);
-        itBlocks.put("block 2", BLOCK_2);
+        Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
+        itBlocks.put("block 1", newItBlockDefinition(BLOCK_1));
+        itBlocks.put("block 2", newItBlockDefinition(BLOCK_2));
 
         ExecutionPlan planWithInnerPlans = new ExecutionPlan(
             SampleSpec.class,
@@ -186,9 +195,9 @@ public class ExecutionPlanTest {
             itBlocks
         );
 
-        Map<String, Runnable> itBlocksA = new HashMap<>();
-        itBlocksA.put("block A1", BLOCK_A_1);
-        itBlocksA.put("block A2", BLOCK_A_2);
+        Map<String, ItBlockDefinition> itBlocksA = new HashMap<>();
+        itBlocksA.put("block A1", newItBlockDefinition(BLOCK_A_1));
+        itBlocksA.put("block A2", newItBlockDefinition(BLOCK_A_2));
 
         planWithInnerPlans.newChildPlan(
             "describe A",
@@ -198,5 +207,17 @@ public class ExecutionPlanTest {
         );
 
         return planWithInnerPlans;
+    }
+
+    private ExecutionPlan anExecutionPlanWithIgnoredItBlocks() {
+        Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
+        itBlocks.put("block 1", newIgnoredItBlockDefinition(BLOCK_1));
+
+        return new ExecutionPlan(
+            SampleSpec.class,
+            BEFORE_ALL_BLOCK,
+            BEFORE_EACH_BLOCK,
+            itBlocks
+        );
     }
 }

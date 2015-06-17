@@ -3,12 +3,13 @@ package j8spec;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static j8spec.BeforeBlock.newBeforeEachBlock;
+import static j8spec.ItBlock.newIgnoredItBlock;
 import static j8spec.ItBlock.newItBlock;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -19,7 +20,7 @@ public class ItBlockTest {
         final List<String> executionOrder = new ArrayList<>();
 
         newItBlock(
-            Collections.<String>emptyList(),
+            emptyList(),
             "it block",
             asList(
                 newBeforeEachBlock(() -> executionOrder.add("beforeEach1")),
@@ -31,5 +32,19 @@ public class ItBlockTest {
         assertThat(executionOrder.get(0), is("beforeEach1"));
         assertThat(executionOrder.get(1), is("beforeEach2"));
         assertThat(executionOrder.get(2), is("body"));
+    }
+
+    @Test
+    public void indicatesIfItShouldBeIgnored() {
+        ItBlock block = newIgnoredItBlock(emptyList(), "it block");
+
+        assertThat(block.shouldBeIgnored(), is(true));
+    }
+
+    @Test
+    public void indicatesIfItShouldNotBeIgnored() {
+        ItBlock block = newItBlock(emptyList(), "it block", emptyList(), () -> {});
+
+        assertThat(block.shouldBeIgnored(), is(false));
     }
 }

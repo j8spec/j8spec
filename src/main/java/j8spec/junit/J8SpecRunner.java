@@ -65,7 +65,11 @@ public final class J8SpecRunner extends ParentRunner<ItBlock> {
     protected void runChild(ItBlock itBlock, RunNotifier notifier) {
         notifier.fireTestStarted(describeChild(itBlock));
         try {
-            itBlock.run();
+            if (itBlock.shouldBeIgnored()) {
+                notifier.fireTestIgnored(describeChild(itBlock));
+            } else {
+                itBlock.run();
+            }
         } catch (Throwable t) {
             notifier.fireTestFailure(new Failure(describeChild(itBlock), t));
         }
