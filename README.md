@@ -82,15 +82,15 @@ public class NumberTest {{
 
 ![Gradle Report](https://github.com/j8spec/j8spec-sample-gradle/blob/master/screenshots/gradle-details.png)
 
-### First Release
+### Release 1.1.0 (Next Release)
 
-- `describe`, `beforeEach`, and `it` constructions
-
-### Coming Up Next
-
-- `afterEach`
 - `beforeAll` / `afterAll` (class level setup/teardown)
 - `xdescribe` / `xit` (ignore)
 - `fdescribe` / `fit` (focus)
+- `afterEach`
 - timeout
 - expected exception
+
+### Release 1.0.0
+
+- `describe`, `beforeEach`, and `it` constructions
