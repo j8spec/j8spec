@@ -8,6 +8,7 @@ public class RunListenerHelper extends RunListener {
 
     private Description description;
     private Throwable exception;
+    private boolean ignored = false;
 
     @Override
     public void testFailure(Failure failure) throws Exception {
@@ -17,6 +18,11 @@ public class RunListenerHelper extends RunListener {
         exception = failure.getException();
     }
 
+    @Override
+    public void testIgnored(Description description) throws Exception {
+        this.description = description;
+        ignored = true;
+    }
 
     public Description getDescription() {
         return description;
@@ -24,5 +30,9 @@ public class RunListenerHelper extends RunListener {
 
     public Throwable getException() {
         return exception;
+    }
+
+    public boolean isIgnored() {
+        return ignored;
     }
 }
