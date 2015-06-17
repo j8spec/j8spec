@@ -6,6 +6,7 @@ import java.util.Map;
 
 import static j8spec.BeforeBlock.newBeforeAllBlock;
 import static j8spec.BeforeBlock.newBeforeEachBlock;
+import static j8spec.ItBlock.newIgnoredItBlock;
 import static j8spec.ItBlock.newItBlock;
 import static java.util.Collections.unmodifiableMap;
 
@@ -120,8 +121,15 @@ public final class ExecutionPlan {
         beforeBlocks.addAll(parentBeforeAllBlocks);
         beforeBlocks.addAll(collectBeforeEachBlocks());
 
-        for (Map.Entry<String, ItBlockDefinition> itBlock : itBlocks.entrySet()) {
-            blocks.add(newItBlock(allContainerDescriptions(), itBlock.getKey(), beforeBlocks, itBlock.getValue().body()));
+        for (Map.Entry<String, ItBlockDefinition> entry : itBlocks.entrySet()) {
+            String description = entry.getKey();
+            ItBlockDefinition itBlock = entry.getValue();
+
+            if (itBlock.ignored()) {
+                blocks.add(newIgnoredItBlock(allContainerDescriptions(), description));
+            } else {
+                blocks.add(newItBlock(allContainerDescriptions(), description, beforeBlocks, itBlock.body()));
+            }
         }
 
         for (ExecutionPlan plan : plans) {

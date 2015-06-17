@@ -2,9 +2,12 @@ package j8spec;
 
 import java.util.List;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 public final class ItBlock implements Runnable {
+
+    private static final Runnable NOOP = () -> {};
 
     private final List<String> containerDescriptions;
     private final String description;
@@ -18,6 +21,10 @@ public final class ItBlock implements Runnable {
         Runnable body
     ) {
         return new ItBlock(containerDescriptions, description, beforeBlocks, body);
+    }
+
+    static ItBlock newIgnoredItBlock(List<String> containerDescriptions, String description) {
+        return new ItBlock(containerDescriptions, description, emptyList(), NOOP);
     }
 
     private ItBlock(
@@ -44,6 +51,10 @@ public final class ItBlock implements Runnable {
     public void run() {
         beforeBlocks.forEach(Runnable::run);
         body.run();
+    }
+
+    public boolean shouldBeIgnored() {
+        return body == NOOP;
     }
 
     List<BeforeBlock> beforeBlocks() {
