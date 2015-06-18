@@ -15,6 +15,7 @@ public final class ExecutionPlan {
     private static final String LS = System.getProperty("line.separator");
 
     private final ExecutionPlan parent;
+    private final boolean ignored;
     private final String description;
     private final Runnable beforeAllBlock;
     private final Runnable beforeEachBlock;
@@ -34,6 +35,7 @@ public final class ExecutionPlan {
         this.beforeAllBlock = beforeAllBlock;
         this.beforeEachBlock = beforeEachBlock;
         this.itBlocks = unmodifiableMap(itBlocks);
+        this.ignored = false;
     }
 
     private ExecutionPlan(
@@ -41,7 +43,8 @@ public final class ExecutionPlan {
         String description,
         Runnable beforeAllBlock,
         Runnable beforeEachBlock,
-        Map<String, ItBlockDefinition> itBlocks
+        Map<String, ItBlockDefinition> itBlocks,
+        boolean ignored
     ) {
         this.parent = parent;
         this.specClass = parent.specClass;
@@ -49,15 +52,17 @@ public final class ExecutionPlan {
         this.beforeAllBlock = beforeAllBlock;
         this.beforeEachBlock = beforeEachBlock;
         this.itBlocks = unmodifiableMap(itBlocks);
+        this.ignored = ignored;
     }
 
     ExecutionPlan newChildPlan(
         String description,
         Runnable beforeAllBlock,
         Runnable beforeEachBlock,
-        Map<String, ItBlockDefinition> itBlocks
+        Map<String, ItBlockDefinition> itBlocks,
+        boolean ignored
     ) {
-        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks);
+        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks, ignored);
         plans.add(plan);
         return plan;
     }
@@ -112,6 +117,10 @@ public final class ExecutionPlan {
         return itBlocks.get(itBlockDescription);
     }
 
+    boolean ignored() {
+        return ignored;
+    }
+
     private void collectItBlocks(List<ItBlock> blocks, List<BeforeBlock> parentBeforeAllBlocks) {
         if (this.beforeAllBlock != null) {
             parentBeforeAllBlocks.add(newBeforeAllBlock(this.beforeAllBlock));
@@ -125,7 +134,7 @@ public final class ExecutionPlan {
             String description = entry.getKey();
             ItBlockDefinition itBlock = entry.getValue();
 
-            if (itBlock.ignored()) {
+            if (itBlock.ignored() || containerIgnored()) {
                 blocks.add(newIgnoredItBlock(allContainerDescriptions(), description));
             } else {
                 blocks.add(newItBlock(allContainerDescriptions(), description, beforeBlocks, itBlock.body()));
@@ -135,6 +144,13 @@ public final class ExecutionPlan {
         for (ExecutionPlan plan : plans) {
             plan.collectItBlocks(blocks, parentBeforeAllBlocks);
         }
+    }
+
+    private boolean containerIgnored() {
+        if (isRootPlan()) {
+            return ignored;
+        }
+        return ignored || parent.containerIgnored();
     }
 
     private List<String> allContainerDescriptions() {

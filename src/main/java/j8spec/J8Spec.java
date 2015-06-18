@@ -17,6 +17,11 @@ public final class J8Spec {
         currentSpec.get().describe(description, body);
     }
 
+    public static synchronized void xdescribe(String description, Runnable body) {
+        isValidContext("xdescribe");
+        currentSpec.get().xdescribe(description, body);
+    }
+
     public static synchronized void beforeAll(Runnable body) {
         isValidContext("beforeAll");
         currentSpec.get().beforeAll(body);
@@ -59,6 +64,7 @@ public final class J8Spec {
         private final Class<?> specClass;
         private final String description;
         private final Runnable body;
+        private final boolean ignored;
         private final List<Spec> describeBlocks = new LinkedList<>();
         private final Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         private Runnable beforeAllBlock;
@@ -76,16 +82,22 @@ public final class J8Spec {
                     throw new SpecInitializationException("Failed to create instance of " + specClass + ".", e);
                 }
             };
+            this.ignored = false;
         }
 
-        private Spec(Class<?> specClass, String description, Runnable body) {
+        private Spec(Class<?> specClass, String description, Runnable body, boolean ignored) {
             this.specClass = specClass;
             this.description = description;
             this.body = body;
+            this.ignored = ignored;
         }
 
         public void describe(String description, Runnable body) {
-            describeBlocks.add(new Spec(specClass, description, body));
+            describeBlocks.add(new Spec(specClass, description, body, false));
+        }
+
+        public void xdescribe(String description, Runnable body) {
+            describeBlocks.add(new Spec(specClass, description, body, true));
         }
 
         public void beforeAll(Runnable beforeAllBlock) {
@@ -128,7 +140,7 @@ public final class J8Spec {
             if (parentPlan == null) {
                 newPlan = new ExecutionPlan(specClass, beforeAllBlock, beforeEachBlock, itBlocks);
             } else {
-                newPlan = parentPlan.newChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
+                newPlan = parentPlan.newChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks, ignored);
             }
 
             for (Spec spec : describeBlocks) {
