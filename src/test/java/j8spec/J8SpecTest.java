@@ -74,6 +74,22 @@ public class J8SpecTest {
         });
     }}
 
+    static class XdescribeSpec {{
+        beforeAll(BEFORE_ALL_BLOCK);
+        beforeEach(BEFORE_EACH_BLOCK);
+
+        it("block 1", IT_BLOCK_1);
+        it("block 2", IT_BLOCK_2);
+
+        xdescribe("describe A", () -> {
+            beforeAll(BEFORE_ALL_A_BLOCK);
+            beforeEach(BEFORE_EACH_A_BLOCK);
+
+            it("block A.1", IT_BLOCK_A1);
+            it("block A.2", IT_BLOCK_A2);
+        });
+    }}
+
     static class SampleSpec {{
         beforeAll(BEFORE_ALL_BLOCK);
         beforeEach(BEFORE_EACH_BLOCK);
@@ -202,6 +218,14 @@ public class J8SpecTest {
     }
 
     @Test
+    public void buildsAnExecutionPlanMarkingXdescribeBlocksFromTheSpecDefinitionAsIgnored() {
+        ExecutionPlan plan = executionPlanFor(XdescribeSpec.class);
+
+        assertThat(plan.ignored(), is(false));
+        assertThat(plan.plans().get(0).ignored(), is(true));
+    }
+
+    @Test
     public void buildsAnExecutionPlanMarkingXitBlocksFromTheSpecDefinitionAsIgnored() {
         ExecutionPlan plan = executionPlanFor(SampleSpec.class);
 
@@ -216,6 +240,12 @@ public class J8SpecTest {
     @Test(expected = IllegalContextException.class)
     public void doesNotAllowDescribeMethodDirectInvocation() {
         J8Spec.describe("some text", () -> {});
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void doesNotAllowXdescribeMethodDirectInvocation() {
+        J8Spec.xdescribe("some text", () -> {
+        });
     }
 
     @Test(expected = IllegalContextException.class)

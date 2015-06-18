@@ -177,8 +177,8 @@ public class ExecutionPlanTest {
 
         ExecutionPlan planWithInnerPlans = new ExecutionPlan(SampleSpec.class, null, null, itBlocks);
 
-        planWithInnerPlans.newChildPlan("child 1", null, null, itBlocks);
-        planWithInnerPlans.newChildPlan("child 2", null, null, itBlocks);
+        planWithInnerPlans.newChildPlan("child 1", null, null, itBlocks, false);
+        planWithInnerPlans.newChildPlan("child 2", null, null, itBlocks, false);
 
         return planWithInnerPlans;
     }
@@ -203,7 +203,8 @@ public class ExecutionPlanTest {
             "describe A",
             BEFORE_ALL_BLOCK_A,
             BEFORE_EACH_BLOCK_A,
-            itBlocksA
+            itBlocksA,
+            false
         );
 
         return planWithInnerPlans;
