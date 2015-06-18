@@ -134,7 +134,7 @@ public final class ExecutionPlan {
             String description = entry.getKey();
             ItBlockDefinition itBlock = entry.getValue();
 
-            if (itBlock.ignored()) {
+            if (itBlock.ignored() || containerIgnored()) {
                 blocks.add(newIgnoredItBlock(allContainerDescriptions(), description));
             } else {
                 blocks.add(newItBlock(allContainerDescriptions(), description, beforeBlocks, itBlock.body()));
@@ -144,6 +144,13 @@ public final class ExecutionPlan {
         for (ExecutionPlan plan : plans) {
             plan.collectItBlocks(blocks, parentBeforeAllBlocks);
         }
+    }
+
+    private boolean containerIgnored() {
+        if (isRootPlan()) {
+            return ignored;
+        }
+        return ignored || parent.containerIgnored();
     }
 
     private List<String> allContainerDescriptions() {
