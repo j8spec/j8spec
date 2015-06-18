@@ -56,10 +56,13 @@ public class J8SpecTest {
     }}
 
     static class XitBlockOverwrittenSpec {{
-        xit("some text", () -> {
-        });
-        xit("some text", () -> {
-        });
+        xit("some text", () -> {});
+        xit("some text", () -> {});
+    }}
+
+    static class FitBlockOverwrittenSpec {{
+        fit("some text", () -> {});
+        fit("some text", () -> {});
     }}
 
     static class ThreadThatSleeps2sSpec {{
@@ -88,6 +91,10 @@ public class J8SpecTest {
             it("block A.1", IT_BLOCK_A1);
             it("block A.2", IT_BLOCK_A2);
         });
+    }}
+
+    static class FitSpec {{
+        fit("block 1", IT_BLOCK_1);
     }}
 
     static class SampleSpec {{
@@ -232,6 +239,13 @@ public class J8SpecTest {
         assertThat(plan.itBlock("block 3").ignored(), is(true));
     }
 
+    @Test
+    public void buildsAnExecutionPlanMarkingFitBlocksFromTheSpecDefinitionAsFocused() {
+        ExecutionPlan plan = executionPlanFor(FitSpec.class);
+
+        assertThat(plan.itBlock("block 1").focused(), is(true));
+    }
+
     @Test(expected = SpecInitializationException.class)
     public void throwsExceptionWhenFailsToEvaluateSpec() {
         executionPlanFor(BadSpec.class);
@@ -244,8 +258,7 @@ public class J8SpecTest {
 
     @Test(expected = IllegalContextException.class)
     public void doesNotAllowXdescribeMethodDirectInvocation() {
-        J8Spec.xdescribe("some text", () -> {
-        });
+        J8Spec.xdescribe("some text", () -> {});
     }
 
     @Test(expected = IllegalContextException.class)
@@ -281,8 +294,12 @@ public class J8SpecTest {
 
     @Test(expected = IllegalContextException.class)
     public void doesNotAllowXitMethodDirectInvocation() {
-        J8Spec.xit("some text", () -> {
-        });
+        J8Spec.xit("some text", () -> {});
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void doesNotAllowFitMethodDirectInvocation() {
+        J8Spec.fit("some text", () -> {});
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
@@ -303,6 +320,11 @@ public class J8SpecTest {
     @Test(expected = BlockAlreadyDefinedException.class)
     public void doesNotAllowXitBlockToBeReplaced() {
         executionPlanFor(XitBlockOverwrittenSpec.class);
+    }
+
+    @Test(expected = BlockAlreadyDefinedException.class)
+    public void doesNotAllowFitBlockToBeReplaced() {
+        executionPlanFor(FitBlockOverwrittenSpec.class);
     }
 
     @Test()
