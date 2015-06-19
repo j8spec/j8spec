@@ -6,8 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static j8spec.ItBlockDefinition.newIgnoredItBlockDefinition;
-import static j8spec.ItBlockDefinition.newItBlockDefinition;
+import static j8spec.ItBlockDefinition.*;
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
@@ -114,6 +113,18 @@ public class ExecutionPlanTest {
         assertThat(itBlocks.get(0).shouldBeIgnored(), is(false));
         assertThat(itBlocks.get(1).shouldBeIgnored(), is(true));
         assertThat(itBlocks.get(2).shouldBeIgnored(), is(true));
+    }
+
+    @Test
+    public void buildsItBlocksMarkedToBeIgnoredWhenThereIsItBlocksFocused() {
+        ExecutionPlan plan = anExecutionPlanWithFocusedItBlocks();
+
+        List<ItBlock> itBlocks = plan.allItBlocks();
+
+        assertThat(itBlocks.get(0).shouldBeIgnored(), is(true));
+        assertThat(itBlocks.get(1).shouldBeIgnored(), is(true));
+        assertThat(itBlocks.get(2).shouldBeIgnored(), is(false));
+        assertThat(itBlocks.get(3).shouldBeIgnored(), is(true));
     }
 
     @Test
@@ -231,6 +242,27 @@ public class ExecutionPlanTest {
             BEFORE_EACH_BLOCK,
             itBlocks
         );
+    }
+
+    private ExecutionPlan anExecutionPlanWithFocusedItBlocks() {
+        Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
+        itBlocks.put("block 1", newItBlockDefinition(BLOCK_1));
+        itBlocks.put("block 2", newItBlockDefinition(BLOCK_2));
+
+        ExecutionPlan plan = new ExecutionPlan(
+            SampleSpec.class,
+            BEFORE_ALL_BLOCK,
+            BEFORE_EACH_BLOCK,
+            itBlocks
+        );
+
+        Map<String, ItBlockDefinition> itBlocksA = new HashMap<>();
+        itBlocksA.put("block A1", newFocusedItBlockDefinition(BLOCK_A_1));
+        itBlocksA.put("block A2", newItBlockDefinition(BLOCK_A_2));
+
+        plan.newChildPlan("describe A", BEFORE_ALL_BLOCK, BEFORE_EACH_BLOCK, itBlocksA, true);
+
+        return plan;
     }
 
     private ExecutionPlan anExecutionPlanWithIgnoredDescribeBlocks() {

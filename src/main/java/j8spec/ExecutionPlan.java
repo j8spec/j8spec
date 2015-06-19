@@ -23,6 +23,11 @@ public final class ExecutionPlan {
     private final List<ExecutionPlan> plans = new LinkedList<>();
     private final Class<?> specClass;
 
+    @FunctionalInterface
+    private interface ShouldBeIgnoredPredicate {
+        boolean test(ExecutionPlan plan, ItBlockDefinition itBlockDefinition);
+    }
+
     ExecutionPlan(
         Class<?> specClass,
         Runnable beforeAllBlock,
@@ -93,8 +98,21 @@ public final class ExecutionPlan {
 
     public List<ItBlock> allItBlocks() {
         LinkedList<ItBlock> blocks = new LinkedList<>();
-        collectItBlocks(blocks, new LinkedList<>());
+        collectItBlocks(blocks, new LinkedList<>(), shouldBeIgnoredPredicate());
         return blocks;
+    }
+
+    private ShouldBeIgnoredPredicate shouldBeIgnoredPredicate() {
+        if (thereIsAtLeastOneFocusedItBlock()) {
+            return (p, b) -> !b.focused();
+        }
+        return (p, b) -> b.ignored() || p.containerIgnored();
+    }
+
+    private boolean thereIsAtLeastOneFocusedItBlock() {
+        return
+            itBlocks.values().stream().anyMatch(ItBlockDefinition::focused) ||
+            plans.stream().anyMatch(ExecutionPlan::thereIsAtLeastOneFocusedItBlock);
     }
 
     String description() {
@@ -121,7 +139,11 @@ public final class ExecutionPlan {
         return ignored;
     }
 
-    private void collectItBlocks(List<ItBlock> blocks, List<BeforeBlock> parentBeforeAllBlocks) {
+    private void collectItBlocks(
+        List<ItBlock> blocks,
+        List<BeforeBlock> parentBeforeAllBlocks,
+        ShouldBeIgnoredPredicate shouldBeIgnored
+    ) {
         if (this.beforeAllBlock != null) {
             parentBeforeAllBlocks.add(newBeforeAllBlock(this.beforeAllBlock));
         }
@@ -134,7 +156,7 @@ public final class ExecutionPlan {
             String description = entry.getKey();
             ItBlockDefinition itBlock = entry.getValue();
 
-            if (itBlock.ignored() || containerIgnored()) {
+            if (shouldBeIgnored.test(this, itBlock)) {
                 blocks.add(newIgnoredItBlock(allContainerDescriptions(), description));
             } else {
                 blocks.add(newItBlock(allContainerDescriptions(), description, beforeBlocks, itBlock.body()));
@@ -142,7 +164,7 @@ public final class ExecutionPlan {
         }
 
         for (ExecutionPlan plan : plans) {
-            plan.collectItBlocks(blocks, parentBeforeAllBlocks);
+            plan.collectItBlocks(blocks, parentBeforeAllBlocks, shouldBeIgnored);
         }
     }
 
