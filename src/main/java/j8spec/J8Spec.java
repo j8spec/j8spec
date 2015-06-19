@@ -5,8 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static j8spec.ItBlockDefinition.newIgnoredItBlockDefinition;
-import static j8spec.ItBlockDefinition.newItBlockDefinition;
+import static j8spec.ItBlockDefinition.*;
 
 public final class J8Spec {
 
@@ -40,6 +39,11 @@ public final class J8Spec {
     public static synchronized void xit(String description, Runnable body) {
         isValidContext("xit");
         currentSpec.get().xit(description, body);
+    }
+
+    public static synchronized void fit(String description, Runnable body) {
+        isValidContext("fit");
+        currentSpec.get().fit(description, body);
     }
 
     private static void isValidContext(final String methodName) {
@@ -118,6 +122,11 @@ public final class J8Spec {
         public void xit(String description, Runnable body) {
             ensureIsNotAlreadyDefined(description, itBlocks.containsKey(description));
             itBlocks.put(description, newIgnoredItBlockDefinition(body));
+        }
+
+        public void fit(String description, Runnable body) {
+            ensureIsNotAlreadyDefined(description, itBlocks.containsKey(description));
+            itBlocks.put(description, newFocusedItBlockDefinition(body));
         }
 
         private void ensureIsNotAlreadyDefined(String blockName, boolean result) {
