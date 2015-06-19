@@ -14,6 +14,7 @@ import java.util.Map;
 import static j8spec.J8Spec.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -140,6 +141,19 @@ public class J8SpecRunnerTest {
         assertThat(listener.isIgnored(), is(true));
 
         verify(block(BLOCK_3), never()).run();
+    }
+
+    @Test
+    public void notifiesOnlyTestIgnoredEventWhenAChildIsIgnored() throws InitializationError {
+        J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
+        List<ItBlock> itBlocks = runner.getChildren();
+
+        RunNotifier runNotifier = mock(RunNotifier.class);
+
+        runner.runChild(itBlocks.get(2), runNotifier);
+
+        verify(runNotifier, never()).fireTestStarted(any());
+        verify(runNotifier, never()).fireTestFinished(any());
     }
 
     @Test
