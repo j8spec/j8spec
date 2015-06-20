@@ -16,6 +16,7 @@ public final class ExecutionPlan {
 
     private final ExecutionPlan parent;
     private final boolean ignored;
+    private final boolean focused;
     private final String description;
     private final Runnable beforeAllBlock;
     private final Runnable beforeEachBlock;
@@ -41,6 +42,7 @@ public final class ExecutionPlan {
         this.beforeEachBlock = beforeEachBlock;
         this.itBlocks = unmodifiableMap(itBlocks);
         this.ignored = false;
+        this.focused = false;
     }
 
     private ExecutionPlan(
@@ -49,7 +51,8 @@ public final class ExecutionPlan {
         Runnable beforeAllBlock,
         Runnable beforeEachBlock,
         Map<String, ItBlockDefinition> itBlocks,
-        boolean ignored
+        boolean ignored,
+        boolean focused
     ) {
         this.parent = parent;
         this.specClass = parent.specClass;
@@ -58,6 +61,7 @@ public final class ExecutionPlan {
         this.beforeEachBlock = beforeEachBlock;
         this.itBlocks = unmodifiableMap(itBlocks);
         this.ignored = ignored;
+        this.focused = focused;
     }
 
     ExecutionPlan newChildPlan(
@@ -65,9 +69,10 @@ public final class ExecutionPlan {
         Runnable beforeAllBlock,
         Runnable beforeEachBlock,
         Map<String, ItBlockDefinition> itBlocks,
-        boolean ignored
+        boolean ignored,
+        boolean focused
     ) {
-        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks, ignored);
+        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks, ignored, focused);
         plans.add(plan);
         return plan;
     }
@@ -137,6 +142,10 @@ public final class ExecutionPlan {
 
     boolean ignored() {
         return ignored;
+    }
+
+    boolean focused() {
+        return focused;
     }
 
     private void collectItBlocks(

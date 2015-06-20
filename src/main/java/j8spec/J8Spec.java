@@ -21,6 +21,11 @@ public final class J8Spec {
         currentSpec.get().xdescribe(description, body);
     }
 
+    public static synchronized void fdescribe(String description, Runnable body) {
+        isValidContext("fdescribe");
+        currentSpec.get().fdescribe(description, body);
+    }
+
     public static synchronized void beforeAll(Runnable body) {
         isValidContext("beforeAll");
         currentSpec.get().beforeAll(body);
@@ -69,6 +74,7 @@ public final class J8Spec {
         private final String description;
         private final Runnable body;
         private final boolean ignored;
+        private final boolean focused;
         private final List<Spec> describeBlocks = new LinkedList<>();
         private final Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         private Runnable beforeAllBlock;
@@ -87,21 +93,27 @@ public final class J8Spec {
                 }
             };
             this.ignored = false;
+            this.focused = false;
         }
 
-        private Spec(Class<?> specClass, String description, Runnable body, boolean ignored) {
+        private Spec(Class<?> specClass, String description, Runnable body, boolean ignored, boolean focused) {
             this.specClass = specClass;
             this.description = description;
             this.body = body;
             this.ignored = ignored;
+            this.focused = focused;
         }
 
         public void describe(String description, Runnable body) {
-            describeBlocks.add(new Spec(specClass, description, body, false));
+            describeBlocks.add(new Spec(specClass, description, body, false, false));
         }
 
         public void xdescribe(String description, Runnable body) {
-            describeBlocks.add(new Spec(specClass, description, body, true));
+            describeBlocks.add(new Spec(specClass, description, body, true, false));
+        }
+
+        public void fdescribe(String description, Runnable body) {
+            describeBlocks.add(new Spec(specClass, description, body, false, true));
         }
 
         public void beforeAll(Runnable beforeAllBlock) {
@@ -149,7 +161,7 @@ public final class J8Spec {
             if (parentPlan == null) {
                 newPlan = new ExecutionPlan(specClass, beforeAllBlock, beforeEachBlock, itBlocks);
             } else {
-                newPlan = parentPlan.newChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks, ignored);
+                newPlan = parentPlan.newChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks, ignored, focused);
             }
 
             for (Spec spec : describeBlocks) {

@@ -199,8 +199,8 @@ public class ExecutionPlanTest {
 
         ExecutionPlan planWithInnerPlans = new ExecutionPlan(SampleSpec.class, null, null, itBlocks);
 
-        planWithInnerPlans.newChildPlan("child 1", null, null, itBlocks, false);
-        planWithInnerPlans.newChildPlan("child 2", null, null, itBlocks, false);
+        planWithInnerPlans.newChildPlan("child 1", null, null, itBlocks, false, false);
+        planWithInnerPlans.newChildPlan("child 2", null, null, itBlocks, false, false);
 
         return planWithInnerPlans;
     }
@@ -226,6 +226,7 @@ public class ExecutionPlanTest {
             BEFORE_ALL_BLOCK_A,
             BEFORE_EACH_BLOCK_A,
             itBlocksA,
+            false,
             false
         );
 
@@ -260,7 +261,7 @@ public class ExecutionPlanTest {
         itBlocksA.put("block A1", newFocusedItBlockDefinition(BLOCK_A_1));
         itBlocksA.put("block A2", newItBlockDefinition(BLOCK_A_2));
 
-        plan.newChildPlan("describe A", BEFORE_ALL_BLOCK, BEFORE_EACH_BLOCK, itBlocksA, true);
+        plan.newChildPlan("describe A", BEFORE_ALL_BLOCK, BEFORE_EACH_BLOCK, itBlocksA, true, false);
 
         return plan;
     }
@@ -280,7 +281,7 @@ public class ExecutionPlanTest {
         itBlocksA.put("block A1", newItBlockDefinition(BLOCK_A_1));
         itBlocksA.put("block A2", newItBlockDefinition(BLOCK_A_2));
 
-        plan.newChildPlan("describe A", BEFORE_ALL_BLOCK, BEFORE_EACH_BLOCK, itBlocksA, true);
+        plan.newChildPlan("describe A", BEFORE_ALL_BLOCK, BEFORE_EACH_BLOCK, itBlocksA, true, false);
 
         return plan;
     }
