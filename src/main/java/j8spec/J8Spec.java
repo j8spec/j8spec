@@ -161,7 +161,13 @@ public final class J8Spec {
             if (parentPlan == null) {
                 newPlan = new ExecutionPlan(specClass, beforeAllBlock, beforeEachBlock, itBlocks);
             } else {
-                newPlan = parentPlan.newChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks, ignored, focused);
+                if (ignored) {
+                    newPlan = parentPlan.newIgnoredChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
+                } else if (focused) {
+                    newPlan = parentPlan.newFocusedChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
+                } else {
+                    newPlan = parentPlan.newChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
+                }
             }
 
             for (Spec spec : describeBlocks) {

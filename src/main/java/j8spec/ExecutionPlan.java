@@ -67,12 +67,31 @@ public final class ExecutionPlan {
         String description,
         Runnable beforeAllBlock,
         Runnable beforeEachBlock,
-        Map<String, ItBlockDefinition> itBlocks,
-        boolean ignored,
-        boolean focused
+        Map<String, ItBlockDefinition> itBlocks
     ) {
-        SelectionFlag flag = ignored ? IGNORED : (focused ? FOCUSED : DEFAULT);
-        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks, flag);
+        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks, DEFAULT);
+        plans.add(plan);
+        return plan;
+    }
+
+    ExecutionPlan newIgnoredChildPlan(
+        String description,
+        Runnable beforeAllBlock,
+        Runnable beforeEachBlock,
+        Map<String, ItBlockDefinition> itBlocks
+    ) {
+        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks, IGNORED);
+        plans.add(plan);
+        return plan;
+    }
+
+    ExecutionPlan newFocusedChildPlan(
+        String description,
+        Runnable beforeAllBlock,
+        Runnable beforeEachBlock,
+        Map<String, ItBlockDefinition> itBlocks
+    ) {
+        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks, FOCUSED);
         plans.add(plan);
         return plan;
     }
