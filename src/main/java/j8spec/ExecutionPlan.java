@@ -8,6 +8,9 @@ import static j8spec.BeforeBlock.newBeforeAllBlock;
 import static j8spec.BeforeBlock.newBeforeEachBlock;
 import static j8spec.ItBlock.newIgnoredItBlock;
 import static j8spec.ItBlock.newItBlock;
+import static j8spec.SelectionFlag.DEFAULT;
+import static j8spec.SelectionFlag.FOCUSED;
+import static j8spec.SelectionFlag.IGNORED;
 import static java.util.Collections.unmodifiableMap;
 
 public final class ExecutionPlan {
@@ -15,8 +18,7 @@ public final class ExecutionPlan {
     private static final String LS = System.getProperty("line.separator");
 
     private final ExecutionPlan parent;
-    private final boolean ignored;
-    private final boolean focused;
+    private final SelectionFlag selectionFlag;
     private final String description;
     private final Runnable beforeAllBlock;
     private final Runnable beforeEachBlock;
@@ -41,8 +43,7 @@ public final class ExecutionPlan {
         this.beforeAllBlock = beforeAllBlock;
         this.beforeEachBlock = beforeEachBlock;
         this.itBlocks = unmodifiableMap(itBlocks);
-        this.ignored = false;
-        this.focused = false;
+        this.selectionFlag = DEFAULT;
     }
 
     private ExecutionPlan(
@@ -51,8 +52,7 @@ public final class ExecutionPlan {
         Runnable beforeAllBlock,
         Runnable beforeEachBlock,
         Map<String, ItBlockDefinition> itBlocks,
-        boolean ignored,
-        boolean focused
+        SelectionFlag selectionFlag
     ) {
         this.parent = parent;
         this.specClass = parent.specClass;
@@ -60,8 +60,7 @@ public final class ExecutionPlan {
         this.beforeAllBlock = beforeAllBlock;
         this.beforeEachBlock = beforeEachBlock;
         this.itBlocks = unmodifiableMap(itBlocks);
-        this.ignored = ignored;
-        this.focused = focused;
+        this.selectionFlag = selectionFlag;
     }
 
     ExecutionPlan newChildPlan(
@@ -72,7 +71,8 @@ public final class ExecutionPlan {
         boolean ignored,
         boolean focused
     ) {
-        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks, ignored, focused);
+        SelectionFlag flag = ignored ? IGNORED : (focused ? FOCUSED : DEFAULT);
+        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks, flag);
         plans.add(plan);
         return plan;
     }
@@ -141,11 +141,11 @@ public final class ExecutionPlan {
     }
 
     boolean ignored() {
-        return ignored;
+        return IGNORED.equals(selectionFlag);
     }
 
     boolean focused() {
-        return focused;
+        return FOCUSED.equals(selectionFlag);
     }
 
     private void collectItBlocks(
@@ -179,9 +179,9 @@ public final class ExecutionPlan {
 
     private boolean containerIgnored() {
         if (isRootPlan()) {
-            return ignored;
+            return ignored();
         }
-        return ignored || parent.containerIgnored();
+        return ignored() || parent.containerIgnored();
     }
 
     private List<String> allContainerDescriptions() {
