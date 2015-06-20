@@ -162,9 +162,7 @@ public final class J8Spec {
                 newPlan = newChildPlan(parentPlan);
             }
 
-            for (Spec spec : describeBlocks) {
-                spec.populateExecutionPlan(newPlan);
-            }
+            describeBlocks.stream().forEach(block -> block.populateExecutionPlan(newPlan));
 
             J8Spec.currentSpec.set(previousSpec);
 
