@@ -1,13 +1,13 @@
 package j8spec;
 
-import static j8spec.SelectionFlag.DEFAULT;
-import static j8spec.SelectionFlag.FOCUSED;
-import static j8spec.SelectionFlag.IGNORED;
+import static j8spec.BlockExecutionFlag.DEFAULT;
+import static j8spec.BlockExecutionFlag.FOCUSED;
+import static j8spec.BlockExecutionFlag.IGNORED;
 
 public final class ItBlockDefinition {
 
     private final Runnable body;
-    private final SelectionFlag selectionFlag;
+    private final BlockExecutionFlag executionFlag;
 
     public static ItBlockDefinition newItBlockDefinition(Runnable body) {
         return new ItBlockDefinition(body, DEFAULT);
@@ -21,9 +21,9 @@ public final class ItBlockDefinition {
         return new ItBlockDefinition(body, FOCUSED);
     }
 
-    private ItBlockDefinition(Runnable body, SelectionFlag selectionFlag) {
+    private ItBlockDefinition(Runnable body, BlockExecutionFlag executionFlag) {
         this.body = body;
-        this.selectionFlag = selectionFlag;
+        this.executionFlag = executionFlag;
     }
 
     Runnable body() {
@@ -31,10 +31,10 @@ public final class ItBlockDefinition {
     }
 
     boolean ignored() {
-        return IGNORED.equals(selectionFlag);
+        return IGNORED.equals(executionFlag);
     }
 
     boolean focused() {
-        return FOCUSED.equals(selectionFlag);
+        return FOCUSED.equals(executionFlag);
     }
 }

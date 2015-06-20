@@ -1,6 +1,6 @@
 package j8spec;
 
-enum SelectionFlag {
+enum BlockExecutionFlag {
     IGNORED,
     DEFAULT,
     FOCUSED
