@@ -4,9 +4,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import static j8spec.BlockExecutionFlag.*;
-import static j8spec.ItBlockDefinition.*;
+import static java.util.function.Function.identity;
 
 public final class J8Spec {
 
@@ -38,18 +39,51 @@ public final class J8Spec {
     }
 
     public static synchronized void it(String description, Runnable body) {
+        it(description, identity(), body);
+    }
+
+    public static synchronized void it(
+        String description,
+        Function<ItBlockDefinitionBuilder, ItBlockDefinitionBuilder> collector,
+        Runnable body
+    ) {
         isValidContext("it");
-        currentSpec.get().it(description, body);
+        ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
+            .body(body)
+            .newItBlockDefinition();
+        currentSpec.get().it(description, itBlockDefinition);
     }
 
     public static synchronized void xit(String description, Runnable body) {
+        xit(description, identity(), body);
+    }
+
+    public static synchronized void xit(
+        String description,
+        Function<ItBlockDefinitionBuilder, ItBlockDefinitionBuilder> collector,
+        Runnable body
+    ) {
         isValidContext("xit");
-        currentSpec.get().xit(description, body);
+        ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
+            .body(body)
+            .newIgnoredItBlockDefinition();
+        currentSpec.get().it(description, itBlockDefinition);
     }
 
     public static synchronized void fit(String description, Runnable body) {
+        fit(description, identity(), body);
+    }
+
+    public static synchronized void fit(
+        String description,
+        Function<ItBlockDefinitionBuilder, ItBlockDefinitionBuilder> collector,
+        Runnable body
+    ) {
         isValidContext("fit");
-        currentSpec.get().fit(description, body);
+        ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
+            .body(body)
+            .newFocusedItBlockDefinition();
+        currentSpec.get().it(description, itBlockDefinition);
     }
 
     private static void isValidContext(final String methodName) {
@@ -124,19 +158,9 @@ public final class J8Spec {
             this.beforeEachBlock = beforeEachBlock;
         }
 
-        public void it(String description, Runnable body) {
+        public void it(String description, ItBlockDefinition itBlockDefinition) {
             ensureIsNotAlreadyDefined(description, itBlocks.containsKey(description));
-            itBlocks.put(description, newItBlockDefinition(body));
-        }
-
-        public void xit(String description, Runnable body) {
-            ensureIsNotAlreadyDefined(description, itBlocks.containsKey(description));
-            itBlocks.put(description, newIgnoredItBlockDefinition(body));
-        }
-
-        public void fit(String description, Runnable body) {
-            ensureIsNotAlreadyDefined(description, itBlocks.containsKey(description));
-            itBlocks.put(description, newFocusedItBlockDefinition(body));
+            itBlocks.put(description, itBlockDefinition);
         }
 
         private void ensureIsNotAlreadyDefined(String blockName, boolean result) {
