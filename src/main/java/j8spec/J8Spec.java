@@ -155,18 +155,19 @@ public final class J8Spec {
 
             body.run();
 
-            ExecutionPlan newPlan;
-            if (parentPlan == null) {
-                newPlan = new ExecutionPlan(specClass, beforeAllBlock, beforeEachBlock, itBlocks);
-            } else {
-                newPlan = newChildPlan(parentPlan);
-            }
-
+            ExecutionPlan newPlan = newPlan(parentPlan);
             describeBlocks.stream().forEach(block -> block.populateExecutionPlan(newPlan));
 
             J8Spec.currentSpec.set(previousSpec);
 
             return newPlan;
+        }
+
+        private ExecutionPlan newPlan(ExecutionPlan parentPlan) {
+            if (parentPlan == null) {
+                return new ExecutionPlan(specClass, beforeAllBlock, beforeEachBlock, itBlocks);
+            }
+            return newChildPlan(parentPlan);
         }
 
         private ExecutionPlan newChildPlan(ExecutionPlan parentPlan) {
