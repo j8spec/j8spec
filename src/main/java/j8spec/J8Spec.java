@@ -5,9 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static j8spec.BlockExecutionFlag.DEFAULT;
-import static j8spec.BlockExecutionFlag.FOCUSED;
-import static j8spec.BlockExecutionFlag.IGNORED;
+import static j8spec.BlockExecutionFlag.*;
 import static j8spec.ItBlockDefinition.*;
 
 public final class J8Spec {
@@ -161,13 +159,7 @@ public final class J8Spec {
             if (parentPlan == null) {
                 newPlan = new ExecutionPlan(specClass, beforeAllBlock, beforeEachBlock, itBlocks);
             } else {
-                if (IGNORED.equals(executionFlag)) {
-                    newPlan = parentPlan.newIgnoredChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
-                } else if (FOCUSED.equals(executionFlag)) {
-                    newPlan = parentPlan.newFocusedChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
-                } else {
-                    newPlan = parentPlan.newChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
-                }
+                newPlan = newChildPlan(parentPlan);
             }
 
             for (Spec spec : describeBlocks) {
@@ -177,6 +169,18 @@ public final class J8Spec {
             J8Spec.currentSpec.set(previousSpec);
 
             return newPlan;
+        }
+
+        private ExecutionPlan newChildPlan(ExecutionPlan parentPlan) {
+            if (IGNORED.equals(executionFlag)) {
+                return parentPlan.newIgnoredChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
+            }
+
+            if (FOCUSED.equals(executionFlag)) {
+                return parentPlan.newFocusedChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
+            }
+
+            return parentPlan.newChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
         }
     }
 
