@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static j8spec.BlockExecutionFlag.*;
 import static j8spec.ItBlockDefinition.*;
 
 public final class J8Spec {
@@ -19,6 +20,11 @@ public final class J8Spec {
     public static synchronized void xdescribe(String description, Runnable body) {
         isValidContext("xdescribe");
         currentSpec.get().xdescribe(description, body);
+    }
+
+    public static synchronized void fdescribe(String description, Runnable body) {
+        isValidContext("fdescribe");
+        currentSpec.get().fdescribe(description, body);
     }
 
     public static synchronized void beforeAll(Runnable body) {
@@ -68,7 +74,7 @@ public final class J8Spec {
         private final Class<?> specClass;
         private final String description;
         private final Runnable body;
-        private final boolean ignored;
+        private final BlockExecutionFlag executionFlag;
         private final List<Spec> describeBlocks = new LinkedList<>();
         private final Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         private Runnable beforeAllBlock;
@@ -86,22 +92,26 @@ public final class J8Spec {
                     throw new SpecInitializationException("Failed to create instance of " + specClass + ".", e);
                 }
             };
-            this.ignored = false;
+            this.executionFlag = DEFAULT;
         }
 
-        private Spec(Class<?> specClass, String description, Runnable body, boolean ignored) {
+        private Spec(Class<?> specClass, String description, Runnable body, BlockExecutionFlag executionFlag) {
             this.specClass = specClass;
             this.description = description;
             this.body = body;
-            this.ignored = ignored;
+            this.executionFlag = executionFlag;
         }
 
         public void describe(String description, Runnable body) {
-            describeBlocks.add(new Spec(specClass, description, body, false));
+            describeBlocks.add(new Spec(specClass, description, body, DEFAULT));
         }
 
         public void xdescribe(String description, Runnable body) {
-            describeBlocks.add(new Spec(specClass, description, body, true));
+            describeBlocks.add(new Spec(specClass, description, body, IGNORED));
+        }
+
+        public void fdescribe(String description, Runnable body) {
+            describeBlocks.add(new Spec(specClass, description, body, FOCUSED));
         }
 
         public void beforeAll(Runnable beforeAllBlock) {
@@ -145,20 +155,31 @@ public final class J8Spec {
 
             body.run();
 
-            ExecutionPlan newPlan;
-            if (parentPlan == null) {
-                newPlan = new ExecutionPlan(specClass, beforeAllBlock, beforeEachBlock, itBlocks);
-            } else {
-                newPlan = parentPlan.newChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks, ignored);
-            }
-
-            for (Spec spec : describeBlocks) {
-                spec.populateExecutionPlan(newPlan);
-            }
+            ExecutionPlan newPlan = newPlan(parentPlan);
+            describeBlocks.stream().forEach(block -> block.populateExecutionPlan(newPlan));
 
             J8Spec.currentSpec.set(previousSpec);
 
             return newPlan;
+        }
+
+        private ExecutionPlan newPlan(ExecutionPlan parentPlan) {
+            if (parentPlan == null) {
+                return new ExecutionPlan(specClass, beforeAllBlock, beforeEachBlock, itBlocks);
+            }
+            return newChildPlan(parentPlan);
+        }
+
+        private ExecutionPlan newChildPlan(ExecutionPlan parentPlan) {
+            if (IGNORED.equals(executionFlag)) {
+                return parentPlan.newIgnoredChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
+            }
+
+            if (FOCUSED.equals(executionFlag)) {
+                return parentPlan.newFocusedChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
+            }
+
+            return parentPlan.newChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
         }
     }
 

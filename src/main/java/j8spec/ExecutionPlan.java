@@ -8,6 +8,9 @@ import static j8spec.BeforeBlock.newBeforeAllBlock;
 import static j8spec.BeforeBlock.newBeforeEachBlock;
 import static j8spec.ItBlock.newIgnoredItBlock;
 import static j8spec.ItBlock.newItBlock;
+import static j8spec.BlockExecutionFlag.DEFAULT;
+import static j8spec.BlockExecutionFlag.FOCUSED;
+import static j8spec.BlockExecutionFlag.IGNORED;
 import static java.util.Collections.unmodifiableMap;
 
 public final class ExecutionPlan {
@@ -15,7 +18,7 @@ public final class ExecutionPlan {
     private static final String LS = System.getProperty("line.separator");
 
     private final ExecutionPlan parent;
-    private final boolean ignored;
+    private final BlockExecutionFlag executionFlag;
     private final String description;
     private final Runnable beforeAllBlock;
     private final Runnable beforeEachBlock;
@@ -40,7 +43,7 @@ public final class ExecutionPlan {
         this.beforeAllBlock = beforeAllBlock;
         this.beforeEachBlock = beforeEachBlock;
         this.itBlocks = unmodifiableMap(itBlocks);
-        this.ignored = false;
+        this.executionFlag = DEFAULT;
     }
 
     private ExecutionPlan(
@@ -49,7 +52,7 @@ public final class ExecutionPlan {
         Runnable beforeAllBlock,
         Runnable beforeEachBlock,
         Map<String, ItBlockDefinition> itBlocks,
-        boolean ignored
+        BlockExecutionFlag executionFlag
     ) {
         this.parent = parent;
         this.specClass = parent.specClass;
@@ -57,17 +60,38 @@ public final class ExecutionPlan {
         this.beforeAllBlock = beforeAllBlock;
         this.beforeEachBlock = beforeEachBlock;
         this.itBlocks = unmodifiableMap(itBlocks);
-        this.ignored = ignored;
+        this.executionFlag = executionFlag;
     }
 
     ExecutionPlan newChildPlan(
         String description,
         Runnable beforeAllBlock,
         Runnable beforeEachBlock,
-        Map<String, ItBlockDefinition> itBlocks,
-        boolean ignored
+        Map<String, ItBlockDefinition> itBlocks
     ) {
-        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks, ignored);
+        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks, DEFAULT);
+        plans.add(plan);
+        return plan;
+    }
+
+    ExecutionPlan newIgnoredChildPlan(
+        String description,
+        Runnable beforeAllBlock,
+        Runnable beforeEachBlock,
+        Map<String, ItBlockDefinition> itBlocks
+    ) {
+        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks, IGNORED);
+        plans.add(plan);
+        return plan;
+    }
+
+    ExecutionPlan newFocusedChildPlan(
+        String description,
+        Runnable beforeAllBlock,
+        Runnable beforeEachBlock,
+        Map<String, ItBlockDefinition> itBlocks
+    ) {
+        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks, FOCUSED);
         plans.add(plan);
         return plan;
     }
@@ -103,16 +127,15 @@ public final class ExecutionPlan {
     }
 
     private ShouldBeIgnoredPredicate shouldBeIgnoredPredicate() {
-        if (thereIsAtLeastOneFocusedItBlock()) {
-            return (p, b) -> !b.focused();
+        if (thereIsAtLeastOneFocusedBlock()) {
+            return (p, b) -> !b.focused() && !p.containerFocused();
         }
         return (p, b) -> b.ignored() || p.containerIgnored();
     }
 
-    private boolean thereIsAtLeastOneFocusedItBlock() {
-        return
-            itBlocks.values().stream().anyMatch(ItBlockDefinition::focused) ||
-            plans.stream().anyMatch(ExecutionPlan::thereIsAtLeastOneFocusedItBlock);
+    private boolean thereIsAtLeastOneFocusedBlock() {
+        return itBlocks.values().stream().anyMatch(ItBlockDefinition::focused)
+            || plans.stream().anyMatch(p -> p.focused() || p.thereIsAtLeastOneFocusedBlock());
     }
 
     String description() {
@@ -136,7 +159,11 @@ public final class ExecutionPlan {
     }
 
     boolean ignored() {
-        return ignored;
+        return IGNORED.equals(executionFlag);
+    }
+
+    boolean focused() {
+        return FOCUSED.equals(executionFlag);
     }
 
     private void collectItBlocks(
@@ -170,9 +197,16 @@ public final class ExecutionPlan {
 
     private boolean containerIgnored() {
         if (isRootPlan()) {
-            return ignored;
+            return ignored();
         }
-        return ignored || parent.containerIgnored();
+        return ignored() || parent.containerIgnored();
+    }
+
+    private boolean containerFocused() {
+        if (isRootPlan()) {
+            return focused();
+        }
+        return focused() || parent.containerFocused();
     }
 
     private List<String> allContainerDescriptions() {

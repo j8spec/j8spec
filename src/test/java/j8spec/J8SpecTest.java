@@ -93,6 +93,16 @@ public class J8SpecTest {
         });
     }}
 
+    static class FdescribeSpec {{
+        it("block 1", IT_BLOCK_1);
+        it("block 2", IT_BLOCK_2);
+
+        fdescribe("describe A", () -> {
+            it("block A.1", IT_BLOCK_A1);
+            it("block A.2", IT_BLOCK_A2);
+        });
+    }}
+
     static class FitSpec {{
         fit("block 1", IT_BLOCK_1);
     }}
@@ -233,6 +243,14 @@ public class J8SpecTest {
     }
 
     @Test
+    public void buildsAnExecutionPlanMarkingFdescribeBlocksFromTheSpecDefinitionAsFocused() {
+        ExecutionPlan plan = executionPlanFor(FdescribeSpec.class);
+
+        assertThat(plan.focused(), is(false));
+        assertThat(plan.plans().get(0).focused(), is(true));
+    }
+
+    @Test
     public void buildsAnExecutionPlanMarkingXitBlocksFromTheSpecDefinitionAsIgnored() {
         ExecutionPlan plan = executionPlanFor(SampleSpec.class);
 
@@ -262,19 +280,8 @@ public class J8SpecTest {
     }
 
     @Test(expected = IllegalContextException.class)
-    public void forgetsLastSpec() {
-        executionPlanFor(SampleSpec.class);
-        J8Spec.describe("some text", () -> {});
-    }
-
-    @Test(expected = IllegalContextException.class)
-    public void forgetsLastSpecAfterTheLastSpecEvaluationFails() {
-        try {
-            executionPlanFor(ItBlockOverwrittenSpec.class);
-        } catch (BlockAlreadyDefinedException e) {
-        }
-
-        J8Spec.it("some text", () -> {});
+    public void doesNotAllowFdescribeMethodDirectInvocation() {
+        J8Spec.fdescribe("some text", () -> {});
     }
 
     @Test(expected = IllegalContextException.class)
@@ -325,6 +332,22 @@ public class J8SpecTest {
     @Test(expected = BlockAlreadyDefinedException.class)
     public void doesNotAllowFitBlockToBeReplaced() {
         executionPlanFor(FitBlockOverwrittenSpec.class);
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void forgetsLastSpec() {
+        executionPlanFor(SampleSpec.class);
+        J8Spec.describe("some text", () -> {});
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void forgetsLastSpecAfterTheLastSpecEvaluationFails() {
+        try {
+            executionPlanFor(ItBlockOverwrittenSpec.class);
+        } catch (BlockAlreadyDefinedException e) {
+        }
+
+        J8Spec.it("some text", () -> {});
     }
 
     @Test()

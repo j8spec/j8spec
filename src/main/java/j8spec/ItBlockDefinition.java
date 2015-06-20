@@ -1,38 +1,40 @@
 package j8spec;
 
+import static j8spec.BlockExecutionFlag.DEFAULT;
+import static j8spec.BlockExecutionFlag.FOCUSED;
+import static j8spec.BlockExecutionFlag.IGNORED;
+
 public final class ItBlockDefinition {
 
     private final Runnable body;
-    private final boolean ignored;
-    private final boolean focused;
+    private final BlockExecutionFlag executionFlag;
 
     public static ItBlockDefinition newItBlockDefinition(Runnable body) {
-        return new ItBlockDefinition(body, false, false);
+        return new ItBlockDefinition(body, DEFAULT);
     }
 
     public static ItBlockDefinition newIgnoredItBlockDefinition(Runnable body) {
-        return new ItBlockDefinition(body, true, false);
+        return new ItBlockDefinition(body, IGNORED);
     }
 
     public static ItBlockDefinition newFocusedItBlockDefinition(Runnable body) {
-        return new ItBlockDefinition(body, false, true);
+        return new ItBlockDefinition(body, FOCUSED);
     }
 
-    private ItBlockDefinition(Runnable body, boolean ignored, boolean focused) {
+    private ItBlockDefinition(Runnable body, BlockExecutionFlag executionFlag) {
         this.body = body;
-        this.ignored = ignored;
-        this.focused = focused;
+        this.executionFlag = executionFlag;
     }
 
     Runnable body() {
         return body;
     }
 
-    public boolean ignored() {
-        return ignored;
+    boolean ignored() {
+        return IGNORED.equals(executionFlag);
     }
 
-    public boolean focused() {
-        return focused;
+    boolean focused() {
+        return FOCUSED.equals(executionFlag);
     }
 }
