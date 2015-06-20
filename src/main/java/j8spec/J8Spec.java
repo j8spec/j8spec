@@ -5,6 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static j8spec.BlockExecutionFlag.DEFAULT;
+import static j8spec.BlockExecutionFlag.FOCUSED;
+import static j8spec.BlockExecutionFlag.IGNORED;
 import static j8spec.ItBlockDefinition.*;
 
 public final class J8Spec {
@@ -73,8 +76,7 @@ public final class J8Spec {
         private final Class<?> specClass;
         private final String description;
         private final Runnable body;
-        private final boolean ignored;
-        private final boolean focused;
+        private final BlockExecutionFlag executionFlag;
         private final List<Spec> describeBlocks = new LinkedList<>();
         private final Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         private Runnable beforeAllBlock;
@@ -92,28 +94,26 @@ public final class J8Spec {
                     throw new SpecInitializationException("Failed to create instance of " + specClass + ".", e);
                 }
             };
-            this.ignored = false;
-            this.focused = false;
+            this.executionFlag = DEFAULT;
         }
 
-        private Spec(Class<?> specClass, String description, Runnable body, boolean ignored, boolean focused) {
+        private Spec(Class<?> specClass, String description, Runnable body, BlockExecutionFlag executionFlag) {
             this.specClass = specClass;
             this.description = description;
             this.body = body;
-            this.ignored = ignored;
-            this.focused = focused;
+            this.executionFlag = executionFlag;
         }
 
         public void describe(String description, Runnable body) {
-            describeBlocks.add(new Spec(specClass, description, body, false, false));
+            describeBlocks.add(new Spec(specClass, description, body, DEFAULT));
         }
 
         public void xdescribe(String description, Runnable body) {
-            describeBlocks.add(new Spec(specClass, description, body, true, false));
+            describeBlocks.add(new Spec(specClass, description, body, IGNORED));
         }
 
         public void fdescribe(String description, Runnable body) {
-            describeBlocks.add(new Spec(specClass, description, body, false, true));
+            describeBlocks.add(new Spec(specClass, description, body, FOCUSED));
         }
 
         public void beforeAll(Runnable beforeAllBlock) {
@@ -161,9 +161,9 @@ public final class J8Spec {
             if (parentPlan == null) {
                 newPlan = new ExecutionPlan(specClass, beforeAllBlock, beforeEachBlock, itBlocks);
             } else {
-                if (ignored) {
+                if (IGNORED.equals(executionFlag)) {
                     newPlan = parentPlan.newIgnoredChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
-                } else if (focused) {
+                } else if (FOCUSED.equals(executionFlag)) {
                     newPlan = parentPlan.newFocusedChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
                 } else {
                     newPlan = parentPlan.newChildPlan(description, beforeAllBlock, beforeEachBlock, itBlocks);
