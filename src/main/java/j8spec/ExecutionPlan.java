@@ -127,16 +127,15 @@ public final class ExecutionPlan {
     }
 
     private ShouldBeIgnoredPredicate shouldBeIgnoredPredicate() {
-        if (thereIsAtLeastOneFocusedItBlock()) {
-            return (p, b) -> !b.focused();
+        if (thereIsAtLeastOneFocusedBlock()) {
+            return (p, b) -> !b.focused() && !p.containerFocused();
         }
         return (p, b) -> b.ignored() || p.containerIgnored();
     }
 
-    private boolean thereIsAtLeastOneFocusedItBlock() {
-        return
-            itBlocks.values().stream().anyMatch(ItBlockDefinition::focused) ||
-            plans.stream().anyMatch(ExecutionPlan::thereIsAtLeastOneFocusedItBlock);
+    private boolean thereIsAtLeastOneFocusedBlock() {
+        return itBlocks.values().stream().anyMatch(ItBlockDefinition::focused)
+            || plans.stream().anyMatch(p -> p.focused() || p.thereIsAtLeastOneFocusedBlock());
     }
 
     String description() {
@@ -201,6 +200,13 @@ public final class ExecutionPlan {
             return ignored();
         }
         return ignored() || parent.containerIgnored();
+    }
+
+    private boolean containerFocused() {
+        if (isRootPlan()) {
+            return focused();
+        }
+        return focused() || parent.containerFocused();
     }
 
     private List<String> allContainerDescriptions() {

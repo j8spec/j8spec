@@ -27,6 +27,8 @@ public class ExecutionPlanTest {
     private static final Runnable BEFORE_EACH_BLOCK_A = () -> {};
     private static final Runnable BLOCK_A_1 = () -> {};
     private static final Runnable BLOCK_A_2 = () -> {};
+    private static final Runnable BLOCK_A_A_1 = () -> {};
+    private static final Runnable BLOCK_A_A_2 = () -> {};
 
     static class SampleSpec {}
 
@@ -125,6 +127,19 @@ public class ExecutionPlanTest {
         assertThat(itBlocks.get(1).shouldBeIgnored(), is(true));
         assertThat(itBlocks.get(2).shouldBeIgnored(), is(false));
         assertThat(itBlocks.get(3).shouldBeIgnored(), is(true));
+    }
+
+    @Test
+    public void buildsItBlocksMarkedToBeIgnoredWhenThereIsDescribeBlocksFocused() {
+        ExecutionPlan plan = anExecutionPlanWithFocusedDescribeBlocks();
+
+        List<ItBlock> itBlocks = plan.allItBlocks();
+
+        assertThat(itBlocks.get(0).shouldBeIgnored(), is(true));
+        assertThat(itBlocks.get(1).shouldBeIgnored(), is(false));
+        assertThat(itBlocks.get(2).shouldBeIgnored(), is(false));
+        assertThat(itBlocks.get(3).shouldBeIgnored(), is(false));
+        assertThat(itBlocks.get(4).shouldBeIgnored(), is(false));
     }
 
     @Test
@@ -260,6 +275,27 @@ public class ExecutionPlanTest {
         itBlocksA.put("block A2", newItBlockDefinition(BLOCK_A_2));
 
         plan.newIgnoredChildPlan("describe A", BEFORE_ALL_BLOCK, BEFORE_EACH_BLOCK, itBlocksA);
+
+        return plan;
+    }
+
+    private ExecutionPlan anExecutionPlanWithFocusedDescribeBlocks() {
+        Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
+        itBlocks.put("block 1", newItBlockDefinition(BLOCK_1));
+
+        ExecutionPlan plan = new ExecutionPlan(SampleSpec.class, null, null, itBlocks);
+
+        Map<String, ItBlockDefinition> itBlocksA = new HashMap<>();
+        itBlocksA.put("block A1", newItBlockDefinition(BLOCK_A_1));
+        itBlocksA.put("block A2", newItBlockDefinition(BLOCK_A_2));
+
+        ExecutionPlan planA = plan.newFocusedChildPlan("describe A", null, null, itBlocksA);
+
+        Map<String, ItBlockDefinition> itBlocksAA = new HashMap<>();
+        itBlocksAA.put("block AA1", newItBlockDefinition(BLOCK_A_A_1));
+        itBlocksAA.put("block AA2", newItBlockDefinition(BLOCK_A_A_2));
+
+        planA.newChildPlan("describe A A", null, null, itBlocksAA);
 
         return plan;
     }
