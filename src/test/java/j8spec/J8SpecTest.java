@@ -55,13 +55,28 @@ public class J8SpecTest {
         it("some text", () -> {});
     }}
 
+    static class ItBlockWithCollectorOverwrittenSpec {{
+        it("some text", c -> c, () -> {});
+        it("some text", () -> {});
+    }}
+
     static class XitBlockOverwrittenSpec {{
         xit("some text", () -> {});
         xit("some text", () -> {});
     }}
 
+    static class XitBlockWithCollectorOverwrittenSpec {{
+        xit("some text", c -> c, () -> {});
+        xit("some text", () -> {});
+    }}
+
     static class FitBlockOverwrittenSpec {{
         fit("some text", () -> {});
+        fit("some text", () -> {});
+    }}
+
+    static class FitBlockWithCollectorOverwrittenSpec {{
+        fit("some text", c -> c, () -> {});
         fit("some text", () -> {});
     }}
 
@@ -105,6 +120,12 @@ public class J8SpecTest {
 
     static class FitSpec {{
         fit("block 1", IT_BLOCK_1);
+    }}
+
+    static class ExpectedExceptionSpec {{
+        it("block 1", c -> c.expected(Exception.class), IT_BLOCK_1);
+        xit("block 2", c -> c.expected(Exception.class), IT_BLOCK_2);
+        fit("block 3", c -> c.expected(Exception.class), IT_BLOCK_3);
     }}
 
     static class SampleSpec {{
@@ -264,6 +285,15 @@ public class J8SpecTest {
         assertThat(plan.itBlock("block 1").focused(), is(true));
     }
 
+    @Test
+    public void buildsAnExecutionPlanUsingExceptedExceptionsFromTheSpecDefinition() {
+        ExecutionPlan plan = executionPlanFor(ExpectedExceptionSpec.class);
+
+        assertThat(plan.itBlock("block 1").expected(), is(equalTo(Exception.class)));
+        assertThat(plan.itBlock("block 2").expected(), is(equalTo(Exception.class)));
+        assertThat(plan.itBlock("block 3").expected(), is(equalTo(Exception.class)));
+    }
+
     @Test(expected = SpecInitializationException.class)
     public void throwsExceptionWhenFailsToEvaluateSpec() {
         executionPlanFor(BadSpec.class);
@@ -300,13 +330,28 @@ public class J8SpecTest {
     }
 
     @Test(expected = IllegalContextException.class)
+    public void doesNotAllowItMethodDirectInvocationWithCollector() {
+        J8Spec.it("some text", c -> c, () -> {});
+    }
+
+    @Test(expected = IllegalContextException.class)
     public void doesNotAllowXitMethodDirectInvocation() {
         J8Spec.xit("some text", () -> {});
     }
 
     @Test(expected = IllegalContextException.class)
+    public void doesNotAllowXitMethodDirectInvocationWithCollector() {
+        J8Spec.xit("some text", c -> c, () -> {});
+    }
+
+    @Test(expected = IllegalContextException.class)
     public void doesNotAllowFitMethodDirectInvocation() {
         J8Spec.fit("some text", () -> {});
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void doesNotAllowFitMethodWithCollectorDirectInvocation() {
+        J8Spec.fit("some text", c -> c, () -> {});
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
@@ -325,13 +370,28 @@ public class J8SpecTest {
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
+    public void doesNotAllowItBlockWithCollectorToBeReplaced() {
+        executionPlanFor(ItBlockWithCollectorOverwrittenSpec.class);
+    }
+
+    @Test(expected = BlockAlreadyDefinedException.class)
     public void doesNotAllowXitBlockToBeReplaced() {
         executionPlanFor(XitBlockOverwrittenSpec.class);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
+    public void doesNotAllowXitBlockWithCollectorToBeReplaced() {
+        executionPlanFor(XitBlockWithCollectorOverwrittenSpec.class);
+    }
+
+    @Test(expected = BlockAlreadyDefinedException.class)
     public void doesNotAllowFitBlockToBeReplaced() {
         executionPlanFor(FitBlockOverwrittenSpec.class);
+    }
+
+    @Test(expected = BlockAlreadyDefinedException.class)
+    public void doesNotAllowFitBlockWithCollectorToBeReplaced() {
+        executionPlanFor(FitBlockWithCollectorOverwrittenSpec.class);
     }
 
     @Test(expected = IllegalContextException.class)

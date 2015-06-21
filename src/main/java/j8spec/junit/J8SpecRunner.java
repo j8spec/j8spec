@@ -4,7 +4,6 @@ import j8spec.ExecutionPlan;
 import j8spec.ItBlock;
 import j8spec.J8Spec;
 import org.junit.runner.Description;
-import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.ParentRunner;
 import org.junit.runners.model.InitializationError;
@@ -14,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static j8spec.junit.ItBlockStatement.newStatement;
 import static java.util.Collections.unmodifiableList;
 import static org.junit.runner.Description.createTestDescription;
 
@@ -62,20 +62,19 @@ public final class J8SpecRunner extends ParentRunner<ItBlock> {
     }
 
     @Override
+    protected boolean isIgnored(ItBlock itBlock) {
+        return itBlock.shouldBeIgnored();
+    }
+
+    @Override
     protected void runChild(ItBlock itBlock, RunNotifier notifier) {
         Description description = describeChild(itBlock);
 
-        if (itBlock.shouldBeIgnored()) {
+        if (isIgnored(itBlock)) {
             notifier.fireTestIgnored(description);
             return;
         }
 
-        notifier.fireTestStarted(description);
-        try {
-            itBlock.run();
-        } catch (Throwable t) {
-            notifier.fireTestFailure(new Failure(description, t));
-        }
-        notifier.fireTestFinished(description);
+        runLeaf(newStatement(itBlock), description, notifier);
     }
 }

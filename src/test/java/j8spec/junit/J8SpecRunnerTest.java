@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import static j8spec.J8Spec.*;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -23,11 +24,15 @@ public class J8SpecRunnerTest {
     private static final String BLOCK_1 = "block 1";
     private static final String BLOCK_2 = "block 2";
     private static final String BLOCK_3 = "block 3";
+    private static final String BLOCK_4 = "block 4";
+
+    public static class CustomException extends RuntimeException {}
 
     public static class SampleSpec {{
         it(BLOCK_1, newBlock(BLOCK_1));
         it(BLOCK_2, () -> {});
         xit(BLOCK_3, newBlock(BLOCK_3));
+        it(BLOCK_4, c -> c.expected(CustomException.class), newBlock(BLOCK_4));
 
         describe("describe A", () -> it("block A.1", () -> {}));
     }}
@@ -79,7 +84,12 @@ public class J8SpecRunnerTest {
         assertThat(block3Description.getClassName(), is("j8spec.junit.J8SpecRunnerTest$SampleSpec"));
         assertThat(block3Description.getMethodName(), is(BLOCK_3));
 
-        Description blockA1Description = runner.describeChild(itBlocks.get(3));
+        Description block4Description = runner.describeChild(itBlocks.get(3));
+
+        assertThat(block4Description.getClassName(), is("j8spec.junit.J8SpecRunnerTest$SampleSpec"));
+        assertThat(block4Description.getMethodName(), is(BLOCK_4));
+
+        Description blockA1Description = runner.describeChild(itBlocks.get(4));
 
         assertThat(blockA1Description.getClassName(), is("j8spec.junit.J8SpecRunnerTest$SampleSpec"));
         assertThat(blockA1Description.getMethodName(), is("block A.1, describe A"));
@@ -179,5 +189,50 @@ public class J8SpecRunnerTest {
         runner.runChild(itBlocks.get(0), runNotifier);
 
         verify(runNotifier).fireTestFinished(eq(runner.describeChild(itBlocks.get(0))));
+    }
+
+    @Test
+    public void notifiesSuccessWhenExpectedExceptionOccurs() throws InitializationError {
+        J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
+        List<ItBlock> itBlocks = runner.getChildren();
+
+        RunNotifier runNotifier = mock(RunNotifier.class);
+        doThrow(new CustomException()).when(block(BLOCK_4)).run();
+
+        runner.runChild(itBlocks.get(3), runNotifier);
+
+        verify(runNotifier, never()).fireTestFailure(any());
+    }
+
+    @Test
+    public void notifiesFailureWhenNoExceptionOccurs() throws InitializationError {
+        J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
+        List<ItBlock> itBlocks = runner.getChildren();
+
+        RunNotifier runNotifier = new RunNotifier();
+        RunListenerHelper listener = new RunListenerHelper();
+        runNotifier.addListener(listener);
+
+        runner.runChild(itBlocks.get(3), runNotifier);
+
+        assertThat(listener.getDescription(), is(runner.describeChild(itBlocks.get(3))));
+        assertThat(listener.getException(), instanceOf(AssertionError.class));
+    }
+
+    @Test
+    public void notifiesFailureWhenDifferentExceptionOccurs() throws InitializationError {
+        J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
+        List<ItBlock> itBlocks = runner.getChildren();
+
+        doThrow(new RuntimeException()).when(block(BLOCK_4)).run();
+
+        RunNotifier runNotifier = new RunNotifier();
+        RunListenerHelper listener = new RunListenerHelper();
+        runNotifier.addListener(listener);
+
+        runner.runChild(itBlocks.get(3), runNotifier);
+
+        assertThat(listener.getDescription(), is(runner.describeChild(itBlocks.get(3))));
+        assertThat(listener.getException(), instanceOf(Exception.class));
     }
 }

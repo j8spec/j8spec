@@ -186,7 +186,7 @@ public final class ExecutionPlan {
             if (shouldBeIgnored.test(this, itBlock)) {
                 blocks.add(newIgnoredItBlock(allContainerDescriptions(), description));
             } else {
-                blocks.add(newItBlock(allContainerDescriptions(), description, beforeBlocks, itBlock.body()));
+                blocks.add(newItBlock(allContainerDescriptions(), description, beforeBlocks, itBlock.body(), itBlock.expected()));
             }
         }
 
