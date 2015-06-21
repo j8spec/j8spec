@@ -13,6 +13,7 @@ public final class ItBlock implements Runnable {
     private final String description;
     private final List<BeforeBlock> beforeBlocks;
     private final Runnable body;
+    private final Class<? extends Throwable> expectedException;
 
     static ItBlock newItBlock(
         List<String> containerDescriptions,
@@ -20,23 +21,35 @@ public final class ItBlock implements Runnable {
         List<BeforeBlock> beforeBlocks,
         Runnable body
     ) {
-        return new ItBlock(containerDescriptions, description, beforeBlocks, body);
+        return new ItBlock(containerDescriptions, description, beforeBlocks, body, null);
+    }
+
+    static ItBlock newItBlock(
+        List<String> containerDescriptions,
+        String description,
+        List<BeforeBlock> beforeBlocks,
+        Runnable body,
+        Class<? extends Throwable> expectedException
+    ) {
+        return new ItBlock(containerDescriptions, description, beforeBlocks, body, expectedException);
     }
 
     static ItBlock newIgnoredItBlock(List<String> containerDescriptions, String description) {
-        return new ItBlock(containerDescriptions, description, emptyList(), NOOP);
+        return new ItBlock(containerDescriptions, description, emptyList(), NOOP, null);
     }
 
     private ItBlock(
         List<String> containerDescriptions,
         String description,
         List<BeforeBlock> beforeBlocks,
-        Runnable body
+        Runnable body,
+        Class<? extends Throwable> expectedException
     ) {
         this.containerDescriptions = unmodifiableList(containerDescriptions);
         this.description = description;
         this.beforeBlocks = unmodifiableList(beforeBlocks);
         this.body = body;
+        this.expectedException = expectedException;
     }
 
     public String description() {
@@ -55,6 +68,10 @@ public final class ItBlock implements Runnable {
 
     public boolean shouldBeIgnored() {
         return body == NOOP;
+    }
+
+    public Class<? extends Throwable> expected() {
+        return expectedException;
     }
 
     List<BeforeBlock> beforeBlocks() {

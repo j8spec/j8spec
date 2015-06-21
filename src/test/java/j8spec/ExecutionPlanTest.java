@@ -10,6 +10,7 @@ import static j8spec.ItBlockDefinition.*;
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -143,6 +144,15 @@ public class ExecutionPlanTest {
     }
 
     @Test
+    public void buildsItBlocksWithExceptedException() {
+        ExecutionPlan plan = anExecutionPlanWithExpectedException();
+
+        List<ItBlock> itBlocks = plan.allItBlocks();
+
+        assertThat(itBlocks.get(0).expected(), is(equalTo(Exception.class)));
+    }
+
+    @Test
     public void ensuresBeforeAllBlocksAreConfiguredToRunJustOnce() {
         ExecutionPlan planWithInnerPlans = anExecutionPlanWithInnerPlan();
 
@@ -256,6 +266,13 @@ public class ExecutionPlanTest {
             BEFORE_EACH_BLOCK,
             itBlocks
         );
+    }
+
+    private ExecutionPlan anExecutionPlanWithExpectedException() {
+        Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
+        itBlocks.put("block 1", newItBlockDefinition(BLOCK_1, Exception.class));
+
+        return new ExecutionPlan(SampleSpec.class, BEFORE_ALL_BLOCK, BEFORE_EACH_BLOCK, itBlocks);
     }
 
     private ExecutionPlan anExecutionPlanWithFocusedItBlocks() {
