@@ -13,6 +13,9 @@ import static j8spec.BlockExecutionFlag.FOCUSED;
 import static j8spec.BlockExecutionFlag.IGNORED;
 import static java.util.Collections.unmodifiableMap;
 
+/**
+ * @since 1.0.0
+ */
 public final class ExecutionPlan {
 
     private static final String LS = System.getProperty("line.separator");
@@ -116,10 +119,16 @@ public final class ExecutionPlan {
         }
     }
 
+    /**
+     * @since 1.1.0
+     */
     public Class<?> specClass() {
         return specClass;
     }
 
+    /**
+     * @since 1.0.0
+     */
     public List<ItBlock> allItBlocks() {
         LinkedList<ItBlock> blocks = new LinkedList<>();
         collectItBlocks(blocks, new LinkedList<>(), shouldBeIgnoredPredicate());
