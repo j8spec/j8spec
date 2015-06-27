@@ -1,6 +1,6 @@
 package j8spec;
 
-public final class BeforeBlock implements Runnable {
+final class BeforeBlock implements Runnable {
 
     private final Runnable body;
     private final boolean justOnce;

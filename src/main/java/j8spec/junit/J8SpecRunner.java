@@ -17,6 +17,9 @@ import static j8spec.junit.ItBlockStatement.newStatement;
 import static java.util.Collections.unmodifiableList;
 import static org.junit.runner.Description.createTestDescription;
 
+/**
+ * @since 1.0.0
+ */
 public final class J8SpecRunner extends ParentRunner<ItBlock> {
 
     private final ExecutionPlan executionPlan;

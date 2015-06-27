@@ -9,39 +9,63 @@ import java.util.function.Function;
 import static j8spec.BlockExecutionFlag.*;
 import static java.util.function.Function.identity;
 
+/**
+ * @since 1.0.0
+ */
 public final class J8Spec {
 
     private static final ThreadLocal<Spec> currentSpec = new ThreadLocal<>();
 
+    /**
+     * @since 1.0.0
+     */
     public static synchronized void describe(String description, Runnable body) {
         isValidContext("describe");
         currentSpec.get().describe(description, body);
     }
 
+    /**
+     * @since 1.1.0
+     */
     public static synchronized void xdescribe(String description, Runnable body) {
         isValidContext("xdescribe");
         currentSpec.get().xdescribe(description, body);
     }
 
+    /**
+     * @since 1.1.0
+     */
     public static synchronized void fdescribe(String description, Runnable body) {
         isValidContext("fdescribe");
         currentSpec.get().fdescribe(description, body);
     }
 
+    /**
+     * @since 1.1.0
+     */
     public static synchronized void beforeAll(Runnable body) {
         isValidContext("beforeAll");
         currentSpec.get().beforeAll(body);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public static synchronized void beforeEach(Runnable body) {
         isValidContext("beforeEach");
         currentSpec.get().beforeEach(body);
     }
 
+    /**
+     * @since 1.0.0
+     */
     public static synchronized void it(String description, Runnable body) {
         it(description, identity(), body);
     }
 
+    /**
+     * @since 1.1.0
+     */
     public static synchronized void it(
         String description,
         Function<ItBlockDefinitionBuilder, ItBlockDefinitionBuilder> collector,
@@ -54,10 +78,16 @@ public final class J8Spec {
         currentSpec.get().it(description, itBlockDefinition);
     }
 
+    /**
+     * @since 1.1.0
+     */
     public static synchronized void xit(String description, Runnable body) {
         xit(description, identity(), body);
     }
 
+    /**
+     * @since 1.1.0
+     */
     public static synchronized void xit(
         String description,
         Function<ItBlockDefinitionBuilder, ItBlockDefinitionBuilder> collector,
@@ -70,10 +100,16 @@ public final class J8Spec {
         currentSpec.get().it(description, itBlockDefinition);
     }
 
+    /**
+     * @since 1.1.0
+     */
     public static synchronized void fit(String description, Runnable body) {
         fit(description, identity(), body);
     }
 
+    /**
+     * @since 1.1.0
+     */
     public static synchronized void fit(
         String description,
         Function<ItBlockDefinitionBuilder, ItBlockDefinitionBuilder> collector,
@@ -94,6 +130,9 @@ public final class J8Spec {
         }
     }
 
+    /**
+     * @since 1.0.0
+     */
     public static synchronized ExecutionPlan executionPlanFor(Class<?> testClass) {
         currentSpec.set(new Spec(testClass));
         try {
