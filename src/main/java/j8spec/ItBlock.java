@@ -5,6 +5,9 @@ import java.util.List;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
+/**
+ * @since 1.0.0
+ */
 public final class ItBlock implements Runnable {
 
     private static final Runnable NOOP = () -> {};
@@ -52,28 +55,46 @@ public final class ItBlock implements Runnable {
         this.expectedException = expectedException;
     }
 
+    /**
+     * @since 1.1.0
+     */
     public String description() {
         return description;
     }
 
+    /**
+     * @since 1.1.0
+     */
     public List<String> containerDescriptions() {
         return containerDescriptions;
     }
 
+    /**
+     * @since 1.1.0
+     */
     @Override
     public void run() {
         beforeBlocks.forEach(Runnable::run);
         body.run();
     }
 
+    /**
+     * @since 1.1.0
+     */
     public boolean shouldBeIgnored() {
         return body == NOOP;
     }
 
+    /**
+     * @since 1.1.0
+     */
     public Class<? extends Throwable> expected() {
         return expectedException;
     }
 
+    /**
+     * @since 1.1.0
+     */
     public boolean isExpectedToThrowAnException() {
         return expectedException != null;
     }
