@@ -4,33 +4,33 @@ import static j8spec.BlockExecutionFlag.DEFAULT;
 import static j8spec.BlockExecutionFlag.FOCUSED;
 import static j8spec.BlockExecutionFlag.IGNORED;
 
-public final class ItBlockDefinition {
+final class ItBlockDefinition {
 
     private final Runnable body;
     private final BlockExecutionFlag executionFlag;
     private final Class<? extends Throwable> expectedException;
 
-    public static ItBlockDefinition newItBlockDefinition(Runnable body) {
+    static ItBlockDefinition newItBlockDefinition(Runnable body) {
         return new ItBlockDefinition(body, DEFAULT, null);
     }
 
-    public static ItBlockDefinition newItBlockDefinition(Runnable body, Class<? extends Throwable> expectedException) {
+    static ItBlockDefinition newItBlockDefinition(Runnable body, Class<? extends Throwable> expectedException) {
         return new ItBlockDefinition(body, DEFAULT, expectedException);
     }
 
-    public static ItBlockDefinition newIgnoredItBlockDefinition(Runnable body) {
+    static ItBlockDefinition newIgnoredItBlockDefinition(Runnable body) {
         return new ItBlockDefinition(body, IGNORED, null);
     }
 
-    public static ItBlockDefinition newIgnoredItBlockDefinition(Runnable body, Class<? extends Throwable> expectedException) {
+    static ItBlockDefinition newIgnoredItBlockDefinition(Runnable body, Class<? extends Throwable> expectedException) {
         return new ItBlockDefinition(body, IGNORED, expectedException);
     }
 
-    public static ItBlockDefinition newFocusedItBlockDefinition(Runnable body) {
+    static ItBlockDefinition newFocusedItBlockDefinition(Runnable body) {
         return new ItBlockDefinition(body, FOCUSED, null);
     }
 
-    public static ItBlockDefinition newFocusedItBlockDefinition(Runnable body, Class<? extends Throwable> expectedException) {
+    static ItBlockDefinition newFocusedItBlockDefinition(Runnable body, Class<? extends Throwable> expectedException) {
         return new ItBlockDefinition(body, FOCUSED, expectedException);
     }
 
