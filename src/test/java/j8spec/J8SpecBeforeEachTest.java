@@ -1,6 +1,5 @@
 package j8spec;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import static j8spec.J8Spec.*;
@@ -12,22 +11,24 @@ public class J8SpecBeforeEachTest {
 
     private static final Runnable NOOP = () -> {};
     
-    private static final Runnable BEFORE_EACH_BLOCK = NOOP;
+    private static final Runnable BEFORE_EACH_0_BLOCK = NOOP;
+    private static final Runnable BEFORE_EACH_1_BLOCK = NOOP;
     private static final Runnable BEFORE_EACH_A_BLOCK = NOOP;
     private static final Runnable BEFORE_EACH_AA_BLOCK = NOOP;
-    private static final Runnable BEFORE_EACH_B_BLOCK = NOOP;
-
-    static class BeforeEachBlockOverwrittenSpec {{
-        beforeEach(NOOP);
-        beforeEach(NOOP);
-    }}
 
     static class NoBeforeEachSpec {{
         it("block 1", NOOP);
     }}
 
-    static class SampleSpec {{
-        beforeEach(BEFORE_EACH_BLOCK);
+    static class SeveralBeforeEachSpec {{
+        beforeEach(BEFORE_EACH_0_BLOCK);
+        beforeEach(BEFORE_EACH_1_BLOCK);
+
+        it("block 1", NOOP);
+    }}
+
+    static class InnerContextSpec {{
+        beforeEach(BEFORE_EACH_0_BLOCK);
 
         it("block 1", NOOP);
 
@@ -42,35 +43,11 @@ public class J8SpecBeforeEachTest {
                 it("block A.A.1", NOOP);
             });
         });
-
-        describe("describe B", () -> {
-            beforeEach(BEFORE_EACH_B_BLOCK);
-
-            it("block B.1", NOOP);
-        });
     }}
-
-    private ExecutionPlan sampleSpecPlan;
-    private ExecutionPlan describeAPlan;
-    private ExecutionPlan describeAAPlan;
-    private ExecutionPlan describeBPlan;
-
-    @Before
-    public void buildExecutionPlanForSampleSpec() {
-        sampleSpecPlan = executionPlanFor(SampleSpec.class);
-        describeAPlan = sampleSpecPlan.plans().get(0);
-        describeAAPlan = describeAPlan.plans().get(0);
-        describeBPlan = sampleSpecPlan.plans().get(1);
-    }
 
     @Test(expected = IllegalContextException.class)
     public void does_not_allow_before_each_method_direct_invocation() {
         beforeEach(NOOP);
-    }
-
-    @Test(expected = BlockAlreadyDefinedException.class)
-    public void does_not_allow_before_each_block_to_be_replaced() {
-        executionPlanFor(BeforeEachBlockOverwrittenSpec.class);
     }
 
     @Test
@@ -81,10 +58,21 @@ public class J8SpecBeforeEachTest {
     }
 
     @Test
-    public void builds_an_execution_plan_using_before_each_blocks_from_the_spec_definition() {
-        assertThat(sampleSpecPlan.beforeEachBlock(), is(BEFORE_EACH_BLOCK));
+    public void builds_an_execution_plan_when_there_are_several_before_each_blocks_in_the_same_context() {
+        ExecutionPlan plan = executionPlanFor(SeveralBeforeEachSpec.class);
+
+        assertThat(plan.beforeEachBlockAt(0), is(BEFORE_EACH_0_BLOCK));
+        assertThat(plan.beforeEachBlockAt(1), is(BEFORE_EACH_1_BLOCK));
+    }
+
+    @Test
+    public void builds_an_execution_plan_when_spec_has_inner_contexts() {
+        ExecutionPlan sampleSpecPlan = executionPlanFor(InnerContextSpec.class);
+        ExecutionPlan describeAPlan = sampleSpecPlan.plans().get(0);
+        ExecutionPlan describeAAPlan = describeAPlan.plans().get(0);
+
+        assertThat(sampleSpecPlan.beforeEachBlock(), is(BEFORE_EACH_0_BLOCK));
         assertThat(describeAPlan.beforeEachBlock(), is(BEFORE_EACH_A_BLOCK));
         assertThat(describeAAPlan.beforeEachBlock(), is(BEFORE_EACH_AA_BLOCK));
-        assertThat(describeBPlan.beforeEachBlock(), is(BEFORE_EACH_B_BLOCK));
     }
 }

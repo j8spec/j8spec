@@ -11,6 +11,7 @@ import static j8spec.ItBlock.newItBlock;
 import static j8spec.BlockExecutionFlag.DEFAULT;
 import static j8spec.BlockExecutionFlag.FOCUSED;
 import static j8spec.BlockExecutionFlag.IGNORED;
+import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 
 /**
@@ -24,7 +25,7 @@ public final class ExecutionPlan {
     private final BlockExecutionFlag executionFlag;
     private final String description;
     private final Runnable beforeAllBlock;
-    private final Runnable beforeEachBlock;
+    private final List<Runnable> beforeEachBlocks;
     private final Map<String, ItBlockDefinition> itBlocks;
     private final List<ExecutionPlan> plans = new LinkedList<>();
     private final Class<?> specClass;
@@ -37,14 +38,14 @@ public final class ExecutionPlan {
     ExecutionPlan(
         Class<?> specClass,
         Runnable beforeAllBlock,
-        Runnable beforeEachBlock,
+        List<Runnable> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks
     ) {
         this.parent = null;
         this.specClass = specClass;
         this.description = specClass.getName();
         this.beforeAllBlock = beforeAllBlock;
-        this.beforeEachBlock = beforeEachBlock;
+        this.beforeEachBlocks = unmodifiableList(beforeEachBlocks);
         this.itBlocks = unmodifiableMap(itBlocks);
         this.executionFlag = DEFAULT;
     }
@@ -53,7 +54,7 @@ public final class ExecutionPlan {
         ExecutionPlan parent,
         String description,
         Runnable beforeAllBlock,
-        Runnable beforeEachBlock,
+        List<Runnable> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks,
         BlockExecutionFlag executionFlag
     ) {
@@ -61,7 +62,7 @@ public final class ExecutionPlan {
         this.specClass = parent.specClass;
         this.description = description;
         this.beforeAllBlock = beforeAllBlock;
-        this.beforeEachBlock = beforeEachBlock;
+        this.beforeEachBlocks = unmodifiableList(beforeEachBlocks);
         this.itBlocks = unmodifiableMap(itBlocks);
         this.executionFlag = executionFlag;
     }
@@ -69,10 +70,10 @@ public final class ExecutionPlan {
     ExecutionPlan newChildPlan(
         String description,
         Runnable beforeAllBlock,
-        Runnable beforeEachBlock,
+        List<Runnable> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks
     ) {
-        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks, DEFAULT);
+        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlocks, itBlocks, DEFAULT);
         plans.add(plan);
         return plan;
     }
@@ -80,10 +81,10 @@ public final class ExecutionPlan {
     ExecutionPlan newIgnoredChildPlan(
         String description,
         Runnable beforeAllBlock,
-        Runnable beforeEachBlock,
+        List<Runnable> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks
     ) {
-        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks, IGNORED);
+        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlocks, itBlocks, IGNORED);
         plans.add(plan);
         return plan;
     }
@@ -91,10 +92,10 @@ public final class ExecutionPlan {
     ExecutionPlan newFocusedChildPlan(
         String description,
         Runnable beforeAllBlock,
-        Runnable beforeEachBlock,
+        List<Runnable> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks
     ) {
-        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlock, itBlocks, FOCUSED);
+        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlocks, itBlocks, FOCUSED);
         plans.add(plan);
         return plan;
     }
@@ -160,7 +161,14 @@ public final class ExecutionPlan {
     }
 
     Runnable beforeEachBlock() {
-        return beforeEachBlock;
+        if (beforeEachBlocks.isEmpty()) {
+            return null;
+        }
+        return beforeEachBlocks.get(0);
+    }
+
+    Runnable beforeEachBlockAt(int index) {
+        return beforeEachBlocks.get(index);
     }
 
     ItBlockDefinition itBlock(String itBlockDescription) {
@@ -240,8 +248,8 @@ public final class ExecutionPlan {
             beforeEachBlocks = parent.collectBeforeEachBlocks();
         }
 
-        if (beforeEachBlock != null) {
-            beforeEachBlocks.add(newBeforeEachBlock(beforeEachBlock));
+        if (this.beforeEachBlock() != null) {
+            beforeEachBlocks.add(newBeforeEachBlock(beforeEachBlock()));
         }
 
         return beforeEachBlocks;
