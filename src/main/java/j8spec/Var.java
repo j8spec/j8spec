@@ -1,5 +1,8 @@
 package j8spec;
 
+/**
+ * @since 1.0.0
+ */
 public final class Var<T> {
 
     public static <T> Var<T> var() {
