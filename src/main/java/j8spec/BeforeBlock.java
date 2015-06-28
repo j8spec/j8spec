@@ -29,12 +29,4 @@ final class BeforeBlock implements Runnable {
         onceAlready = true;
         body.run();
     }
-
-    boolean justOnce() {
-        return justOnce;
-    }
-
-    Runnable body() {
-        return body;
-    }
 }

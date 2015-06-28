@@ -45,11 +45,6 @@ public class J8SpecTest {
         beforeAll(() -> {});
     }}
 
-    static class BeforeEachBlockOverwrittenSpec {{
-        beforeEach(() -> {});
-        beforeEach(() -> {});
-    }}
-
     static class ItBlockOverwrittenSpec {{
         it("some text", () -> {});
         it("some text", () -> {});
@@ -220,21 +215,6 @@ public class J8SpecTest {
     }
 
     @Test
-    public void buildsAnExecutionPlanUsingBeforeEachBlocksFromTheSpecDefinition() {
-        ExecutionPlan plan = executionPlanFor(SampleSpec.class);
-        assertThat(plan.beforeEachBlock(), is(BEFORE_EACH_BLOCK));
-
-        ExecutionPlan planA = plan.plans().get(0);
-        assertThat(planA.beforeEachBlock(), is(BEFORE_EACH_A_BLOCK));
-
-        ExecutionPlan planAA = planA.plans().get(0);
-        assertThat(planAA.beforeEachBlock(), is(BEFORE_EACH_AA_BLOCK));
-
-        ExecutionPlan planB = plan.plans().get(1);
-        assertThat(planB.beforeEachBlock(), is(BEFORE_EACH_B_BLOCK));
-    }
-
-    @Test
     public void buildsAnExecutionPlanUsingItBlocksFromTheSpecDefinition() {
         ExecutionPlan plan = executionPlanFor(SampleSpec.class);
 
@@ -320,11 +300,6 @@ public class J8SpecTest {
     }
 
     @Test(expected = IllegalContextException.class)
-    public void doesNotAllowBeforeEachMethodDirectInvocation() {
-        J8Spec.beforeEach(() -> {});
-    }
-
-    @Test(expected = IllegalContextException.class)
     public void doesNotAllowItMethodDirectInvocation() {
         J8Spec.it("some text", () -> {});
     }
@@ -357,11 +332,6 @@ public class J8SpecTest {
     @Test(expected = BlockAlreadyDefinedException.class)
     public void doesNotAllowBeforeAllBlockToBeReplaced() {
         executionPlanFor(BeforeAllBlockOverwrittenSpec.class);
-    }
-
-    @Test(expected = BlockAlreadyDefinedException.class)
-    public void doesNotAllowBeforeEachBlockToBeReplaced() {
-        executionPlanFor(BeforeEachBlockOverwrittenSpec.class);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static j8spec.ExecutionPlan.newExecutionPlan;
 import static j8spec.ItBlockDefinition.*;
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
@@ -34,12 +35,12 @@ public class ExecutionPlanTest {
     static class SampleSpec {}
 
     @Test
-    public void hasAStringRepresentationWhenEmpty() {
+    public void has_a_string_representation_when_empty() {
         assertThat(anEmptyExecutionPlan().toString(), is("j8spec.ExecutionPlanTest$SampleSpec"));
     }
 
     @Test
-    public void hasAStringRepresentationWhenItContainsChildPlans() {
+    public void has_a_string_representation_when_it_contains_child_plans() {
         assertThat(
             anExecutionPlanWithNoBeforeBlocks().toString(),
             is(join(
@@ -58,12 +59,12 @@ public class ExecutionPlanTest {
     }
 
     @Test
-    public void supportsNullBeforeBlocks() {
+    public void supports_null_before_blocks() {
         assertThat(anExecutionPlanWithNoBeforeBlocks().allItBlocks().get(0).beforeBlocks(), is(emptyList()));
     }
 
     @Test
-    public void buildsItBlocksWithGivenDescription() {
+    public void builds_it_blocks_with_given_description() {
         ExecutionPlan planWithInnerPlans = anExecutionPlanWithInnerPlan();
 
         List<ItBlock> itBlocks = planWithInnerPlans.allItBlocks();
@@ -75,7 +76,7 @@ public class ExecutionPlanTest {
     }
 
     @Test
-    public void buildsItBlocksWithGivenContainerDescriptions() {
+    public void builds_it_blocks_with_given_container_descriptions() {
         ExecutionPlan planWithInnerPlans = anExecutionPlanWithInnerPlan();
 
         List<ItBlock> itBlocks = planWithInnerPlans.allItBlocks();
@@ -87,19 +88,7 @@ public class ExecutionPlanTest {
     }
 
     @Test
-    public void buildsItBlocksWithGivenBodies() {
-        ExecutionPlan planWithInnerPlans = anExecutionPlanWithInnerPlan();
-
-        List<ItBlock> itBlocks = planWithInnerPlans.allItBlocks();
-
-        assertThat(itBlocks.get(0).body(), is(BLOCK_1));
-        assertThat(itBlocks.get(1).body(), is(BLOCK_2));
-        assertThat(itBlocks.get(2).body(), is(BLOCK_A_1));
-        assertThat(itBlocks.get(3).body(), is(BLOCK_A_2));
-    }
-
-    @Test
-    public void buildsItBlocksMarkedToBeIgnored() {
+    public void builds_it_blocks_marked_to_be_ignored() {
         ExecutionPlan plan = anExecutionPlanWithIgnoredItBlocks();
 
         List<ItBlock> itBlocks = plan.allItBlocks();
@@ -108,7 +97,7 @@ public class ExecutionPlanTest {
     }
 
     @Test
-    public void buildsItBlocksMarkedToBeIgnoredWhenTheDescribeBlockIsIgnored() {
+    public void builds_it_blocks_marked_to_be_ignored_when_the_describe_block_is_ignored() {
         ExecutionPlan plan = anExecutionPlanWithIgnoredDescribeBlocks();
 
         List<ItBlock> itBlocks = plan.allItBlocks();
@@ -119,7 +108,7 @@ public class ExecutionPlanTest {
     }
 
     @Test
-    public void buildsItBlocksMarkedToBeIgnoredWhenThereIsItBlocksFocused() {
+    public void builds_it_blocks_marked_to_be_ignored_when_there_is_it_blocks_focused() {
         ExecutionPlan plan = anExecutionPlanWithFocusedItBlocks();
 
         List<ItBlock> itBlocks = plan.allItBlocks();
@@ -131,7 +120,7 @@ public class ExecutionPlanTest {
     }
 
     @Test
-    public void buildsItBlocksMarkedToBeIgnoredWhenThereIsDescribeBlocksFocused() {
+    public void builds_it_blocks_marked_to_be_ignored_when_there_is_describe_blocks_focused() {
         ExecutionPlan plan = anExecutionPlanWithFocusedDescribeBlocks();
 
         List<ItBlock> itBlocks = plan.allItBlocks();
@@ -144,7 +133,7 @@ public class ExecutionPlanTest {
     }
 
     @Test
-    public void buildsItBlocksWithExceptedException() {
+    public void builds_it_blocks_with_excepted_exception() {
         ExecutionPlan plan = anExecutionPlanWithExpectedException();
 
         List<ItBlock> itBlocks = plan.allItBlocks();
@@ -152,69 +141,8 @@ public class ExecutionPlanTest {
         assertThat(itBlocks.get(0).expected(), is(equalTo(Exception.class)));
     }
 
-    @Test
-    public void ensuresBeforeAllBlocksAreConfiguredToRunJustOnce() {
-        ExecutionPlan planWithInnerPlans = anExecutionPlanWithInnerPlan();
-
-        List<ItBlock> itBlocks = planWithInnerPlans.allItBlocks();
-
-        assertThat(itBlocks.get(0).beforeBlocks().get(0).body(), is(BEFORE_ALL_BLOCK));
-        assertThat(itBlocks.get(0).beforeBlocks().get(0).justOnce(), is(true));
-
-        assertThat(itBlocks.get(1).beforeBlocks().get(0).body(), is(BEFORE_ALL_BLOCK));
-        assertThat(itBlocks.get(1).beforeBlocks().get(0).justOnce(), is(true));
-
-        assertThat(itBlocks.get(2).beforeBlocks().get(0).body(), is(BEFORE_ALL_BLOCK));
-        assertThat(itBlocks.get(2).beforeBlocks().get(0).justOnce(), is(true));
-        assertThat(itBlocks.get(2).beforeBlocks().get(1).body(), is(BEFORE_ALL_BLOCK_A));
-        assertThat(itBlocks.get(2).beforeBlocks().get(1).justOnce(), is(true));
-
-        assertThat(itBlocks.get(3).beforeBlocks().get(0).body(), is(BEFORE_ALL_BLOCK));
-        assertThat(itBlocks.get(3).beforeBlocks().get(0).justOnce(), is(true));
-        assertThat(itBlocks.get(3).beforeBlocks().get(1).body(), is(BEFORE_ALL_BLOCK_A));
-        assertThat(itBlocks.get(3).beforeBlocks().get(1).justOnce(), is(true));
-    }
-
-    @Test
-    public void ensuresBeforeAllBlocksAreReusedAcrossItBlocks() {
-        ExecutionPlan planWithInnerPlans = anExecutionPlanWithInnerPlan();
-
-        List<ItBlock> itBlocks = planWithInnerPlans.allItBlocks();
-
-        BeforeBlock beforeAllBlock = itBlocks.get(0).beforeBlocks().get(0);
-        assertThat(itBlocks.get(1).beforeBlocks().get(0), is(beforeAllBlock));
-        assertThat(itBlocks.get(2).beforeBlocks().get(0), is(beforeAllBlock));
-        assertThat(itBlocks.get(3).beforeBlocks().get(0), is(beforeAllBlock));
-
-        BeforeBlock beforeAllBlockA = itBlocks.get(2).beforeBlocks().get(1);
-        assertThat(itBlocks.get(3).beforeBlocks().get(1), is(beforeAllBlockA));
-    }
-
-    @Test
-    public void ensuresBeforeEachBlocksAreConfiguredToAlwaysRun() {
-        ExecutionPlan planWithInnerPlans = anExecutionPlanWithInnerPlan();
-
-        List<ItBlock> itBlocks = planWithInnerPlans.allItBlocks();
-
-        assertThat(itBlocks.get(0).beforeBlocks().get(1).body(), is(BEFORE_EACH_BLOCK));
-        assertThat(itBlocks.get(0).beforeBlocks().get(1).justOnce(), is(false));
-
-        assertThat(itBlocks.get(1).beforeBlocks().get(1).body(), is(BEFORE_EACH_BLOCK));
-        assertThat(itBlocks.get(1).beforeBlocks().get(1).justOnce(), is(false));
-
-        assertThat(itBlocks.get(2).beforeBlocks().get(2).body(), is(BEFORE_EACH_BLOCK));
-        assertThat(itBlocks.get(2).beforeBlocks().get(2).justOnce(), is(false));
-        assertThat(itBlocks.get(2).beforeBlocks().get(3).body(), is(BEFORE_EACH_BLOCK_A));
-        assertThat(itBlocks.get(2).beforeBlocks().get(3).justOnce(), is(false));
-
-        assertThat(itBlocks.get(3).beforeBlocks().get(2).body(), is(BEFORE_EACH_BLOCK));
-        assertThat(itBlocks.get(3).beforeBlocks().get(2).justOnce(), is(false));
-        assertThat(itBlocks.get(3).beforeBlocks().get(3).body(), is(BEFORE_EACH_BLOCK_A));
-        assertThat(itBlocks.get(3).beforeBlocks().get(3).justOnce(), is(false));
-    }
-
     private ExecutionPlan anEmptyExecutionPlan() {
-        return new ExecutionPlan(SampleSpec.class, null, null, emptyMap());
+        return newExecutionPlan(SampleSpec.class, null, emptyList(), emptyMap());
     }
 
     private ExecutionPlan anExecutionPlanWithNoBeforeBlocks() {
@@ -222,10 +150,10 @@ public class ExecutionPlanTest {
         itBlocks.put("block 1", newItBlockDefinition(NOOP));
         itBlocks.put("block 2", newItBlockDefinition(NOOP));
 
-        ExecutionPlan planWithInnerPlans = new ExecutionPlan(SampleSpec.class, null, null, itBlocks);
+        ExecutionPlan planWithInnerPlans = newExecutionPlan(SampleSpec.class, null, emptyList(), itBlocks);
 
-        planWithInnerPlans.newChildPlan("child 1", null, null, itBlocks);
-        planWithInnerPlans.newChildPlan("child 2", null, null, itBlocks);
+        planWithInnerPlans.newChildPlan("child 1", null, emptyList(), itBlocks);
+        planWithInnerPlans.newChildPlan("child 2", null, emptyList(), itBlocks);
 
         return planWithInnerPlans;
     }
@@ -235,10 +163,10 @@ public class ExecutionPlanTest {
         itBlocks.put("block 1", newItBlockDefinition(BLOCK_1));
         itBlocks.put("block 2", newItBlockDefinition(BLOCK_2));
 
-        ExecutionPlan planWithInnerPlans = new ExecutionPlan(
+        ExecutionPlan planWithInnerPlans = newExecutionPlan(
             SampleSpec.class,
             BEFORE_ALL_BLOCK,
-            BEFORE_EACH_BLOCK,
+            singletonList(BEFORE_EACH_BLOCK),
             itBlocks
         );
 
@@ -249,7 +177,7 @@ public class ExecutionPlanTest {
         planWithInnerPlans.newChildPlan(
             "describe A",
             BEFORE_ALL_BLOCK_A,
-            BEFORE_EACH_BLOCK_A,
+            singletonList(BEFORE_EACH_BLOCK_A),
             itBlocksA
         );
 
@@ -260,10 +188,10 @@ public class ExecutionPlanTest {
         Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         itBlocks.put("block 1", newIgnoredItBlockDefinition(BLOCK_1));
 
-        return new ExecutionPlan(
+        return newExecutionPlan(
             SampleSpec.class,
             BEFORE_ALL_BLOCK,
-            BEFORE_EACH_BLOCK,
+            singletonList(BEFORE_EACH_BLOCK),
             itBlocks
         );
     }
@@ -272,7 +200,7 @@ public class ExecutionPlanTest {
         Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         itBlocks.put("block 1", newItBlockDefinition(BLOCK_1, Exception.class));
 
-        return new ExecutionPlan(SampleSpec.class, BEFORE_ALL_BLOCK, BEFORE_EACH_BLOCK, itBlocks);
+        return newExecutionPlan(SampleSpec.class, BEFORE_ALL_BLOCK, singletonList(BEFORE_EACH_BLOCK), itBlocks);
     }
 
     private ExecutionPlan anExecutionPlanWithFocusedItBlocks() {
@@ -280,10 +208,10 @@ public class ExecutionPlanTest {
         itBlocks.put("block 1", newItBlockDefinition(BLOCK_1));
         itBlocks.put("block 2", newItBlockDefinition(BLOCK_2));
 
-        ExecutionPlan plan = new ExecutionPlan(
+        ExecutionPlan plan = newExecutionPlan(
             SampleSpec.class,
             BEFORE_ALL_BLOCK,
-            BEFORE_EACH_BLOCK,
+            singletonList(BEFORE_EACH_BLOCK),
             itBlocks
         );
 
@@ -291,7 +219,7 @@ public class ExecutionPlanTest {
         itBlocksA.put("block A1", newFocusedItBlockDefinition(BLOCK_A_1));
         itBlocksA.put("block A2", newItBlockDefinition(BLOCK_A_2));
 
-        plan.newIgnoredChildPlan("describe A", BEFORE_ALL_BLOCK, BEFORE_EACH_BLOCK, itBlocksA);
+        plan.newIgnoredChildPlan("describe A", BEFORE_ALL_BLOCK, singletonList(BEFORE_EACH_BLOCK), itBlocksA);
 
         return plan;
     }
@@ -300,19 +228,19 @@ public class ExecutionPlanTest {
         Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         itBlocks.put("block 1", newItBlockDefinition(BLOCK_1));
 
-        ExecutionPlan plan = new ExecutionPlan(SampleSpec.class, null, null, itBlocks);
+        ExecutionPlan plan = newExecutionPlan(SampleSpec.class, null, emptyList(), itBlocks);
 
         Map<String, ItBlockDefinition> itBlocksA = new HashMap<>();
         itBlocksA.put("block A1", newItBlockDefinition(BLOCK_A_1));
         itBlocksA.put("block A2", newItBlockDefinition(BLOCK_A_2));
 
-        ExecutionPlan planA = plan.newFocusedChildPlan("describe A", null, null, itBlocksA);
+        ExecutionPlan planA = plan.newFocusedChildPlan("describe A", null, emptyList(), itBlocksA);
 
         Map<String, ItBlockDefinition> itBlocksAA = new HashMap<>();
         itBlocksAA.put("block AA1", newItBlockDefinition(BLOCK_A_A_1));
         itBlocksAA.put("block AA2", newItBlockDefinition(BLOCK_A_A_2));
 
-        planA.newChildPlan("describe A A", null, null, itBlocksAA);
+        planA.newChildPlan("describe A A", null, emptyList(), itBlocksAA);
 
         return plan;
     }
@@ -321,10 +249,10 @@ public class ExecutionPlanTest {
         Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         itBlocks.put("block 1", newItBlockDefinition(BLOCK_1));
 
-        ExecutionPlan plan = new ExecutionPlan(
+        ExecutionPlan plan = newExecutionPlan(
             SampleSpec.class,
             BEFORE_ALL_BLOCK,
-            BEFORE_EACH_BLOCK,
+            singletonList(BEFORE_EACH_BLOCK),
             itBlocks
         );
 
@@ -332,7 +260,7 @@ public class ExecutionPlanTest {
         itBlocksA.put("block A1", newItBlockDefinition(BLOCK_A_1));
         itBlocksA.put("block A2", newItBlockDefinition(BLOCK_A_2));
 
-        plan.newIgnoredChildPlan("describe A", BEFORE_ALL_BLOCK, BEFORE_EACH_BLOCK, itBlocksA);
+        plan.newIgnoredChildPlan("describe A", BEFORE_ALL_BLOCK, singletonList(BEFORE_EACH_BLOCK), itBlocksA);
 
         return plan;
     }
