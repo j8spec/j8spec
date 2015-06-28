@@ -14,45 +14,65 @@ final class DescribeBlockDefinition {
 
     private final Class<?> specClass;
     private final String description;
-    private final Runnable body;
     private final BlockExecutionFlag executionFlag;
-    private final List<DescribeBlockDefinition> describeBlockDefinitions = new LinkedList<>();
-    private final Map<String, ItBlockDefinition> itBlockDefinitions = new HashMap<>();
+    private final Context<DescribeBlockDefinition> context;
+
     private final List<Runnable> beforeAllBlocks = new LinkedList<>();
     private final List<Runnable> beforeEachBlocks = new LinkedList<>();
+    private final Map<String, ItBlockDefinition> itBlockDefinitions = new HashMap<>();
 
-    DescribeBlockDefinition(Class<?> specClass) {
-        this.specClass = specClass;
-        this.description = specClass.getName();
-        this.body = () -> {
-            try {
-                specClass.newInstance();
-            } catch (J8SpecException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new SpecInitializationException("Failed to create instance of " + specClass + ".", e);
-            }
-        };
-        this.executionFlag = DEFAULT;
+    private final List<DescribeBlockDefinition> describeBlockDefinitions = new LinkedList<>();
+
+    static DescribeBlockDefinition newDescribeBlockDefinition(Class<?> specClass, Context<DescribeBlockDefinition> context) {
+        DescribeBlockDefinition block = new DescribeBlockDefinition(specClass, context);
+        context.switchTo(block);
+
+        try {
+            specClass.newInstance();
+        } catch (J8SpecException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SpecInitializationException("Failed to create instance of " + specClass + ".", e);
+        }
+
+        return block;
     }
 
-    private DescribeBlockDefinition(Class<?> specClass, String description, Runnable body, BlockExecutionFlag executionFlag) {
+    private DescribeBlockDefinition(Class<?> specClass, Context<DescribeBlockDefinition> context) {
+        this(specClass, specClass.getName(), DEFAULT, context);
+    }
+
+    private DescribeBlockDefinition(
+        Class<?> specClass,
+        String description,
+        BlockExecutionFlag executionFlag,
+        Context<DescribeBlockDefinition> context
+    ) {
         this.specClass = specClass;
         this.description = description;
-        this.body = body;
         this.executionFlag = executionFlag;
+        this.context = context;
     }
 
     void describe(String description, Runnable body) {
-        describeBlockDefinitions.add(new DescribeBlockDefinition(specClass, description, body, DEFAULT));
+        addDescribe(description, body, DEFAULT);
     }
 
     void xdescribe(String description, Runnable body) {
-        describeBlockDefinitions.add(new DescribeBlockDefinition(specClass, description, body, IGNORED));
+        addDescribe(description, body, IGNORED);
     }
 
     void fdescribe(String description, Runnable body) {
-        describeBlockDefinitions.add(new DescribeBlockDefinition(specClass, description, body, FOCUSED));
+        addDescribe(description, body, FOCUSED);
+    }
+
+    private void addDescribe(String description, Runnable body, BlockExecutionFlag executionFlag) {
+        DescribeBlockDefinition block = new DescribeBlockDefinition(specClass, description, executionFlag, context);
+        describeBlockDefinitions.add(block);
+
+        context.switchTo(block);
+        body.run();
+        context.restore();
     }
 
     void beforeAll(Runnable beforeAllBlock) {
@@ -72,15 +92,6 @@ final class DescribeBlockDefinition {
         if (result) {
             throw new BlockAlreadyDefinedException(blockName + " block already defined");
         }
-    }
-
-    void evaluate(Context<DescribeBlockDefinition> context) {
-        context.switchTo(this);
-
-        this.body.run();
-        this.describeBlockDefinitions.stream().forEach(b -> b.evaluate(context));
-
-        context.restore();
     }
 
     DescribeBlock toDescribeBlock() {

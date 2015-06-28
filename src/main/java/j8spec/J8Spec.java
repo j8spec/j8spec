@@ -2,6 +2,7 @@ package j8spec;
 
 import java.util.function.Function;
 
+import static j8spec.DescribeBlockDefinition.newDescribeBlockDefinition;
 import static java.util.function.Function.identity;
 
 /**
@@ -131,9 +132,7 @@ public final class J8Spec {
     public static synchronized DescribeBlock read(Class<?> specClass) {
         context.set(new Context<>());
         try {
-            DescribeBlockDefinition describeBlockDefinition = new DescribeBlockDefinition(specClass);
-            describeBlockDefinition.evaluate(context.get());
-            return describeBlockDefinition.toDescribeBlock();
+            return newDescribeBlockDefinition(specClass, context.get()).toDescribeBlock();
         } finally {
             context.set(null);
         }
