@@ -11,18 +11,20 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class J8SpecFlowTest {
+public class ExecutionPlanFlowTest {
 
     public static class SampleSpec {{
         beforeAll(() -> log.add("before all"));
-        beforeEach(() -> log.add("before each"));
+        beforeEach(() -> log.add("before each 1"));
+        beforeEach(() -> log.add("before each 2"));
 
         it("block 1", () -> log.add("block 1"));
         it("block 2", () -> log.add("block 2"));
 
         describe("describe A", () -> {
             beforeAll(() -> log.add("describe A before all"));
-            beforeEach(() -> log.add("describe A before each"));
+            beforeEach(() -> log.add("describe A before each 1"));
+            beforeEach(() -> log.add("describe A before each 2"));
 
             it("block A1", () -> log.add("block A1"));
             it("block A2", () -> log.add("block A2"));
@@ -45,20 +47,26 @@ public class J8SpecFlowTest {
         assertThat(log, is(asList(
             "before all",
 
-            "before each",
+            "before each 1",
+            "before each 2",
             "block 1",
 
-            "before each",
+            "before each 1",
+            "before each 2",
             "block 2",
 
             "describe A before all",
 
-            "before each",
-            "describe A before each",
+            "before each 1",
+            "before each 2",
+            "describe A before each 1",
+            "describe A before each 2",
             "block A1",
 
-            "before each",
-            "describe A before each",
+            "before each 1",
+            "before each 2",
+            "describe A before each 1",
+            "describe A before each 2",
             "block A2"
         )));
     }

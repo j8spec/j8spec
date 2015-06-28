@@ -3,8 +3,8 @@ package j8spec;
 import org.junit.Test;
 
 import static j8spec.J8Spec.*;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class J8SpecBeforeEachTest {
@@ -54,15 +54,15 @@ public class J8SpecBeforeEachTest {
     public void builds_an_execution_plan_when_there_is_no_before_each_block() {
         ExecutionPlan plan = executionPlanFor(NoBeforeEachSpec.class);
 
-        assertThat(plan.beforeEachBlock(), is(nullValue()));
+        assertThat(plan.beforeEachBlocks(), is(emptyList()));
     }
 
     @Test
     public void builds_an_execution_plan_when_there_are_several_before_each_blocks_in_the_same_context() {
         ExecutionPlan plan = executionPlanFor(SeveralBeforeEachSpec.class);
 
-        assertThat(plan.beforeEachBlockAt(0), is(BEFORE_EACH_0_BLOCK));
-        assertThat(plan.beforeEachBlockAt(1), is(BEFORE_EACH_1_BLOCK));
+        assertThat(plan.beforeEachBlocks().get(0), is(BEFORE_EACH_0_BLOCK));
+        assertThat(plan.beforeEachBlocks().get(1), is(BEFORE_EACH_1_BLOCK));
     }
 
     @Test
@@ -71,8 +71,8 @@ public class J8SpecBeforeEachTest {
         ExecutionPlan describeAPlan = sampleSpecPlan.plans().get(0);
         ExecutionPlan describeAAPlan = describeAPlan.plans().get(0);
 
-        assertThat(sampleSpecPlan.beforeEachBlock(), is(BEFORE_EACH_0_BLOCK));
-        assertThat(describeAPlan.beforeEachBlock(), is(BEFORE_EACH_A_BLOCK));
-        assertThat(describeAAPlan.beforeEachBlock(), is(BEFORE_EACH_AA_BLOCK));
+        assertThat(sampleSpecPlan.beforeEachBlocks().get(0), is(BEFORE_EACH_0_BLOCK));
+        assertThat(describeAPlan.beforeEachBlocks().get(0), is(BEFORE_EACH_A_BLOCK));
+        assertThat(describeAAPlan.beforeEachBlocks().get(0), is(BEFORE_EACH_AA_BLOCK));
     }
 }

@@ -169,15 +169,8 @@ public final class ExecutionPlan {
         return beforeAllBlock;
     }
 
-    Runnable beforeEachBlock() {
-        if (beforeEachBlocks.isEmpty()) {
-            return null;
-        }
-        return beforeEachBlocks.get(0);
-    }
-
-    Runnable beforeEachBlockAt(int index) {
-        return beforeEachBlocks.get(index);
+    List<Runnable> beforeEachBlocks() {
+        return beforeEachBlocks;
     }
 
     ItBlockDefinition itBlock(String itBlockDescription) {
@@ -257,9 +250,7 @@ public final class ExecutionPlan {
             beforeEachBlocks = parent.collectBeforeEachBlocks();
         }
 
-        if (this.beforeEachBlock() != null) {
-            beforeEachBlocks.add(newBeforeEachBlock(beforeEachBlock()));
-        }
+        this.beforeEachBlocks.stream().map(BeforeBlock::newBeforeEachBlock).forEach(beforeEachBlocks::add);
 
         return beforeEachBlocks;
     }
