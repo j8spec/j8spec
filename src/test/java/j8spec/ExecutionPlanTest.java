@@ -59,11 +59,6 @@ public class ExecutionPlanTest {
     }
 
     @Test
-    public void supports_null_before_blocks() {
-        assertThat(anExecutionPlanWithNoBeforeBlocks().allItBlocks().get(0).beforeBlocks(), is(emptyList()));
-    }
-
-    @Test
     public void builds_it_blocks_with_given_description() {
         ExecutionPlan planWithInnerPlans = anExecutionPlanWithInnerPlan();
 
