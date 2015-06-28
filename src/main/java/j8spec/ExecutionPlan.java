@@ -5,12 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import static j8spec.BeforeBlock.newBeforeAllBlock;
-import static j8spec.BeforeBlock.newBeforeEachBlock;
+import static j8spec.BlockExecutionFlag.*;
 import static j8spec.ItBlock.newIgnoredItBlock;
 import static j8spec.ItBlock.newItBlock;
-import static j8spec.BlockExecutionFlag.DEFAULT;
-import static j8spec.BlockExecutionFlag.FOCUSED;
-import static j8spec.BlockExecutionFlag.IGNORED;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 

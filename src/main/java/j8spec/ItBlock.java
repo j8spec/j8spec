@@ -102,8 +102,4 @@ public final class ItBlock implements Runnable {
     List<BeforeBlock> beforeBlocks() {
         return beforeBlocks;
     }
-
-    Runnable body() {
-        return body;
-    }
 }
