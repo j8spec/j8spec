@@ -41,8 +41,10 @@ public class J8SpecTest {
     }
 
     static class ItBlockOverwrittenSpec {{
-        it("some text", () -> {});
-        it("some text", () -> {});
+        it("some text", () -> {
+        });
+        it("some text", () -> {
+        });
     }}
 
     static class ItBlockWithCollectorOverwrittenSpec {{
@@ -51,8 +53,10 @@ public class J8SpecTest {
     }}
 
     static class XitBlockOverwrittenSpec {{
-        xit("some text", () -> {});
-        xit("some text", () -> {});
+        xit("some text", () -> {
+        });
+        xit("some text", () -> {
+        });
     }}
 
     static class XitBlockWithCollectorOverwrittenSpec {{
@@ -61,8 +65,10 @@ public class J8SpecTest {
     }}
 
     static class FitBlockOverwrittenSpec {{
-        fit("some text", () -> {});
-        fit("some text", () -> {});
+        fit("some text", () -> {
+        });
+        fit("some text", () -> {
+        });
     }}
 
     static class FitBlockWithCollectorOverwrittenSpec {{
@@ -78,7 +84,8 @@ public class J8SpecTest {
                 throw new RuntimeException(e);
             }
 
-            it("block", () -> {});
+            it("block", () -> {
+            });
         });
     }}
 
@@ -152,126 +159,129 @@ public class J8SpecTest {
     }}
 
     @Test
-    public void buildsAnExecutionPlanUsingTheGivenSpecAsDescription() {
-        ExecutionPlan plan = executionPlanFor(EmptySpec.class);
+    public void buildsADescribeBlockUsingTheGivenSpecAsDescription() {
+        DescribeBlock describeBlock = read(EmptySpec.class);
 
-        assertThat(plan.specClass(), equalTo(EmptySpec.class));
-        assertThat(plan.description(), is("j8spec.J8SpecTest$EmptySpec"));
+        assertThat(describeBlock.specClass(), equalTo(EmptySpec.class));
+        assertThat(describeBlock.description(), is("j8spec.J8SpecTest$EmptySpec"));
     }
 
     @Test
-    public void buildsAnExecutionPlanBasedOnAnEmptySpec() {
-        ExecutionPlan plan = executionPlanFor(EmptySpec.class);
+    public void buildsADescribeBlockBasedOnAnEmptySpec() {
+        DescribeBlock describeBlock = read(EmptySpec.class);
 
-        assertThat(plan.allItBlocks(), is(emptyList()));
+        assertThat(describeBlock.flattenItBlocks(), is(emptyList()));
     }
 
     @Test
-    public void buildsAnExecutionPlanWhereAllInnerPlansHaveTheSameSpecClass() {
-        ExecutionPlan plan = executionPlanFor(SampleSpec.class);
+    public void buildsADescribeBlockWhereAllInnerDescribeBlocksHaveTheSameSpecClass() {
+        DescribeBlock rootDescribeBlock = read(SampleSpec.class);
 
-        ExecutionPlan planA = plan.plans().get(0);
-        assertThat(planA.specClass(), equalTo(SampleSpec.class));
+        DescribeBlock describeA = rootDescribeBlock.describeBlocks().get(0);
+        assertThat(describeA.specClass(), equalTo(SampleSpec.class));
 
-        ExecutionPlan planAA = planA.plans().get(0);
-        assertThat(planAA.specClass(), equalTo(SampleSpec.class));
+        DescribeBlock describeAA = describeA.describeBlocks().get(0);
+        assertThat(describeAA.specClass(), equalTo(SampleSpec.class));
 
-        ExecutionPlan planB = plan.plans().get(1);
-        assertThat(planB.specClass(), equalTo(SampleSpec.class));
+        DescribeBlock describeB = rootDescribeBlock.describeBlocks().get(1);
+        assertThat(describeB.specClass(), equalTo(SampleSpec.class));
     }
 
     @Test
-    public void buildsAnExecutionPlanUsingTheDescriptionFromTheSpecDefinition() {
-        ExecutionPlan plan = executionPlanFor(SampleSpec.class);
+    public void buildsADescribeBlockUsingTheDescriptionFromTheSpecDefinition() {
+        DescribeBlock rootDescribeBlock = read(SampleSpec.class);
 
-        ExecutionPlan planA = plan.plans().get(0);
-        assertThat(planA.description(), is("describe A"));
+        DescribeBlock describeA = rootDescribeBlock.describeBlocks().get(0);
+        assertThat(describeA.description(), is("describe A"));
 
-        ExecutionPlan planAA = planA.plans().get(0);
-        assertThat(planAA.description(), is("describe A.A"));
+        DescribeBlock describeAA = describeA.describeBlocks().get(0);
+        assertThat(describeAA.description(), is("describe A.A"));
 
-        ExecutionPlan planB = plan.plans().get(1);
-        assertThat(planB.description(), is("describe B"));
+        DescribeBlock describeB = rootDescribeBlock.describeBlocks().get(1);
+        assertThat(describeB.description(), is("describe B"));
     }
 
     @Test
-    public void buildsAnExecutionPlanUsingItBlocksFromTheSpecDefinition() {
-        ExecutionPlan plan = executionPlanFor(SampleSpec.class);
+    public void buildsADescribeBlockUsingItBlocksFromTheSpecDefinition() {
+        DescribeBlock rootDescribeBlock = read(SampleSpec.class);
 
-        assertThat(plan.itBlock("block 1").body(), is(IT_BLOCK_1));
-        assertThat(plan.itBlock("block 2").body(), is(IT_BLOCK_2));
-        assertThat(plan.itBlock("block 3").body(), is(IT_BLOCK_3));
+        assertThat(rootDescribeBlock.itBlock("block 1").body(), is(IT_BLOCK_1));
+        assertThat(rootDescribeBlock.itBlock("block 2").body(), is(IT_BLOCK_2));
+        assertThat(rootDescribeBlock.itBlock("block 3").body(), is(IT_BLOCK_3));
 
-        ExecutionPlan planA = plan.plans().get(0);
-        assertThat(planA.itBlock("block A.1").body(), is(IT_BLOCK_A1));
-        assertThat(planA.itBlock("block A.2").body(), is(IT_BLOCK_A2));
+        DescribeBlock describeA = rootDescribeBlock.describeBlocks().get(0);
+        assertThat(describeA.itBlock("block A.1").body(), is(IT_BLOCK_A1));
+        assertThat(describeA.itBlock("block A.2").body(), is(IT_BLOCK_A2));
 
-        ExecutionPlan planAA = planA.plans().get(0);
-        assertThat(planAA.itBlock("block A.A.1").body(), is(IT_BLOCK_AA1));
-        assertThat(planAA.itBlock("block A.A.2").body(), is(IT_BLOCK_AA2));
+        DescribeBlock describeAA = describeA.describeBlocks().get(0);
+        assertThat(describeAA.itBlock("block A.A.1").body(), is(IT_BLOCK_AA1));
+        assertThat(describeAA.itBlock("block A.A.2").body(), is(IT_BLOCK_AA2));
 
-        ExecutionPlan planB = plan.plans().get(1);
-        assertThat(planB.itBlock("block B.1").body(), is(IT_BLOCK_B1));
-        assertThat(planB.itBlock("block B.2").body(), is(IT_BLOCK_B2));
+        DescribeBlock describeB = rootDescribeBlock.describeBlocks().get(1);
+        assertThat(describeB.itBlock("block B.1").body(), is(IT_BLOCK_B1));
+        assertThat(describeB.itBlock("block B.2").body(), is(IT_BLOCK_B2));
     }
 
     @Test
-    public void buildsAnExecutionPlanMarkingXdescribeBlocksFromTheSpecDefinitionAsIgnored() {
-        ExecutionPlan plan = executionPlanFor(XdescribeSpec.class);
+    public void buildsADescribeBlockMarkingXdescribeBlocksFromTheSpecDefinitionAsIgnored() {
+        DescribeBlock describeBlock = read(XdescribeSpec.class);
 
-        assertThat(plan.ignored(), is(false));
-        assertThat(plan.plans().get(0).ignored(), is(true));
+        assertThat(describeBlock.ignored(), is(false));
+        assertThat(describeBlock.describeBlocks().get(0).ignored(), is(true));
     }
 
     @Test
-    public void buildsAnExecutionPlanMarkingFdescribeBlocksFromTheSpecDefinitionAsFocused() {
-        ExecutionPlan plan = executionPlanFor(FdescribeSpec.class);
+    public void buildsADescribeBlockMarkingFdescribeBlocksFromTheSpecDefinitionAsFocused() {
+        DescribeBlock describeBlock = read(FdescribeSpec.class);
 
-        assertThat(plan.focused(), is(false));
-        assertThat(plan.plans().get(0).focused(), is(true));
+        assertThat(describeBlock.focused(), is(false));
+        assertThat(describeBlock.describeBlocks().get(0).focused(), is(true));
     }
 
     @Test
-    public void buildsAnExecutionPlanMarkingXitBlocksFromTheSpecDefinitionAsIgnored() {
-        ExecutionPlan plan = executionPlanFor(SampleSpec.class);
+    public void buildsADescribeBlockMarkingXitBlocksFromTheSpecDefinitionAsIgnored() {
+        DescribeBlock describeBlock = read(SampleSpec.class);
 
-        assertThat(plan.itBlock("block 3").ignored(), is(true));
+        assertThat(describeBlock.itBlock("block 3").ignored(), is(true));
     }
 
     @Test
-    public void buildsAnExecutionPlanMarkingFitBlocksFromTheSpecDefinitionAsFocused() {
-        ExecutionPlan plan = executionPlanFor(FitSpec.class);
+    public void buildsADescribeBlockMarkingFitBlocksFromTheSpecDefinitionAsFocused() {
+        DescribeBlock describeBlock = read(FitSpec.class);
 
-        assertThat(plan.itBlock("block 1").focused(), is(true));
+        assertThat(describeBlock.itBlock("block 1").focused(), is(true));
     }
 
     @Test
-    public void buildsAnExecutionPlanUsingExceptedExceptionsFromTheSpecDefinition() {
-        ExecutionPlan plan = executionPlanFor(ExpectedExceptionSpec.class);
+    public void buildsADescribeBlockUsingExceptedExceptionsFromTheSpecDefinition() {
+        DescribeBlock describeBlock = read(ExpectedExceptionSpec.class);
 
-        assertThat(plan.itBlock("block 1").expected(), is(equalTo(Exception.class)));
-        assertThat(plan.itBlock("block 2").expected(), is(equalTo(Exception.class)));
-        assertThat(plan.itBlock("block 3").expected(), is(equalTo(Exception.class)));
+        assertThat(describeBlock.itBlock("block 1").expected(), is(equalTo(Exception.class)));
+        assertThat(describeBlock.itBlock("block 2").expected(), is(equalTo(Exception.class)));
+        assertThat(describeBlock.itBlock("block 3").expected(), is(equalTo(Exception.class)));
     }
 
     @Test(expected = SpecInitializationException.class)
     public void throwsExceptionWhenFailsToEvaluateSpec() {
-        executionPlanFor(BadSpec.class);
+        read(BadSpec.class);
     }
 
     @Test(expected = IllegalContextException.class)
     public void doesNotAllowDescribeMethodDirectInvocation() {
-        J8Spec.describe("some text", () -> {});
+        J8Spec.describe("some text", () -> {
+        });
     }
 
     @Test(expected = IllegalContextException.class)
     public void doesNotAllowXdescribeMethodDirectInvocation() {
-        J8Spec.xdescribe("some text", () -> {});
+        J8Spec.xdescribe("some text", () -> {
+        });
     }
 
     @Test(expected = IllegalContextException.class)
     public void doesNotAllowFdescribeMethodDirectInvocation() {
-        J8Spec.fdescribe("some text", () -> {});
+        J8Spec.fdescribe("some text", () -> {
+        });
     }
 
     @Test(expected = IllegalContextException.class)
@@ -281,7 +291,8 @@ public class J8SpecTest {
 
     @Test(expected = IllegalContextException.class)
     public void doesNotAllowItMethodDirectInvocationWithCollector() {
-        J8Spec.it("some text", c -> c, () -> {});
+        J8Spec.it("some text", c -> c, () -> {
+        });
     }
 
     @Test(expected = IllegalContextException.class)
@@ -291,7 +302,8 @@ public class J8SpecTest {
 
     @Test(expected = IllegalContextException.class)
     public void doesNotAllowXitMethodDirectInvocationWithCollector() {
-        J8Spec.xit("some text", c -> c, () -> {});
+        J8Spec.xit("some text", c -> c, () -> {
+        });
     }
 
     @Test(expected = IllegalContextException.class)
@@ -301,49 +313,50 @@ public class J8SpecTest {
 
     @Test(expected = IllegalContextException.class)
     public void doesNotAllowFitMethodWithCollectorDirectInvocation() {
-        J8Spec.fit("some text", c -> c, () -> {});
+        J8Spec.fit("some text", c -> c, () -> {
+        });
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
     public void doesNotAllowItBlockToBeReplaced() {
-        executionPlanFor(ItBlockOverwrittenSpec.class);
+        read(ItBlockOverwrittenSpec.class);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
     public void doesNotAllowItBlockWithCollectorToBeReplaced() {
-        executionPlanFor(ItBlockWithCollectorOverwrittenSpec.class);
+        read(ItBlockWithCollectorOverwrittenSpec.class);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
     public void doesNotAllowXitBlockToBeReplaced() {
-        executionPlanFor(XitBlockOverwrittenSpec.class);
+        read(XitBlockOverwrittenSpec.class);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
     public void doesNotAllowXitBlockWithCollectorToBeReplaced() {
-        executionPlanFor(XitBlockWithCollectorOverwrittenSpec.class);
+        read(XitBlockWithCollectorOverwrittenSpec.class);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
     public void doesNotAllowFitBlockToBeReplaced() {
-        executionPlanFor(FitBlockOverwrittenSpec.class);
+        read(FitBlockOverwrittenSpec.class);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
     public void doesNotAllowFitBlockWithCollectorToBeReplaced() {
-        executionPlanFor(FitBlockWithCollectorOverwrittenSpec.class);
+        read(FitBlockWithCollectorOverwrittenSpec.class);
     }
 
     @Test(expected = IllegalContextException.class)
     public void forgetsLastSpec() {
-        executionPlanFor(SampleSpec.class);
+        read(SampleSpec.class);
         J8Spec.describe("some text", () -> {});
     }
 
     @Test(expected = IllegalContextException.class)
     public void forgetsLastSpecAfterTheLastSpecEvaluationFails() {
         try {
-            executionPlanFor(ItBlockOverwrittenSpec.class);
+            read(ItBlockOverwrittenSpec.class);
         } catch (BlockAlreadyDefinedException e) {
         }
 
@@ -351,23 +364,23 @@ public class J8SpecTest {
     }
 
     @Test()
-    public void allowsMultipleThreadsToBuildPlans() throws InterruptedException {
-        final Var<ExecutionPlan> sleepPlan = var();
+    public void allowsMultipleThreadsToBuildDescribeBlocks() throws InterruptedException {
+        final Var<DescribeBlock> sleepDescribe = var();
 
-        Thread anotherExecutionPlanThread = new Thread(() -> {
-            var(sleepPlan, executionPlanFor(ThreadThatSleeps2sSpec.class));
+        Thread anotherDescribeBlockThread = new Thread(() -> {
+            var(sleepDescribe, read(ThreadThatSleeps2sSpec.class));
         });
-        anotherExecutionPlanThread.start();
+        anotherDescribeBlockThread.start();
 
         Thread.sleep(1000);
 
-        ExecutionPlan emptyExecutionPlan = executionPlanFor(EmptySpec.class);
+        DescribeBlock emptyDescribeBlock = read(EmptySpec.class);
 
-        anotherExecutionPlanThread.join();
+        anotherDescribeBlockThread.join();
 
-        assertThat(emptyExecutionPlan.allItBlocks(), is(Collections.<ItBlock>emptyList()));
+        assertThat(emptyDescribeBlock.flattenItBlocks(), is(Collections.<ItBlock>emptyList()));
 
-        assertThat(var(sleepPlan).allItBlocks().size(), is(1));
-        assertThat(var(sleepPlan).allItBlocks().get(0).description(), is("block"));
+        assertThat(var(sleepDescribe).flattenItBlocks().size(), is(1));
+        assertThat(var(sleepDescribe).flattenItBlocks().get(0).description(), is("block"));
     }
 }

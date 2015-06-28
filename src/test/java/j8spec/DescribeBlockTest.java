@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static j8spec.ExecutionPlan.newExecutionPlan;
+import static j8spec.DescribeBlock.newRootDescribeBlock;
 import static j8spec.ItBlockDefinition.*;
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
@@ -15,7 +15,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ExecutionPlanTest {
+public class DescribeBlockTest {
 
     private static final String LS = System.getProperty("line.separator");
 
@@ -36,16 +36,16 @@ public class ExecutionPlanTest {
 
     @Test
     public void has_a_string_representation_when_empty() {
-        assertThat(anEmptyExecutionPlan().toString(), is("j8spec.ExecutionPlanTest$SampleSpec"));
+        assertThat(anEmptyDescribeBlock().toString(), is("j8spec.DescribeBlockTest$SampleSpec"));
     }
 
     @Test
-    public void has_a_string_representation_when_it_contains_child_plans() {
+    public void has_a_string_representation_when_it_contains_child_describe_blocks() {
         assertThat(
-            anExecutionPlanWithNoBeforeBlocks().toString(),
+            aDescribeBlockWithNoBeforeBlocks().toString(),
             is(join(
                 LS,
-                "j8spec.ExecutionPlanTest$SampleSpec",
+                "j8spec.DescribeBlockTest$SampleSpec",
                 "  block 1",
                 "  block 2",
                 "  child 1",
@@ -60,9 +60,9 @@ public class ExecutionPlanTest {
 
     @Test
     public void builds_it_blocks_with_given_description() {
-        ExecutionPlan planWithInnerPlans = anExecutionPlanWithInnerPlan();
+        DescribeBlock describeBlock = aDescribeBlockWithInnerDescribeBlocks();
 
-        List<ItBlock> itBlocks = planWithInnerPlans.allItBlocks();
+        List<ItBlock> itBlocks = describeBlock.flattenItBlocks();
 
         assertThat(itBlocks.get(0).description(), is("block 1"));
         assertThat(itBlocks.get(1).description(), is("block 2"));
@@ -72,30 +72,30 @@ public class ExecutionPlanTest {
 
     @Test
     public void builds_it_blocks_with_given_container_descriptions() {
-        ExecutionPlan planWithInnerPlans = anExecutionPlanWithInnerPlan();
+        DescribeBlock describeBlock = aDescribeBlockWithInnerDescribeBlocks();
 
-        List<ItBlock> itBlocks = planWithInnerPlans.allItBlocks();
+        List<ItBlock> itBlocks = describeBlock.flattenItBlocks();
 
-        assertThat(itBlocks.get(0).containerDescriptions(), is(singletonList("j8spec.ExecutionPlanTest$SampleSpec")));
-        assertThat(itBlocks.get(1).containerDescriptions(), is(singletonList("j8spec.ExecutionPlanTest$SampleSpec")));
-        assertThat(itBlocks.get(2).containerDescriptions(), is(asList("j8spec.ExecutionPlanTest$SampleSpec", "describe A")));
-        assertThat(itBlocks.get(3).containerDescriptions(), is(asList("j8spec.ExecutionPlanTest$SampleSpec", "describe A")));
+        assertThat(itBlocks.get(0).containerDescriptions(), is(singletonList("j8spec.DescribeBlockTest$SampleSpec")));
+        assertThat(itBlocks.get(1).containerDescriptions(), is(singletonList("j8spec.DescribeBlockTest$SampleSpec")));
+        assertThat(itBlocks.get(2).containerDescriptions(), is(asList("j8spec.DescribeBlockTest$SampleSpec", "describe A")));
+        assertThat(itBlocks.get(3).containerDescriptions(), is(asList("j8spec.DescribeBlockTest$SampleSpec", "describe A")));
     }
 
     @Test
     public void builds_it_blocks_marked_to_be_ignored() {
-        ExecutionPlan plan = anExecutionPlanWithIgnoredItBlocks();
+        DescribeBlock describeBlock = aDescribeBlockWithIgnoredItBlocks();
 
-        List<ItBlock> itBlocks = plan.allItBlocks();
+        List<ItBlock> itBlocks = describeBlock.flattenItBlocks();
 
         assertThat(itBlocks.get(0).shouldBeIgnored(), is(true));
     }
 
     @Test
     public void builds_it_blocks_marked_to_be_ignored_when_the_describe_block_is_ignored() {
-        ExecutionPlan plan = anExecutionPlanWithIgnoredDescribeBlocks();
+        DescribeBlock describeBlock = aDescribeBlockWithIgnoredDescribeBlocks();
 
-        List<ItBlock> itBlocks = plan.allItBlocks();
+        List<ItBlock> itBlocks = describeBlock.flattenItBlocks();
 
         assertThat(itBlocks.get(0).shouldBeIgnored(), is(false));
         assertThat(itBlocks.get(1).shouldBeIgnored(), is(true));
@@ -104,9 +104,9 @@ public class ExecutionPlanTest {
 
     @Test
     public void builds_it_blocks_marked_to_be_ignored_when_there_is_it_blocks_focused() {
-        ExecutionPlan plan = anExecutionPlanWithFocusedItBlocks();
+        DescribeBlock describeBlock = aDescribeBlockWithFocusedItBlocks();
 
-        List<ItBlock> itBlocks = plan.allItBlocks();
+        List<ItBlock> itBlocks = describeBlock.flattenItBlocks();
 
         assertThat(itBlocks.get(0).shouldBeIgnored(), is(true));
         assertThat(itBlocks.get(1).shouldBeIgnored(), is(true));
@@ -116,9 +116,9 @@ public class ExecutionPlanTest {
 
     @Test
     public void builds_it_blocks_marked_to_be_ignored_when_there_is_describe_blocks_focused() {
-        ExecutionPlan plan = anExecutionPlanWithFocusedDescribeBlocks();
+        DescribeBlock describeBlock = aDescribeBlockWithFocusedDescribeBlocks();
 
-        List<ItBlock> itBlocks = plan.allItBlocks();
+        List<ItBlock> itBlocks = describeBlock.flattenItBlocks();
 
         assertThat(itBlocks.get(0).shouldBeIgnored(), is(true));
         assertThat(itBlocks.get(1).shouldBeIgnored(), is(false));
@@ -129,36 +129,36 @@ public class ExecutionPlanTest {
 
     @Test
     public void builds_it_blocks_with_excepted_exception() {
-        ExecutionPlan plan = anExecutionPlanWithExpectedException();
+        DescribeBlock describeBlock = aDescribeBlockWithExpectedException();
 
-        List<ItBlock> itBlocks = plan.allItBlocks();
+        List<ItBlock> itBlocks = describeBlock.flattenItBlocks();
 
         assertThat(itBlocks.get(0).expected(), is(equalTo(Exception.class)));
     }
 
-    private ExecutionPlan anEmptyExecutionPlan() {
-        return newExecutionPlan(SampleSpec.class, emptyList(), emptyList(), emptyMap());
+    private DescribeBlock anEmptyDescribeBlock() {
+        return newRootDescribeBlock(SampleSpec.class, emptyList(), emptyList(), emptyMap());
     }
 
-    private ExecutionPlan anExecutionPlanWithNoBeforeBlocks() {
+    private DescribeBlock aDescribeBlockWithNoBeforeBlocks() {
         Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         itBlocks.put("block 1", newItBlockDefinition(NOOP));
         itBlocks.put("block 2", newItBlockDefinition(NOOP));
 
-        ExecutionPlan planWithInnerPlans = newExecutionPlan(SampleSpec.class, emptyList(), emptyList(), itBlocks);
+        DescribeBlock rootDescribeBlock = newRootDescribeBlock(SampleSpec.class, emptyList(), emptyList(), itBlocks);
 
-        planWithInnerPlans.newChildPlan("child 1", emptyList(), emptyList(), itBlocks);
-        planWithInnerPlans.newChildPlan("child 2", emptyList(), emptyList(), itBlocks);
+        rootDescribeBlock.addDescribeBlock("child 1", emptyList(), emptyList(), itBlocks);
+        rootDescribeBlock.addDescribeBlock("child 2", emptyList(), emptyList(), itBlocks);
 
-        return planWithInnerPlans;
+        return rootDescribeBlock;
     }
 
-    private ExecutionPlan anExecutionPlanWithInnerPlan() {
+    private DescribeBlock aDescribeBlockWithInnerDescribeBlocks() {
         Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         itBlocks.put("block 1", newItBlockDefinition(BLOCK_1));
         itBlocks.put("block 2", newItBlockDefinition(BLOCK_2));
 
-        ExecutionPlan planWithInnerPlans = newExecutionPlan(
+        DescribeBlock rootDescribeBlock = newRootDescribeBlock(
             SampleSpec.class,
             singletonList(BEFORE_ALL_BLOCK),
             singletonList(BEFORE_EACH_BLOCK),
@@ -169,21 +169,21 @@ public class ExecutionPlanTest {
         itBlocksA.put("block A1", newItBlockDefinition(BLOCK_A_1));
         itBlocksA.put("block A2", newItBlockDefinition(BLOCK_A_2));
 
-        planWithInnerPlans.newChildPlan(
+        rootDescribeBlock.addDescribeBlock(
             "describe A",
             singletonList(BEFORE_ALL_BLOCK_A),
             singletonList(BEFORE_EACH_BLOCK_A),
             itBlocksA
         );
 
-        return planWithInnerPlans;
+        return rootDescribeBlock;
     }
 
-    private ExecutionPlan anExecutionPlanWithIgnoredItBlocks() {
+    private DescribeBlock aDescribeBlockWithIgnoredItBlocks() {
         Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         itBlocks.put("block 1", newIgnoredItBlockDefinition(BLOCK_1));
 
-        return newExecutionPlan(
+        return newRootDescribeBlock(
             SampleSpec.class,
             singletonList(BEFORE_ALL_BLOCK),
             singletonList(BEFORE_EACH_BLOCK),
@@ -191,11 +191,11 @@ public class ExecutionPlanTest {
         );
     }
 
-    private ExecutionPlan anExecutionPlanWithExpectedException() {
+    private DescribeBlock aDescribeBlockWithExpectedException() {
         Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         itBlocks.put("block 1", newItBlockDefinition(BLOCK_1, Exception.class));
 
-        return newExecutionPlan(
+        return newRootDescribeBlock(
             SampleSpec.class,
             singletonList(BEFORE_ALL_BLOCK),
             singletonList(BEFORE_EACH_BLOCK),
@@ -203,12 +203,12 @@ public class ExecutionPlanTest {
         );
     }
 
-    private ExecutionPlan anExecutionPlanWithFocusedItBlocks() {
+    private DescribeBlock aDescribeBlockWithFocusedItBlocks() {
         Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         itBlocks.put("block 1", newItBlockDefinition(BLOCK_1));
         itBlocks.put("block 2", newItBlockDefinition(BLOCK_2));
 
-        ExecutionPlan plan = newExecutionPlan(
+        DescribeBlock rootDescribeBlock = newRootDescribeBlock(
             SampleSpec.class,
             singletonList(BEFORE_ALL_BLOCK),
             singletonList(BEFORE_EACH_BLOCK),
@@ -219,42 +219,42 @@ public class ExecutionPlanTest {
         itBlocksA.put("block A1", newFocusedItBlockDefinition(BLOCK_A_1));
         itBlocksA.put("block A2", newItBlockDefinition(BLOCK_A_2));
 
-        plan.newIgnoredChildPlan(
+        rootDescribeBlock.addIgnoredDescribeBlock(
             "describe A",
             singletonList(BEFORE_ALL_BLOCK),
             singletonList(BEFORE_EACH_BLOCK),
             itBlocksA
         );
 
-        return plan;
+        return rootDescribeBlock;
     }
 
-    private ExecutionPlan anExecutionPlanWithFocusedDescribeBlocks() {
+    private DescribeBlock aDescribeBlockWithFocusedDescribeBlocks() {
         Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         itBlocks.put("block 1", newItBlockDefinition(BLOCK_1));
 
-        ExecutionPlan plan = newExecutionPlan(SampleSpec.class, emptyList(), emptyList(), itBlocks);
+        DescribeBlock rootDescribeBlock = newRootDescribeBlock(SampleSpec.class, emptyList(), emptyList(), itBlocks);
 
         Map<String, ItBlockDefinition> itBlocksA = new HashMap<>();
         itBlocksA.put("block A1", newItBlockDefinition(BLOCK_A_1));
         itBlocksA.put("block A2", newItBlockDefinition(BLOCK_A_2));
 
-        ExecutionPlan planA = plan.newFocusedChildPlan("describe A", emptyList(), emptyList(), itBlocksA);
+        DescribeBlock describeA = rootDescribeBlock.addFocusedDescribeBlock("describe A", emptyList(), emptyList(), itBlocksA);
 
         Map<String, ItBlockDefinition> itBlocksAA = new HashMap<>();
         itBlocksAA.put("block AA1", newItBlockDefinition(BLOCK_A_A_1));
         itBlocksAA.put("block AA2", newItBlockDefinition(BLOCK_A_A_2));
 
-        planA.newChildPlan("describe A A", emptyList(), emptyList(), itBlocksAA);
+        describeA.addDescribeBlock("describe A A", emptyList(), emptyList(), itBlocksAA);
 
-        return plan;
+        return rootDescribeBlock;
     }
 
-    private ExecutionPlan anExecutionPlanWithIgnoredDescribeBlocks() {
+    private DescribeBlock aDescribeBlockWithIgnoredDescribeBlocks() {
         Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         itBlocks.put("block 1", newItBlockDefinition(BLOCK_1));
 
-        ExecutionPlan plan = newExecutionPlan(
+        DescribeBlock rootDescribeBlock = newRootDescribeBlock(
             SampleSpec.class,
             singletonList(BEFORE_ALL_BLOCK),
             singletonList(BEFORE_EACH_BLOCK),
@@ -265,13 +265,13 @@ public class ExecutionPlanTest {
         itBlocksA.put("block A1", newItBlockDefinition(BLOCK_A_1));
         itBlocksA.put("block A2", newItBlockDefinition(BLOCK_A_2));
 
-        plan.newIgnoredChildPlan(
+        rootDescribeBlock.addIgnoredDescribeBlock(
             "describe A",
             singletonList(BEFORE_ALL_BLOCK),
             singletonList(BEFORE_EACH_BLOCK),
             itBlocksA
         );
 
-        return plan;
+        return rootDescribeBlock;
     }
 }

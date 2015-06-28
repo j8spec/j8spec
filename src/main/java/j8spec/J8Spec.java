@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static j8spec.BlockExecutionFlag.*;
-import static j8spec.ExecutionPlan.newExecutionPlan;
+import static j8spec.DescribeBlock.newRootDescribeBlock;
 import static java.util.function.Function.identity;
 
 /**
@@ -15,14 +15,14 @@ import static java.util.function.Function.identity;
  */
 public final class J8Spec {
 
-    private static final ThreadLocal<DescribeBlockDefinition> currentDescribeBlock = new ThreadLocal<>();
+    private static final ThreadLocal<DescribeBlockDefinition> currentDescribeBlockDefinition = new ThreadLocal<>();
 
     /**
      * @since 1.0.0
      */
     public static synchronized void describe(String description, Runnable body) {
         isValidContext("describe");
-        currentDescribeBlock.get().describe(description, body);
+        currentDescribeBlockDefinition.get().describe(description, body);
     }
 
     /**
@@ -30,7 +30,7 @@ public final class J8Spec {
      */
     public static synchronized void xdescribe(String description, Runnable body) {
         isValidContext("xdescribe");
-        currentDescribeBlock.get().xdescribe(description, body);
+        currentDescribeBlockDefinition.get().xdescribe(description, body);
     }
 
     /**
@@ -38,7 +38,7 @@ public final class J8Spec {
      */
     public static synchronized void fdescribe(String description, Runnable body) {
         isValidContext("fdescribe");
-        currentDescribeBlock.get().fdescribe(description, body);
+        currentDescribeBlockDefinition.get().fdescribe(description, body);
     }
 
     /**
@@ -46,7 +46,7 @@ public final class J8Spec {
      */
     public static synchronized void beforeAll(Runnable body) {
         isValidContext("beforeAll");
-        currentDescribeBlock.get().beforeAll(body);
+        currentDescribeBlockDefinition.get().beforeAll(body);
     }
 
     /**
@@ -54,7 +54,7 @@ public final class J8Spec {
      */
     public static synchronized void beforeEach(Runnable body) {
         isValidContext("beforeEach");
-        currentDescribeBlock.get().beforeEach(body);
+        currentDescribeBlockDefinition.get().beforeEach(body);
     }
 
     /**
@@ -76,7 +76,7 @@ public final class J8Spec {
         ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
             .body(body)
             .newItBlockDefinition();
-        currentDescribeBlock.get().it(description, itBlockDefinition);
+        currentDescribeBlockDefinition.get().it(description, itBlockDefinition);
     }
 
     /**
@@ -98,7 +98,7 @@ public final class J8Spec {
         ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
             .body(body)
             .newIgnoredItBlockDefinition();
-        currentDescribeBlock.get().it(description, itBlockDefinition);
+        currentDescribeBlockDefinition.get().it(description, itBlockDefinition);
     }
 
     /**
@@ -120,11 +120,11 @@ public final class J8Spec {
         ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
             .body(body)
             .newFocusedItBlockDefinition();
-        currentDescribeBlock.get().it(description, itBlockDefinition);
+        currentDescribeBlockDefinition.get().it(description, itBlockDefinition);
     }
 
     private static void isValidContext(final String methodName) {
-        if (currentDescribeBlock.get() == null) {
+        if (currentDescribeBlockDefinition.get() == null) {
             throw new IllegalContextException(
                 "'" + methodName + "' should not be invoked from outside a spec definition."
             );
@@ -134,12 +134,12 @@ public final class J8Spec {
     /**
      * @since 1.0.0
      */
-    public static synchronized ExecutionPlan executionPlanFor(Class<?> testClass) {
-        currentDescribeBlock.set(new DescribeBlockDefinition(testClass));
+    public static synchronized DescribeBlock read(Class<?> specClass) {
+        currentDescribeBlockDefinition.set(new DescribeBlockDefinition(specClass));
         try {
-            return currentDescribeBlock.get().buildExecutionPlan();
+            return currentDescribeBlockDefinition.get().buildDescribeBlock();
         } finally {
-            currentDescribeBlock.set(null);
+            currentDescribeBlockDefinition.set(null);
         }
     }
 
@@ -149,8 +149,8 @@ public final class J8Spec {
         private final String description;
         private final Runnable body;
         private final BlockExecutionFlag executionFlag;
-        private final List<DescribeBlockDefinition> describeBlocks = new LinkedList<>();
-        private final Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
+        private final List<DescribeBlockDefinition> describeBlockDefinitions = new LinkedList<>();
+        private final Map<String, ItBlockDefinition> itBlockDefinitions = new HashMap<>();
         private final List<Runnable> beforeAllBlocks = new LinkedList<>();
         private final List<Runnable> beforeEachBlocks = new LinkedList<>();
 
@@ -177,15 +177,15 @@ public final class J8Spec {
         }
 
         public void describe(String description, Runnable body) {
-            describeBlocks.add(new DescribeBlockDefinition(specClass, description, body, DEFAULT));
+            describeBlockDefinitions.add(new DescribeBlockDefinition(specClass, description, body, DEFAULT));
         }
 
         public void xdescribe(String description, Runnable body) {
-            describeBlocks.add(new DescribeBlockDefinition(specClass, description, body, IGNORED));
+            describeBlockDefinitions.add(new DescribeBlockDefinition(specClass, description, body, IGNORED));
         }
 
         public void fdescribe(String description, Runnable body) {
-            describeBlocks.add(new DescribeBlockDefinition(specClass, description, body, FOCUSED));
+            describeBlockDefinitions.add(new DescribeBlockDefinition(specClass, description, body, FOCUSED));
         }
 
         public void beforeAll(Runnable beforeAllBlock) {
@@ -197,8 +197,8 @@ public final class J8Spec {
         }
 
         public void it(String description, ItBlockDefinition itBlockDefinition) {
-            ensureIsNotAlreadyDefined(description, itBlocks.containsKey(description));
-            itBlocks.put(description, itBlockDefinition);
+            ensureIsNotAlreadyDefined(description, itBlockDefinitions.containsKey(description));
+            itBlockDefinitions.put(description, itBlockDefinition);
         }
 
         private void ensureIsNotAlreadyDefined(String blockName, boolean result) {
@@ -207,41 +207,41 @@ public final class J8Spec {
             }
         }
 
-        public ExecutionPlan buildExecutionPlan() {
-            return populateExecutionPlan(null);
+        public DescribeBlock buildDescribeBlock() {
+            return buildDescribeBlock(null);
         }
 
-        private ExecutionPlan populateExecutionPlan(ExecutionPlan parentPlan) {
-            DescribeBlockDefinition previousDescribeBlock = J8Spec.currentDescribeBlock.get();
-            J8Spec.currentDescribeBlock.set(this);
+        private DescribeBlock buildDescribeBlock(DescribeBlock parent) {
+            DescribeBlockDefinition previousDescribeBlockDefinition = J8Spec.currentDescribeBlockDefinition.get();
+            J8Spec.currentDescribeBlockDefinition.set(this);
 
             this.body.run();
 
-            ExecutionPlan newPlan = newPlan(parentPlan);
-            this.describeBlocks.stream().forEach(block -> block.populateExecutionPlan(newPlan));
+            DescribeBlock describeBlock = newDescribeBlock(parent);
+            this.describeBlockDefinitions.stream().forEach(block -> block.buildDescribeBlock(describeBlock));
 
-            J8Spec.currentDescribeBlock.set(previousDescribeBlock);
+            J8Spec.currentDescribeBlockDefinition.set(previousDescribeBlockDefinition);
 
-            return newPlan;
+            return describeBlock;
         }
 
-        private ExecutionPlan newPlan(ExecutionPlan parentPlan) {
-            if (parentPlan == null) {
-                return newExecutionPlan(specClass, beforeAllBlocks, beforeEachBlocks, itBlocks);
+        private DescribeBlock newDescribeBlock(DescribeBlock parent) {
+            if (parent == null) {
+                return newRootDescribeBlock(specClass, beforeAllBlocks, beforeEachBlocks, itBlockDefinitions);
             }
-            return newChildPlan(parentPlan);
+            return addDescribeBlockTo(parent);
         }
 
-        private ExecutionPlan newChildPlan(ExecutionPlan parentPlan) {
+        private DescribeBlock addDescribeBlockTo(DescribeBlock parent) {
             if (IGNORED.equals(executionFlag)) {
-                return parentPlan.newIgnoredChildPlan(description, beforeAllBlocks, beforeEachBlocks, itBlocks);
+                return parent.addIgnoredDescribeBlock(description, beforeAllBlocks, beforeEachBlocks, itBlockDefinitions);
             }
 
             if (FOCUSED.equals(executionFlag)) {
-                return parentPlan.newFocusedChildPlan(description, beforeAllBlocks, beforeEachBlocks, itBlocks);
+                return parent.addFocusedDescribeBlock(description, beforeAllBlocks, beforeEachBlocks, itBlockDefinitions);
             }
 
-            return parentPlan.newChildPlan(description, beforeAllBlocks, beforeEachBlocks, itBlocks);
+            return parent.addDescribeBlock(description, beforeAllBlocks, beforeEachBlocks, itBlockDefinitions);
         }
     }
 
