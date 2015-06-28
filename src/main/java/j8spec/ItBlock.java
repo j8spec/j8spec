@@ -98,8 +98,4 @@ public final class ItBlock implements Runnable {
     public boolean isExpectedToThrowAnException() {
         return expectedException != null;
     }
-
-    List<BeforeBlock> beforeBlocks() {
-        return beforeBlocks;
-    }
 }

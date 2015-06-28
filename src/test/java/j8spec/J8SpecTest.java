@@ -40,11 +40,6 @@ public class J8SpecTest {
         private BadSpec() {}
     }
 
-    static class BeforeAllBlockOverwrittenSpec {{
-        beforeAll(() -> {});
-        beforeAll(() -> {});
-    }}
-
     static class ItBlockOverwrittenSpec {{
         it("some text", () -> {});
         it("some text", () -> {});
@@ -200,21 +195,6 @@ public class J8SpecTest {
     }
 
     @Test
-    public void buildsAnExecutionPlanUsingBeforeAllBlocksFromTheSpecDefinition() {
-        ExecutionPlan plan = executionPlanFor(SampleSpec.class);
-        assertThat(plan.beforeAllBlock(), is(BEFORE_ALL_BLOCK));
-
-        ExecutionPlan planA = plan.plans().get(0);
-        assertThat(planA.beforeAllBlock(), is(BEFORE_ALL_A_BLOCK));
-
-        ExecutionPlan planAA = planA.plans().get(0);
-        assertThat(planAA.beforeAllBlock(), is(BEFORE_ALL_AA_BLOCK));
-
-        ExecutionPlan planB = plan.plans().get(1);
-        assertThat(planB.beforeAllBlock(), is(BEFORE_ALL_B_BLOCK));
-    }
-
-    @Test
     public void buildsAnExecutionPlanUsingItBlocksFromTheSpecDefinition() {
         ExecutionPlan plan = executionPlanFor(SampleSpec.class);
 
@@ -295,11 +275,6 @@ public class J8SpecTest {
     }
 
     @Test(expected = IllegalContextException.class)
-    public void doesNotAllowBeforeAllMethodDirectInvocation() {
-        J8Spec.beforeAll(() -> {});
-    }
-
-    @Test(expected = IllegalContextException.class)
     public void doesNotAllowItMethodDirectInvocation() {
         J8Spec.it("some text", () -> {});
     }
@@ -327,11 +302,6 @@ public class J8SpecTest {
     @Test(expected = IllegalContextException.class)
     public void doesNotAllowFitMethodWithCollectorDirectInvocation() {
         J8Spec.fit("some text", c -> c, () -> {});
-    }
-
-    @Test(expected = BlockAlreadyDefinedException.class)
-    public void doesNotAllowBeforeAllBlockToBeReplaced() {
-        executionPlanFor(BeforeAllBlockOverwrittenSpec.class);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
