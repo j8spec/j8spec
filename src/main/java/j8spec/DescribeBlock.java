@@ -26,7 +26,7 @@ public final class DescribeBlock {
     private final String description;
     private final List<Runnable> beforeAllBlocks;
     private final List<Runnable> beforeEachBlocks;
-    private final Map<String, ItBlockDefinition> itBlocks;
+    private final Map<String, ItBlockDefinition> itBlockDefinitions;
     private final List<DescribeBlock> describeBlocks = new LinkedList<>();
     private final Class<?> specClass;
     private final BlockExecutionFlag executionFlag;
@@ -44,14 +44,14 @@ public final class DescribeBlock {
         Class<?> specClass,
         List<Runnable> beforeAllBlocks,
         List<Runnable> beforeEachBlocks,
-        Map<String, ItBlockDefinition> itBlocks
+        Map<String, ItBlockDefinition> itBlockDefinitions
     ) {
         this.parent = null;
         this.specClass = specClass;
         this.description = specClass.getName();
         this.beforeAllBlocks = unmodifiableList(beforeAllBlocks);
         this.beforeEachBlocks = unmodifiableList(beforeEachBlocks);
-        this.itBlocks = unmodifiableMap(itBlocks);
+        this.itBlockDefinitions = unmodifiableMap(itBlockDefinitions);
         this.executionFlag = DEFAULT;
     }
 
@@ -60,7 +60,7 @@ public final class DescribeBlock {
         String description,
         List<Runnable> beforeAllBlocks,
         List<Runnable> beforeEachBlocks,
-        Map<String, ItBlockDefinition> itBlocks,
+        Map<String, ItBlockDefinition> itBlockDefinitions,
         BlockExecutionFlag executionFlag
     ) {
         this.parent = parent;
@@ -68,7 +68,7 @@ public final class DescribeBlock {
         this.description = description;
         this.beforeAllBlocks = unmodifiableList(beforeAllBlocks);
         this.beforeEachBlocks = unmodifiableList(beforeEachBlocks);
-        this.itBlocks = unmodifiableMap(itBlocks);
+        this.itBlockDefinitions = unmodifiableMap(itBlockDefinitions);
         this.executionFlag = executionFlag;
     }
 
@@ -115,8 +115,8 @@ public final class DescribeBlock {
     private void toString(StringBuilder sb, String indentation) {
         sb.append(indentation).append(description);
 
-        for (Map.Entry<String, ItBlockDefinition> behavior : itBlocks.entrySet()) {
-            sb.append(LS).append(indentation).append("  ").append(behavior.getKey());
+        for (Map.Entry<String, ItBlockDefinition> blocks : itBlockDefinitions.entrySet()) {
+            sb.append(LS).append(indentation).append("  ").append(blocks.getKey());
         }
 
         for (DescribeBlock describeBlock : describeBlocks) {
@@ -136,9 +136,9 @@ public final class DescribeBlock {
      * @since 1.0.0
      */
     public List<ItBlock> flattenItBlocks() {
-        LinkedList<ItBlock> blocks = new LinkedList<>();
-        collectItBlocks(blocks, new LinkedList<>(), shouldBeIgnoredPredicate());
-        return blocks;
+        LinkedList<ItBlock> blocksCollector = new LinkedList<>();
+        collectItBlocks(blocksCollector, new LinkedList<>(), shouldBeIgnoredPredicate());
+        return blocksCollector;
     }
 
     private ShouldBeIgnoredPredicate shouldBeIgnoredPredicate() {
@@ -149,7 +149,7 @@ public final class DescribeBlock {
     }
 
     private boolean thereIsAtLeastOneFocusedBlock() {
-        return itBlocks.values().stream().anyMatch(ItBlockDefinition::focused)
+        return itBlockDefinitions.values().stream().anyMatch(ItBlockDefinition::focused)
             || describeBlocks.stream().anyMatch(b -> b.focused() || b.thereIsAtLeastOneFocusedBlock());
     }
 
@@ -170,7 +170,7 @@ public final class DescribeBlock {
     }
 
     ItBlockDefinition itBlock(String itBlockDescription) {
-        return itBlocks.get(itBlockDescription);
+        return itBlockDefinitions.get(itBlockDescription);
     }
 
     boolean ignored() {
@@ -182,7 +182,7 @@ public final class DescribeBlock {
     }
 
     private void collectItBlocks(
-        List<ItBlock> blocks,
+        List<ItBlock> blocksCollector,
         List<BeforeBlock> parentBeforeAllBlocks,
         ShouldBeIgnoredPredicate shouldBeIgnored
     ) {
@@ -192,31 +192,31 @@ public final class DescribeBlock {
         beforeBlocks.addAll(parentBeforeAllBlocks);
         beforeBlocks.addAll(collectBeforeEachBlocks());
 
-        for (Map.Entry<String, ItBlockDefinition> entry : this.itBlocks.entrySet()) {
+        for (Map.Entry<String, ItBlockDefinition> entry : this.itBlockDefinitions.entrySet()) {
             String description = entry.getKey();
             ItBlockDefinition itBlock = entry.getValue();
 
             if (shouldBeIgnored.test(this, itBlock)) {
-                blocks.add(newIgnoredItBlock(allContainerDescriptions(), description));
+                blocksCollector.add(newIgnoredItBlock(allContainerDescriptions(), description));
             } else {
-                blocks.add(newItBlock(allContainerDescriptions(), description, beforeBlocks, itBlock.body(), itBlock.expected()));
+                blocksCollector.add(newItBlock(allContainerDescriptions(), description, beforeBlocks, itBlock.body(), itBlock.expected()));
             }
         }
 
         for (DescribeBlock describeBlock : this.describeBlocks) {
-            describeBlock.collectItBlocks(blocks, parentBeforeAllBlocks, shouldBeIgnored);
+            describeBlock.collectItBlocks(blocksCollector, parentBeforeAllBlocks, shouldBeIgnored);
         }
     }
 
     private boolean containerIgnored() {
-        if (isRootDescribeBlock()) {
+        if (isRoot()) {
             return ignored();
         }
         return ignored() || parent.containerIgnored();
     }
 
     private boolean containerFocused() {
-        if (isRootDescribeBlock()) {
+        if (isRoot()) {
             return focused();
         }
         return focused() || parent.containerFocused();
@@ -225,7 +225,7 @@ public final class DescribeBlock {
     private List<String> allContainerDescriptions() {
         List<String> containerDescriptions;
 
-        if (isRootDescribeBlock()) {
+        if (isRoot()) {
             containerDescriptions = new LinkedList<>();
         } else {
             containerDescriptions = parent.allContainerDescriptions();
@@ -238,7 +238,7 @@ public final class DescribeBlock {
     private List<BeforeBlock> collectBeforeEachBlocks() {
         List<BeforeBlock> beforeEachBlocks;
 
-        if (isRootDescribeBlock()) {
+        if (isRoot()) {
             beforeEachBlocks = new LinkedList<>();
         } else {
             beforeEachBlocks = parent.collectBeforeEachBlocks();
@@ -249,7 +249,7 @@ public final class DescribeBlock {
         return beforeEachBlocks;
     }
 
-    private boolean isRootDescribeBlock() {
+    private boolean isRoot() {
         return parent == null;
     }
 }
