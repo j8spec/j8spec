@@ -151,7 +151,7 @@ public final class J8Spec {
         private final BlockExecutionFlag executionFlag;
         private final List<DescribeBlockDefinition> describeBlocks = new LinkedList<>();
         private final Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
-        private Runnable beforeAllBlock;
+        private final List<Runnable> beforeAllBlocks = new LinkedList<>();
         private final List<Runnable> beforeEachBlocks = new LinkedList<>();
 
         public DescribeBlockDefinition(Class<?> specClass) {
@@ -189,8 +189,7 @@ public final class J8Spec {
         }
 
         public void beforeAll(Runnable beforeAllBlock) {
-            ensureIsNotAlreadyDefined("beforeAll", this.beforeAllBlock != null);
-            this.beforeAllBlock = beforeAllBlock;
+            this.beforeAllBlocks.add(beforeAllBlock);
         }
 
         public void beforeEach(Runnable beforeEachBlock) {
@@ -228,21 +227,21 @@ public final class J8Spec {
 
         private ExecutionPlan newPlan(ExecutionPlan parentPlan) {
             if (parentPlan == null) {
-                return newExecutionPlan(specClass, beforeAllBlock, beforeEachBlocks, itBlocks);
+                return newExecutionPlan(specClass, beforeAllBlocks, beforeEachBlocks, itBlocks);
             }
             return newChildPlan(parentPlan);
         }
 
         private ExecutionPlan newChildPlan(ExecutionPlan parentPlan) {
             if (IGNORED.equals(executionFlag)) {
-                return parentPlan.newIgnoredChildPlan(description, beforeAllBlock, beforeEachBlocks, itBlocks);
+                return parentPlan.newIgnoredChildPlan(description, beforeAllBlocks, beforeEachBlocks, itBlocks);
             }
 
             if (FOCUSED.equals(executionFlag)) {
-                return parentPlan.newFocusedChildPlan(description, beforeAllBlock, beforeEachBlocks, itBlocks);
+                return parentPlan.newFocusedChildPlan(description, beforeAllBlocks, beforeEachBlocks, itBlocks);
             }
 
-            return parentPlan.newChildPlan(description, beforeAllBlock, beforeEachBlocks, itBlocks);
+            return parentPlan.newChildPlan(description, beforeAllBlocks, beforeEachBlocks, itBlocks);
         }
     }
 

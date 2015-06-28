@@ -16,41 +16,41 @@ import static java.util.Collections.unmodifiableMap;
  */
 public final class ExecutionPlan {
 
-    private static final String LS = System.getProperty("line.separator");
-
     @FunctionalInterface
     private interface ShouldBeIgnoredPredicate {
         boolean test(ExecutionPlan plan, ItBlockDefinition itBlockDefinition);
     }
 
-    static ExecutionPlan newExecutionPlan(
-        Class<?> specClass,
-        Runnable beforeAllBlock,
-        List<Runnable> beforeEachBlocks,
-        Map<String, ItBlockDefinition> itBlocks
-    ) {
-        return new ExecutionPlan(specClass, beforeAllBlock, beforeEachBlocks, itBlocks);
-    }
+    private static final String LS = System.getProperty("line.separator");
 
     private final ExecutionPlan parent;
-    private final BlockExecutionFlag executionFlag;
     private final String description;
-    private final Runnable beforeAllBlock;
+    private final List<Runnable> beforeAllBlocks;
     private final List<Runnable> beforeEachBlocks;
     private final Map<String, ItBlockDefinition> itBlocks;
     private final List<ExecutionPlan> plans = new LinkedList<>();
     private final Class<?> specClass;
+    private final BlockExecutionFlag executionFlag;
+
+    static ExecutionPlan newExecutionPlan(
+        Class<?> specClass,
+        List<Runnable> beforeAllBlocks,
+        List<Runnable> beforeEachBlocks,
+        Map<String, ItBlockDefinition> itBlocks
+    ) {
+        return new ExecutionPlan(specClass, beforeAllBlocks, beforeEachBlocks, itBlocks);
+    }
 
     private ExecutionPlan(
         Class<?> specClass,
-        Runnable beforeAllBlock,
+        List<Runnable> beforeAllBlocks,
         List<Runnable> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks
     ) {
         this.parent = null;
         this.specClass = specClass;
         this.description = specClass.getName();
-        this.beforeAllBlock = beforeAllBlock;
+        this.beforeAllBlocks = unmodifiableList(beforeAllBlocks);
         this.beforeEachBlocks = unmodifiableList(beforeEachBlocks);
         this.itBlocks = unmodifiableMap(itBlocks);
         this.executionFlag = DEFAULT;
@@ -59,7 +59,7 @@ public final class ExecutionPlan {
     private ExecutionPlan(
         ExecutionPlan parent,
         String description,
-        Runnable beforeAllBlock,
+        List<Runnable> beforeAllBlocks,
         List<Runnable> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks,
         BlockExecutionFlag executionFlag
@@ -67,7 +67,7 @@ public final class ExecutionPlan {
         this.parent = parent;
         this.specClass = parent.specClass;
         this.description = description;
-        this.beforeAllBlock = beforeAllBlock;
+        this.beforeAllBlocks = unmodifiableList(beforeAllBlocks);
         this.beforeEachBlocks = unmodifiableList(beforeEachBlocks);
         this.itBlocks = unmodifiableMap(itBlocks);
         this.executionFlag = executionFlag;
@@ -75,33 +75,33 @@ public final class ExecutionPlan {
 
     ExecutionPlan newChildPlan(
         String description,
-        Runnable beforeAllBlock,
+        List<Runnable> beforeAllBlocks,
         List<Runnable> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks
     ) {
-        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlocks, itBlocks, DEFAULT);
+        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, DEFAULT);
         plans.add(plan);
         return plan;
     }
 
     ExecutionPlan newIgnoredChildPlan(
         String description,
-        Runnable beforeAllBlock,
+        List<Runnable> beforeAllBlocks,
         List<Runnable> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks
     ) {
-        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlocks, itBlocks, IGNORED);
+        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, IGNORED);
         plans.add(plan);
         return plan;
     }
 
     ExecutionPlan newFocusedChildPlan(
         String description,
-        Runnable beforeAllBlock,
+        List<Runnable> beforeAllBlocks,
         List<Runnable> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks
     ) {
-        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlock, beforeEachBlocks, itBlocks, FOCUSED);
+        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, FOCUSED);
         plans.add(plan);
         return plan;
     }
@@ -162,8 +162,8 @@ public final class ExecutionPlan {
         return new LinkedList<>(plans);
     }
 
-    Runnable beforeAllBlock() {
-        return beforeAllBlock;
+    List<Runnable> beforeAllBlocks() {
+        return beforeAllBlocks;
     }
 
     List<Runnable> beforeEachBlocks() {
@@ -187,8 +187,8 @@ public final class ExecutionPlan {
         List<BeforeBlock> parentBeforeAllBlocks,
         ShouldBeIgnoredPredicate shouldBeIgnored
     ) {
-        if (this.beforeAllBlock != null) {
-            parentBeforeAllBlocks.add(newBeforeAllBlock(this.beforeAllBlock));
+        if (!this.beforeAllBlocks.isEmpty()) {
+            parentBeforeAllBlocks.add(newBeforeAllBlock(this.beforeAllBlocks.get(0)));
         }
 
         List<BeforeBlock> beforeBlocks = new LinkedList<>();
