@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static j8spec.BlockExecutionFlag.*;
+import static j8spec.ExecutionPlan.newExecutionPlan;
 import static java.util.function.Function.identity;
 
 /**
@@ -227,7 +228,7 @@ public final class J8Spec {
 
         private ExecutionPlan newPlan(ExecutionPlan parentPlan) {
             if (parentPlan == null) {
-                return new ExecutionPlan(specClass, beforeAllBlock, beforeEachBlocks, itBlocks);
+                return newExecutionPlan(specClass, beforeAllBlock, beforeEachBlocks, itBlocks);
             }
             return newChildPlan(parentPlan);
         }

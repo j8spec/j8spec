@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static j8spec.ExecutionPlan.newExecutionPlan;
 import static j8spec.ItBlockDefinition.*;
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
@@ -214,7 +215,7 @@ public class ExecutionPlanTest {
     }
 
     private ExecutionPlan anEmptyExecutionPlan() {
-        return new ExecutionPlan(SampleSpec.class, null, emptyList(), emptyMap());
+        return newExecutionPlan(SampleSpec.class, null, emptyList(), emptyMap());
     }
 
     private ExecutionPlan anExecutionPlanWithNoBeforeBlocks() {
@@ -222,7 +223,7 @@ public class ExecutionPlanTest {
         itBlocks.put("block 1", newItBlockDefinition(NOOP));
         itBlocks.put("block 2", newItBlockDefinition(NOOP));
 
-        ExecutionPlan planWithInnerPlans = new ExecutionPlan(SampleSpec.class, null, emptyList(), itBlocks);
+        ExecutionPlan planWithInnerPlans = newExecutionPlan(SampleSpec.class, null, emptyList(), itBlocks);
 
         planWithInnerPlans.newChildPlan("child 1", null, emptyList(), itBlocks);
         planWithInnerPlans.newChildPlan("child 2", null, emptyList(), itBlocks);
@@ -235,7 +236,7 @@ public class ExecutionPlanTest {
         itBlocks.put("block 1", newItBlockDefinition(BLOCK_1));
         itBlocks.put("block 2", newItBlockDefinition(BLOCK_2));
 
-        ExecutionPlan planWithInnerPlans = new ExecutionPlan(
+        ExecutionPlan planWithInnerPlans = newExecutionPlan(
             SampleSpec.class,
             BEFORE_ALL_BLOCK,
             singletonList(BEFORE_EACH_BLOCK),
@@ -260,7 +261,7 @@ public class ExecutionPlanTest {
         Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         itBlocks.put("block 1", newIgnoredItBlockDefinition(BLOCK_1));
 
-        return new ExecutionPlan(
+        return newExecutionPlan(
             SampleSpec.class,
             BEFORE_ALL_BLOCK,
             singletonList(BEFORE_EACH_BLOCK),
@@ -272,7 +273,7 @@ public class ExecutionPlanTest {
         Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         itBlocks.put("block 1", newItBlockDefinition(BLOCK_1, Exception.class));
 
-        return new ExecutionPlan(SampleSpec.class, BEFORE_ALL_BLOCK, singletonList(BEFORE_EACH_BLOCK), itBlocks);
+        return newExecutionPlan(SampleSpec.class, BEFORE_ALL_BLOCK, singletonList(BEFORE_EACH_BLOCK), itBlocks);
     }
 
     private ExecutionPlan anExecutionPlanWithFocusedItBlocks() {
@@ -280,7 +281,7 @@ public class ExecutionPlanTest {
         itBlocks.put("block 1", newItBlockDefinition(BLOCK_1));
         itBlocks.put("block 2", newItBlockDefinition(BLOCK_2));
 
-        ExecutionPlan plan = new ExecutionPlan(
+        ExecutionPlan plan = newExecutionPlan(
             SampleSpec.class,
             BEFORE_ALL_BLOCK,
             singletonList(BEFORE_EACH_BLOCK),
@@ -300,7 +301,7 @@ public class ExecutionPlanTest {
         Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         itBlocks.put("block 1", newItBlockDefinition(BLOCK_1));
 
-        ExecutionPlan plan = new ExecutionPlan(SampleSpec.class, null, emptyList(), itBlocks);
+        ExecutionPlan plan = newExecutionPlan(SampleSpec.class, null, emptyList(), itBlocks);
 
         Map<String, ItBlockDefinition> itBlocksA = new HashMap<>();
         itBlocksA.put("block A1", newItBlockDefinition(BLOCK_A_1));
@@ -321,7 +322,7 @@ public class ExecutionPlanTest {
         Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         itBlocks.put("block 1", newItBlockDefinition(BLOCK_1));
 
-        ExecutionPlan plan = new ExecutionPlan(
+        ExecutionPlan plan = newExecutionPlan(
             SampleSpec.class,
             BEFORE_ALL_BLOCK,
             singletonList(BEFORE_EACH_BLOCK),

@@ -21,6 +21,20 @@ public final class ExecutionPlan {
 
     private static final String LS = System.getProperty("line.separator");
 
+    @FunctionalInterface
+    private interface ShouldBeIgnoredPredicate {
+        boolean test(ExecutionPlan plan, ItBlockDefinition itBlockDefinition);
+    }
+
+    static ExecutionPlan newExecutionPlan(
+        Class<?> specClass,
+        Runnable beforeAllBlock,
+        List<Runnable> beforeEachBlocks,
+        Map<String, ItBlockDefinition> itBlocks
+    ) {
+        return new ExecutionPlan(specClass, beforeAllBlock, beforeEachBlocks, itBlocks);
+    }
+
     private final ExecutionPlan parent;
     private final BlockExecutionFlag executionFlag;
     private final String description;
@@ -30,12 +44,7 @@ public final class ExecutionPlan {
     private final List<ExecutionPlan> plans = new LinkedList<>();
     private final Class<?> specClass;
 
-    @FunctionalInterface
-    private interface ShouldBeIgnoredPredicate {
-        boolean test(ExecutionPlan plan, ItBlockDefinition itBlockDefinition);
-    }
-
-    ExecutionPlan(
+    private ExecutionPlan(
         Class<?> specClass,
         Runnable beforeAllBlock,
         List<Runnable> beforeEachBlocks,
