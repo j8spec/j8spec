@@ -14,7 +14,8 @@ import static org.junit.Assert.assertThat;
 public class J8SpecFlowTest {
 
     public static class SampleSpec {{
-        beforeAll(() -> log.add("before all"));
+        beforeAll(() -> log.add("before all 1"));
+        beforeAll(() -> log.add("before all 2"));
         beforeEach(() -> log.add("before each 1"));
         beforeEach(() -> log.add("before each 2"));
 
@@ -22,7 +23,8 @@ public class J8SpecFlowTest {
         it("block 2", () -> log.add("block 2"));
 
         describe("describe A", () -> {
-            beforeAll(() -> log.add("describe A before all"));
+            beforeAll(() -> log.add("describe A before all 1"));
+            beforeAll(() -> log.add("describe A before all 2"));
             beforeEach(() -> log.add("describe A before each 1"));
             beforeEach(() -> log.add("describe A before each 2"));
 
@@ -43,7 +45,8 @@ public class J8SpecFlowTest {
     @Test
     public void flow() {
         assertThat(log, is(asList(
-            "before all",
+            "before all 1",
+            "before all 2",
 
             "before each 1",
             "before each 2",
@@ -53,7 +56,8 @@ public class J8SpecFlowTest {
             "before each 2",
             "block 2",
 
-            "describe A before all",
+            "describe A before all 1",
+            "describe A before all 2",
 
             "before each 1",
             "before each 2",

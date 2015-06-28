@@ -187,9 +187,7 @@ public final class ExecutionPlan {
         List<BeforeBlock> parentBeforeAllBlocks,
         ShouldBeIgnoredPredicate shouldBeIgnored
     ) {
-        if (!this.beforeAllBlocks.isEmpty()) {
-            parentBeforeAllBlocks.add(newBeforeAllBlock(this.beforeAllBlocks.get(0)));
-        }
+        this.beforeAllBlocks.stream().map(BeforeBlock::newBeforeAllBlock).forEach(parentBeforeAllBlocks::add);
 
         List<BeforeBlock> beforeBlocks = new LinkedList<>();
         beforeBlocks.addAll(parentBeforeAllBlocks);
