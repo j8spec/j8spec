@@ -11,7 +11,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ExecutionPlanFlowTest {
+public class J8SpecFlowTest {
 
     public static class SampleSpec {{
         beforeAll(() -> log.add("before all"));
@@ -33,12 +33,10 @@ public class ExecutionPlanFlowTest {
 
     private static List<String> log;
 
-    private ExecutionPlan plan;
-
     @Before
     public void resetExecutionPlan() {
         log = new ArrayList<>();
-        plan = executionPlanFor(SampleSpec.class);
+        ExecutionPlan plan = executionPlanFor(SampleSpec.class);
         plan.allItBlocks().forEach(Runnable::run);
     }
 
