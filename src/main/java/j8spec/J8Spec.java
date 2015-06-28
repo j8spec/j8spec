@@ -15,14 +15,14 @@ import static java.util.function.Function.identity;
  */
 public final class J8Spec {
 
-    private static final ThreadLocal<Spec> currentSpec = new ThreadLocal<>();
+    private static final ThreadLocal<DescribeBlockDefinition> currentDescribeBlock = new ThreadLocal<>();
 
     /**
      * @since 1.0.0
      */
     public static synchronized void describe(String description, Runnable body) {
         isValidContext("describe");
-        currentSpec.get().describe(description, body);
+        currentDescribeBlock.get().describe(description, body);
     }
 
     /**
@@ -30,7 +30,7 @@ public final class J8Spec {
      */
     public static synchronized void xdescribe(String description, Runnable body) {
         isValidContext("xdescribe");
-        currentSpec.get().xdescribe(description, body);
+        currentDescribeBlock.get().xdescribe(description, body);
     }
 
     /**
@@ -38,7 +38,7 @@ public final class J8Spec {
      */
     public static synchronized void fdescribe(String description, Runnable body) {
         isValidContext("fdescribe");
-        currentSpec.get().fdescribe(description, body);
+        currentDescribeBlock.get().fdescribe(description, body);
     }
 
     /**
@@ -46,7 +46,7 @@ public final class J8Spec {
      */
     public static synchronized void beforeAll(Runnable body) {
         isValidContext("beforeAll");
-        currentSpec.get().beforeAll(body);
+        currentDescribeBlock.get().beforeAll(body);
     }
 
     /**
@@ -54,7 +54,7 @@ public final class J8Spec {
      */
     public static synchronized void beforeEach(Runnable body) {
         isValidContext("beforeEach");
-        currentSpec.get().beforeEach(body);
+        currentDescribeBlock.get().beforeEach(body);
     }
 
     /**
@@ -76,7 +76,7 @@ public final class J8Spec {
         ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
             .body(body)
             .newItBlockDefinition();
-        currentSpec.get().it(description, itBlockDefinition);
+        currentDescribeBlock.get().it(description, itBlockDefinition);
     }
 
     /**
@@ -98,7 +98,7 @@ public final class J8Spec {
         ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
             .body(body)
             .newIgnoredItBlockDefinition();
-        currentSpec.get().it(description, itBlockDefinition);
+        currentDescribeBlock.get().it(description, itBlockDefinition);
     }
 
     /**
@@ -120,11 +120,11 @@ public final class J8Spec {
         ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
             .body(body)
             .newFocusedItBlockDefinition();
-        currentSpec.get().it(description, itBlockDefinition);
+        currentDescribeBlock.get().it(description, itBlockDefinition);
     }
 
     private static void isValidContext(final String methodName) {
-        if (currentSpec.get() == null) {
+        if (currentDescribeBlock.get() == null) {
             throw new IllegalContextException(
                 "'" + methodName + "' should not be invoked from outside a spec definition."
             );
@@ -135,26 +135,26 @@ public final class J8Spec {
      * @since 1.0.0
      */
     public static synchronized ExecutionPlan executionPlanFor(Class<?> testClass) {
-        currentSpec.set(new Spec(testClass));
+        currentDescribeBlock.set(new DescribeBlockDefinition(testClass));
         try {
-            return currentSpec.get().buildExecutionPlan();
+            return currentDescribeBlock.get().buildExecutionPlan();
         } finally {
-            currentSpec.set(null);
+            currentDescribeBlock.set(null);
         }
     }
 
-    private static class Spec {
+    private static class DescribeBlockDefinition {
 
         private final Class<?> specClass;
         private final String description;
         private final Runnable body;
         private final BlockExecutionFlag executionFlag;
-        private final List<Spec> describeBlocks = new LinkedList<>();
+        private final List<DescribeBlockDefinition> describeBlocks = new LinkedList<>();
         private final Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
         private Runnable beforeAllBlock;
-        private List<Runnable> beforeEachBlocks = new LinkedList<>();
+        private final List<Runnable> beforeEachBlocks = new LinkedList<>();
 
-        public Spec(Class<?> specClass) {
+        public DescribeBlockDefinition(Class<?> specClass) {
             this.specClass = specClass;
             this.description = specClass.getName();
             this.body = () -> {
@@ -169,7 +169,7 @@ public final class J8Spec {
             this.executionFlag = DEFAULT;
         }
 
-        private Spec(Class<?> specClass, String description, Runnable body, BlockExecutionFlag executionFlag) {
+        private DescribeBlockDefinition(Class<?> specClass, String description, Runnable body, BlockExecutionFlag executionFlag) {
             this.specClass = specClass;
             this.description = description;
             this.body = body;
@@ -177,15 +177,15 @@ public final class J8Spec {
         }
 
         public void describe(String description, Runnable body) {
-            describeBlocks.add(new Spec(specClass, description, body, DEFAULT));
+            describeBlocks.add(new DescribeBlockDefinition(specClass, description, body, DEFAULT));
         }
 
         public void xdescribe(String description, Runnable body) {
-            describeBlocks.add(new Spec(specClass, description, body, IGNORED));
+            describeBlocks.add(new DescribeBlockDefinition(specClass, description, body, IGNORED));
         }
 
         public void fdescribe(String description, Runnable body) {
-            describeBlocks.add(new Spec(specClass, description, body, FOCUSED));
+            describeBlocks.add(new DescribeBlockDefinition(specClass, description, body, FOCUSED));
         }
 
         public void beforeAll(Runnable beforeAllBlock) {
@@ -213,15 +213,15 @@ public final class J8Spec {
         }
 
         private ExecutionPlan populateExecutionPlan(ExecutionPlan parentPlan) {
-            Spec previousSpec = J8Spec.currentSpec.get();
-            J8Spec.currentSpec.set(this);
+            DescribeBlockDefinition previousDescribeBlock = J8Spec.currentDescribeBlock.get();
+            J8Spec.currentDescribeBlock.set(this);
 
-            body.run();
+            this.body.run();
 
             ExecutionPlan newPlan = newPlan(parentPlan);
-            describeBlocks.stream().forEach(block -> block.populateExecutionPlan(newPlan));
+            this.describeBlocks.stream().forEach(block -> block.populateExecutionPlan(newPlan));
 
-            J8Spec.currentSpec.set(previousSpec);
+            J8Spec.currentDescribeBlock.set(previousDescribeBlock);
 
             return newPlan;
         }
