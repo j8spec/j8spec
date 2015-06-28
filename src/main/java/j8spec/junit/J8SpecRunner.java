@@ -1,6 +1,6 @@
 package j8spec.junit;
 
-import j8spec.ExecutionPlan;
+import j8spec.DescribeBlock;
 import j8spec.ItBlock;
 import j8spec.J8Spec;
 import org.junit.runner.Description;
@@ -22,14 +22,14 @@ import static org.junit.runner.Description.createTestDescription;
  */
 public final class J8SpecRunner extends ParentRunner<ItBlock> {
 
-    private final ExecutionPlan executionPlan;
+    private final DescribeBlock describeBlock;
     private final Map<ItBlock, Description> descriptions = new HashMap<>();
     private List<ItBlock> itBlocks;
 
     public J8SpecRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
         try {
-            executionPlan = J8Spec.executionPlanFor(testClass);
+            describeBlock = J8Spec.read(testClass);
         } catch (Exception e) {
             throw new InitializationError(e);
         }
@@ -38,7 +38,7 @@ public final class J8SpecRunner extends ParentRunner<ItBlock> {
     @Override
     protected List<ItBlock> getChildren() {
         if (itBlocks == null) {
-            itBlocks = unmodifiableList(executionPlan.allItBlocks());
+            itBlocks = unmodifiableList(describeBlock.flattenItBlocks());
         }
         return itBlocks;
     }
@@ -48,7 +48,7 @@ public final class J8SpecRunner extends ParentRunner<ItBlock> {
         if (!descriptions.containsKey(itBlock)) {
             descriptions.put(
                 itBlock,
-                createTestDescription(executionPlan.specClass().getName(), buildChildName(itBlock))
+                createTestDescription(describeBlock.specClass().getName(), buildChildName(itBlock))
             );
         }
         return descriptions.get(itBlock);

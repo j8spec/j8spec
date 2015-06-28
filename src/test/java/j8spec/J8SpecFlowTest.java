@@ -36,10 +36,10 @@ public class J8SpecFlowTest {
     private static List<String> log;
 
     @Before
-    public void resetExecutionPlan() {
+    public void resetDescribeBlock() {
         log = new ArrayList<>();
-        ExecutionPlan plan = executionPlanFor(SampleSpec.class);
-        plan.allItBlocks().forEach(Runnable::run);
+        DescribeBlock describeBlock = read(SampleSpec.class);
+        describeBlock.flattenItBlocks().forEach(Runnable::run);
     }
 
     @Test

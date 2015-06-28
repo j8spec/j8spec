@@ -51,28 +51,28 @@ public class J8SpecBeforeEachTest {
     }
 
     @Test
-    public void builds_an_execution_plan_when_there_is_no_before_each_block() {
-        ExecutionPlan plan = executionPlanFor(NoBeforeEachSpec.class);
+    public void builds_a_describe_block_when_there_is_no_before_each_block() {
+        DescribeBlock describeBlock = read(NoBeforeEachSpec.class);
 
-        assertThat(plan.beforeEachBlocks(), is(emptyList()));
+        assertThat(describeBlock.beforeEachBlocks(), is(emptyList()));
     }
 
     @Test
-    public void builds_an_execution_plan_when_there_are_several_before_each_blocks_in_the_same_context() {
-        ExecutionPlan plan = executionPlanFor(SeveralBeforeEachSpec.class);
+    public void builds_a_describe_block_when_there_are_several_before_each_blocks_in_the_same_context() {
+        DescribeBlock describeBlock = read(SeveralBeforeEachSpec.class);
 
-        assertThat(plan.beforeEachBlocks().get(0), is(BEFORE_EACH_0_BLOCK));
-        assertThat(plan.beforeEachBlocks().get(1), is(BEFORE_EACH_1_BLOCK));
+        assertThat(describeBlock.beforeEachBlocks().get(0), is(BEFORE_EACH_0_BLOCK));
+        assertThat(describeBlock.beforeEachBlocks().get(1), is(BEFORE_EACH_1_BLOCK));
     }
 
     @Test
-    public void builds_an_execution_plan_when_spec_has_inner_contexts() {
-        ExecutionPlan sampleSpecPlan = executionPlanFor(InnerContextSpec.class);
-        ExecutionPlan describeAPlan = sampleSpecPlan.plans().get(0);
-        ExecutionPlan describeAAPlan = describeAPlan.plans().get(0);
+    public void builds_a_describe_block_when_spec_has_inner_contexts() {
+        DescribeBlock rootDescribeBlock = read(InnerContextSpec.class);
+        DescribeBlock describeA = rootDescribeBlock.describeBlocks().get(0);
+        DescribeBlock describeAA = describeA.describeBlocks().get(0);
 
-        assertThat(sampleSpecPlan.beforeEachBlocks().get(0), is(BEFORE_EACH_0_BLOCK));
-        assertThat(describeAPlan.beforeEachBlocks().get(0), is(BEFORE_EACH_A_BLOCK));
-        assertThat(describeAAPlan.beforeEachBlocks().get(0), is(BEFORE_EACH_AA_BLOCK));
+        assertThat(rootDescribeBlock.beforeEachBlocks().get(0), is(BEFORE_EACH_0_BLOCK));
+        assertThat(describeA.beforeEachBlocks().get(0), is(BEFORE_EACH_A_BLOCK));
+        assertThat(describeAA.beforeEachBlocks().get(0), is(BEFORE_EACH_AA_BLOCK));
     }
 }

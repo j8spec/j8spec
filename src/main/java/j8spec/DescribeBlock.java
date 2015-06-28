@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static j8spec.BeforeBlock.newBeforeAllBlock;
 import static j8spec.BlockExecutionFlag.*;
 import static j8spec.ItBlock.newIgnoredItBlock;
 import static j8spec.ItBlock.newItBlock;
@@ -14,34 +13,34 @@ import static java.util.Collections.unmodifiableMap;
 /**
  * @since 1.0.0
  */
-public final class ExecutionPlan {
+public final class DescribeBlock {
 
     @FunctionalInterface
     private interface ShouldBeIgnoredPredicate {
-        boolean test(ExecutionPlan plan, ItBlockDefinition itBlockDefinition);
+        boolean test(DescribeBlock describeBlock, ItBlockDefinition itBlockDefinition);
     }
 
     private static final String LS = System.getProperty("line.separator");
 
-    private final ExecutionPlan parent;
+    private final DescribeBlock parent;
     private final String description;
     private final List<Runnable> beforeAllBlocks;
     private final List<Runnable> beforeEachBlocks;
     private final Map<String, ItBlockDefinition> itBlocks;
-    private final List<ExecutionPlan> plans = new LinkedList<>();
+    private final List<DescribeBlock> describeBlocks = new LinkedList<>();
     private final Class<?> specClass;
     private final BlockExecutionFlag executionFlag;
 
-    static ExecutionPlan newExecutionPlan(
+    static DescribeBlock newRootDescribeBlock(
         Class<?> specClass,
         List<Runnable> beforeAllBlocks,
         List<Runnable> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks
     ) {
-        return new ExecutionPlan(specClass, beforeAllBlocks, beforeEachBlocks, itBlocks);
+        return new DescribeBlock(specClass, beforeAllBlocks, beforeEachBlocks, itBlocks);
     }
 
-    private ExecutionPlan(
+    private DescribeBlock(
         Class<?> specClass,
         List<Runnable> beforeAllBlocks,
         List<Runnable> beforeEachBlocks,
@@ -56,8 +55,8 @@ public final class ExecutionPlan {
         this.executionFlag = DEFAULT;
     }
 
-    private ExecutionPlan(
-        ExecutionPlan parent,
+    private DescribeBlock(
+        DescribeBlock parent,
         String description,
         List<Runnable> beforeAllBlocks,
         List<Runnable> beforeEachBlocks,
@@ -73,37 +72,37 @@ public final class ExecutionPlan {
         this.executionFlag = executionFlag;
     }
 
-    ExecutionPlan newChildPlan(
+    DescribeBlock addDescribeBlock(
         String description,
         List<Runnable> beforeAllBlocks,
         List<Runnable> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks
     ) {
-        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, DEFAULT);
-        plans.add(plan);
-        return plan;
+        DescribeBlock describeBlock = new DescribeBlock(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, DEFAULT);
+        describeBlocks.add(describeBlock);
+        return describeBlock;
     }
 
-    ExecutionPlan newIgnoredChildPlan(
+    DescribeBlock addIgnoredDescribeBlock(
         String description,
         List<Runnable> beforeAllBlocks,
         List<Runnable> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks
     ) {
-        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, IGNORED);
-        plans.add(plan);
-        return plan;
+        DescribeBlock describeBlock = new DescribeBlock(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, IGNORED);
+        describeBlocks.add(describeBlock);
+        return describeBlock;
     }
 
-    ExecutionPlan newFocusedChildPlan(
+    DescribeBlock addFocusedDescribeBlock(
         String description,
         List<Runnable> beforeAllBlocks,
         List<Runnable> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks
     ) {
-        ExecutionPlan plan = new ExecutionPlan(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, FOCUSED);
-        plans.add(plan);
-        return plan;
+        DescribeBlock describeBlock = new DescribeBlock(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, FOCUSED);
+        describeBlocks.add(describeBlock);
+        return describeBlock;
     }
 
     @Override
@@ -120,9 +119,9 @@ public final class ExecutionPlan {
             sb.append(LS).append(indentation).append("  ").append(behavior.getKey());
         }
 
-        for (ExecutionPlan plan : plans) {
+        for (DescribeBlock describeBlock : describeBlocks) {
             sb.append(LS);
-            plan.toString(sb, indentation + "  ");
+            describeBlock.toString(sb, indentation + "  ");
         }
     }
 
@@ -136,7 +135,7 @@ public final class ExecutionPlan {
     /**
      * @since 1.0.0
      */
-    public List<ItBlock> allItBlocks() {
+    public List<ItBlock> flattenItBlocks() {
         LinkedList<ItBlock> blocks = new LinkedList<>();
         collectItBlocks(blocks, new LinkedList<>(), shouldBeIgnoredPredicate());
         return blocks;
@@ -151,15 +150,15 @@ public final class ExecutionPlan {
 
     private boolean thereIsAtLeastOneFocusedBlock() {
         return itBlocks.values().stream().anyMatch(ItBlockDefinition::focused)
-            || plans.stream().anyMatch(p -> p.focused() || p.thereIsAtLeastOneFocusedBlock());
+            || describeBlocks.stream().anyMatch(b -> b.focused() || b.thereIsAtLeastOneFocusedBlock());
     }
 
     String description() {
         return description;
     }
 
-    List<ExecutionPlan> plans() {
-        return new LinkedList<>(plans);
+    List<DescribeBlock> describeBlocks() {
+        return new LinkedList<>(describeBlocks);
     }
 
     List<Runnable> beforeAllBlocks() {
@@ -193,7 +192,7 @@ public final class ExecutionPlan {
         beforeBlocks.addAll(parentBeforeAllBlocks);
         beforeBlocks.addAll(collectBeforeEachBlocks());
 
-        for (Map.Entry<String, ItBlockDefinition> entry : itBlocks.entrySet()) {
+        for (Map.Entry<String, ItBlockDefinition> entry : this.itBlocks.entrySet()) {
             String description = entry.getKey();
             ItBlockDefinition itBlock = entry.getValue();
 
@@ -204,20 +203,20 @@ public final class ExecutionPlan {
             }
         }
 
-        for (ExecutionPlan plan : plans) {
-            plan.collectItBlocks(blocks, parentBeforeAllBlocks, shouldBeIgnored);
+        for (DescribeBlock describeBlock : this.describeBlocks) {
+            describeBlock.collectItBlocks(blocks, parentBeforeAllBlocks, shouldBeIgnored);
         }
     }
 
     private boolean containerIgnored() {
-        if (isRootPlan()) {
+        if (isRootDescribeBlock()) {
             return ignored();
         }
         return ignored() || parent.containerIgnored();
     }
 
     private boolean containerFocused() {
-        if (isRootPlan()) {
+        if (isRootDescribeBlock()) {
             return focused();
         }
         return focused() || parent.containerFocused();
@@ -226,7 +225,7 @@ public final class ExecutionPlan {
     private List<String> allContainerDescriptions() {
         List<String> containerDescriptions;
 
-        if (isRootPlan()) {
+        if (isRootDescribeBlock()) {
             containerDescriptions = new LinkedList<>();
         } else {
             containerDescriptions = parent.allContainerDescriptions();
@@ -239,7 +238,7 @@ public final class ExecutionPlan {
     private List<BeforeBlock> collectBeforeEachBlocks() {
         List<BeforeBlock> beforeEachBlocks;
 
-        if (isRootPlan()) {
+        if (isRootDescribeBlock()) {
             beforeEachBlocks = new LinkedList<>();
         } else {
             beforeEachBlocks = parent.collectBeforeEachBlocks();
@@ -250,7 +249,7 @@ public final class ExecutionPlan {
         return beforeEachBlocks;
     }
 
-    private boolean isRootPlan() {
+    private boolean isRootDescribeBlock() {
         return parent == null;
     }
 }
