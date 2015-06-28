@@ -137,7 +137,9 @@ public final class J8Spec {
     public static synchronized DescribeBlock read(Class<?> specClass) {
         currentDescribeBlockDefinition.set(new DescribeBlockDefinition(specClass));
         try {
-            return currentDescribeBlockDefinition.get().buildDescribeBlock();
+            DescribeBlockDefinition describeBlockDefinition = currentDescribeBlockDefinition.get();
+            describeBlockDefinition.evaluateInnerDescribeBlockDefinitions();
+            return describeBlockDefinition.buildDescribeBlock();
         } finally {
             currentDescribeBlockDefinition.set(null);
         }
@@ -207,21 +209,23 @@ public final class J8Spec {
             }
         }
 
+        private void evaluateInnerDescribeBlockDefinitions() {
+            DescribeBlockDefinition previousDescribeBlockDefinition = J8Spec.currentDescribeBlockDefinition.get();
+            J8Spec.currentDescribeBlockDefinition.set(this);
+
+            this.body.run();
+            this.describeBlockDefinitions.stream().forEach(DescribeBlockDefinition::evaluateInnerDescribeBlockDefinitions);
+
+            J8Spec.currentDescribeBlockDefinition.set(previousDescribeBlockDefinition);
+        }
+
         public DescribeBlock buildDescribeBlock() {
             return buildDescribeBlock(null);
         }
 
         private DescribeBlock buildDescribeBlock(DescribeBlock parent) {
-            DescribeBlockDefinition previousDescribeBlockDefinition = J8Spec.currentDescribeBlockDefinition.get();
-            J8Spec.currentDescribeBlockDefinition.set(this);
-
-            this.body.run();
-
             DescribeBlock describeBlock = newDescribeBlock(parent);
             this.describeBlockDefinitions.stream().forEach(block -> block.buildDescribeBlock(describeBlock));
-
-            J8Spec.currentDescribeBlockDefinition.set(previousDescribeBlockDefinition);
-
             return describeBlock;
         }
 
