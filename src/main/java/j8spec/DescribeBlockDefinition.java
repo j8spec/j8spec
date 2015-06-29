@@ -67,6 +67,11 @@ final class DescribeBlockDefinition {
     }
 
     private void addDescribe(String description, Runnable body, BlockExecutionFlag executionFlag) {
+        ensureIsNotAlreadyDefined(
+            description,
+            describeBlockDefinitions.stream().anyMatch(d -> d.description.equals(description))
+        );
+
         DescribeBlockDefinition block = new DescribeBlockDefinition(specClass, description, executionFlag, context);
         describeBlockDefinitions.add(block);
 
