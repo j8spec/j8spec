@@ -13,6 +13,8 @@ import static org.junit.Assert.assertThat;
 
 public class J8SpecTest {
 
+    private static final Runnable NOOP = () -> {};
+
     private static final Runnable BEFORE_ALL_BLOCK = () -> {};
     private static final Runnable BEFORE_EACH_BLOCK = () -> {};
     private static final Runnable IT_BLOCK_1 = () -> {};
@@ -41,15 +43,13 @@ public class J8SpecTest {
     }
 
     static class ItBlockOverwrittenSpec {{
-        it("some text", () -> {
-        });
-        it("some text", () -> {
-        });
+        it("some text", NOOP);
+        it("some text", NOOP);
     }}
 
     static class ItBlockWithCollectorOverwrittenSpec {{
-        it("some text", c -> c, () -> {});
-        it("some text", () -> {});
+        it("some text", c -> c, NOOP);
+        it("some text", NOOP);
     }}
 
     static class ThreadThatSleeps2sSpec {{
@@ -60,8 +60,7 @@ public class J8SpecTest {
                 throw new RuntimeException(e);
             }
 
-            it("block", () -> {
-            });
+            it("block", NOOP);
         });
     }}
 
@@ -105,7 +104,7 @@ public class J8SpecTest {
     }}
 
     @Test
-    public void buildsADescribeBlockUsingTheGivenSpecAsDescription() {
+    public void builds_a_describe_block_using_the_given_spec_as_description() {
         DescribeBlock describeBlock = read(EmptySpec.class);
 
         assertThat(describeBlock.specClass(), equalTo(EmptySpec.class));
@@ -113,14 +112,14 @@ public class J8SpecTest {
     }
 
     @Test
-    public void buildsADescribeBlockBasedOnAnEmptySpec() {
+    public void builds_a_describe_block_based_on_an_empty_spec() {
         DescribeBlock describeBlock = read(EmptySpec.class);
 
         assertThat(describeBlock.flattenItBlocks(), is(emptyList()));
     }
 
     @Test
-    public void buildsADescribeBlockWhereAllInnerDescribeBlocksHaveTheSameSpecClass() {
+    public void builds_a_describe_block_where_all_inner_describe_blocks_have_the_same_spec_class() {
         DescribeBlock rootDescribeBlock = read(SampleSpec.class);
 
         DescribeBlock describeA = rootDescribeBlock.describeBlocks().get(0);
@@ -134,7 +133,7 @@ public class J8SpecTest {
     }
 
     @Test
-    public void buildsADescribeBlockUsingTheDescriptionFromTheSpecDefinition() {
+    public void builds_a_describe_block_using_the_description_from_the_spec_definition() {
         DescribeBlock rootDescribeBlock = read(SampleSpec.class);
 
         DescribeBlock describeA = rootDescribeBlock.describeBlocks().get(0);
@@ -148,7 +147,7 @@ public class J8SpecTest {
     }
 
     @Test
-    public void buildsADescribeBlockUsingItBlocksFromTheSpecDefinition() {
+    public void builds_a_describe_block_using_it_blocks_from_the_spec_definition() {
         DescribeBlock rootDescribeBlock = read(SampleSpec.class);
 
         assertThat(rootDescribeBlock.itBlock("block 1").body(), is(IT_BLOCK_1));
@@ -169,7 +168,7 @@ public class J8SpecTest {
     }
 
     @Test
-    public void buildsADescribeBlockUsingExceptedExceptionsFromTheSpecDefinition() {
+    public void builds_a_describe_block_using_excepted_exceptions_from_the_spec_definition() {
         DescribeBlock describeBlock = read(ExpectedExceptionSpec.class);
 
         assertThat(describeBlock.itBlock("block 1").expected(), is(equalTo(Exception.class)));
@@ -178,55 +177,53 @@ public class J8SpecTest {
     }
 
     @Test(expected = SpecInitializationException.class)
-    public void throwsExceptionWhenFailsToEvaluateSpec() {
+    public void throws_exception_when_fails_to_evaluate_spec() {
         read(BadSpec.class);
     }
 
     @Test(expected = IllegalContextException.class)
-    public void doesNotAllowDescribeMethodDirectInvocation() {
-        J8Spec.describe("some text", () -> {
-        });
+    public void does_not_allow_describe_method_direct_invocation() {
+        describe("some text", NOOP);
     }
 
     @Test(expected = IllegalContextException.class)
-    public void doesNotAllowItMethodDirectInvocation() {
-        J8Spec.it("some text", () -> {});
+    public void does_not_allow_it_method_direct_invocation() {
+        it("some text", NOOP);
     }
 
     @Test(expected = IllegalContextException.class)
-    public void doesNotAllowItMethodDirectInvocationWithCollector() {
-        J8Spec.it("some text", c -> c, () -> {
-        });
+    public void does_not_allow_it_method_direct_invocation_with_collector() {
+        it("some text", c -> c, NOOP);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
-    public void doesNotAllowItBlockToBeReplaced() {
+    public void does_not_allow_it_block_to_be_replaced() {
         read(ItBlockOverwrittenSpec.class);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
-    public void doesNotAllowItBlockWithCollectorToBeReplaced() {
+    public void does_not_allow_it_block_with_collector_to_be_replaced() {
         read(ItBlockWithCollectorOverwrittenSpec.class);
     }
 
     @Test(expected = IllegalContextException.class)
-    public void forgetsLastSpec() {
+    public void forgets_last_spec() {
         read(SampleSpec.class);
-        J8Spec.describe("some text", () -> {});
+        describe("some text", NOOP);
     }
 
     @Test(expected = IllegalContextException.class)
-    public void forgetsLastSpecAfterTheLastSpecEvaluationFails() {
+    public void forgets_last_spec_after_the_last_spec_evaluation_fails() {
         try {
             read(ItBlockOverwrittenSpec.class);
         } catch (BlockAlreadyDefinedException e) {
         }
 
-        J8Spec.it("some text", () -> {});
+        it("some text", NOOP);
     }
 
     @Test()
-    public void allowsMultipleThreadsToBuildDescribeBlocks() throws InterruptedException {
+    public void allows_multiple_threads_to_build_describe_blocks() throws InterruptedException {
         final Var<DescribeBlock> sleepDescribe = var();
 
         Thread anotherDescribeBlockThread = new Thread(() -> {
