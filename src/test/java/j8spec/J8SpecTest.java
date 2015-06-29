@@ -15,26 +15,15 @@ public class J8SpecTest {
 
     private static final Runnable NOOP = () -> {};
 
-    private static final Runnable BEFORE_ALL_BLOCK = () -> {};
-    private static final Runnable BEFORE_EACH_BLOCK = () -> {};
     private static final Runnable IT_BLOCK_1 = () -> {};
     private static final Runnable IT_BLOCK_2 = () -> {};
     private static final Runnable IT_BLOCK_3 = () -> {};
 
-    private static final Runnable BEFORE_ALL_A_BLOCK = () -> {};
-    private static final Runnable BEFORE_EACH_A_BLOCK = () -> {};
     private static final Runnable IT_BLOCK_A1 = () -> {};
     private static final Runnable IT_BLOCK_A2 = () -> {};
 
-    private static final Runnable BEFORE_ALL_AA_BLOCK = () -> {};
-    private static final Runnable BEFORE_EACH_AA_BLOCK = () -> {};
     private static final Runnable IT_BLOCK_AA1 = () -> {};
     private static final Runnable IT_BLOCK_AA2 = () -> {};
-
-    private static final Runnable BEFORE_ALL_B_BLOCK = () -> {};
-    private static final Runnable BEFORE_EACH_B_BLOCK = () -> {};
-    private static final Runnable IT_BLOCK_B1 = () -> {};
-    private static final Runnable IT_BLOCK_B2 = () -> {};
 
     static class EmptySpec {}
 
@@ -71,35 +60,17 @@ public class J8SpecTest {
     }}
 
     static class SampleSpec {{
-        beforeAll(BEFORE_ALL_BLOCK);
-        beforeEach(BEFORE_EACH_BLOCK);
-
         it("block 1", IT_BLOCK_1);
         it("block 2", IT_BLOCK_2);
-        xit("block 3", IT_BLOCK_3);
 
         describe("describe A", () -> {
-            beforeAll(BEFORE_ALL_A_BLOCK);
-            beforeEach(BEFORE_EACH_A_BLOCK);
-
             it("block A.1", IT_BLOCK_A1);
             it("block A.2", IT_BLOCK_A2);
 
             describe("describe A.A", () -> {
-                beforeAll(BEFORE_ALL_AA_BLOCK);
-                beforeEach(BEFORE_EACH_AA_BLOCK);
-
                 it("block A.A.1", IT_BLOCK_AA1);
                 it("block A.A.2", IT_BLOCK_AA2);
             });
-        });
-
-        describe("describe B", () -> {
-            beforeAll(BEFORE_ALL_B_BLOCK);
-            beforeEach(BEFORE_EACH_B_BLOCK);
-
-            it("block B.1", IT_BLOCK_B1);
-            it("block B.2", IT_BLOCK_B2);
         });
     }}
 
@@ -127,9 +98,6 @@ public class J8SpecTest {
 
         DescribeBlock describeAA = describeA.describeBlocks().get(0);
         assertThat(describeAA.specClass(), equalTo(SampleSpec.class));
-
-        DescribeBlock describeB = rootDescribeBlock.describeBlocks().get(1);
-        assertThat(describeB.specClass(), equalTo(SampleSpec.class));
     }
 
     @Test
@@ -141,9 +109,6 @@ public class J8SpecTest {
 
         DescribeBlock describeAA = describeA.describeBlocks().get(0);
         assertThat(describeAA.description(), is("describe A.A"));
-
-        DescribeBlock describeB = rootDescribeBlock.describeBlocks().get(1);
-        assertThat(describeB.description(), is("describe B"));
     }
 
     @Test
@@ -152,7 +117,6 @@ public class J8SpecTest {
 
         assertThat(rootDescribeBlock.itBlock("block 1").body(), is(IT_BLOCK_1));
         assertThat(rootDescribeBlock.itBlock("block 2").body(), is(IT_BLOCK_2));
-        assertThat(rootDescribeBlock.itBlock("block 3").body(), is(IT_BLOCK_3));
 
         DescribeBlock describeA = rootDescribeBlock.describeBlocks().get(0);
         assertThat(describeA.itBlock("block A.1").body(), is(IT_BLOCK_A1));
@@ -161,10 +125,6 @@ public class J8SpecTest {
         DescribeBlock describeAA = describeA.describeBlocks().get(0);
         assertThat(describeAA.itBlock("block A.A.1").body(), is(IT_BLOCK_AA1));
         assertThat(describeAA.itBlock("block A.A.2").body(), is(IT_BLOCK_AA2));
-
-        DescribeBlock describeB = rootDescribeBlock.describeBlocks().get(1);
-        assertThat(describeB.itBlock("block B.1").body(), is(IT_BLOCK_B1));
-        assertThat(describeB.itBlock("block B.2").body(), is(IT_BLOCK_B2));
     }
 
     @Test
