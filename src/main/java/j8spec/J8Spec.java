@@ -2,6 +2,7 @@ package j8spec;
 
 import java.util.function.Function;
 
+import static j8spec.DescribeBlockDefinition.newDescribeBlockDefinition;
 import static java.util.function.Function.identity;
 
 /**
@@ -9,14 +10,14 @@ import static java.util.function.Function.identity;
  */
 public final class J8Spec {
 
-    private static final ThreadLocal<Context<DescribeBlockDefinition>> currentThread = new ThreadLocal<>();
+    private static final ThreadLocal<Context<DescribeBlockDefinition>> context = new ThreadLocal<>();
 
     /**
      * @since 1.0.0
      */
     public static synchronized void describe(String description, Runnable body) {
         isValidContext("describe");
-        currentThread.get().current().describe(description, body);
+        context.get().current().describe(description, body);
     }
 
     /**
@@ -24,7 +25,7 @@ public final class J8Spec {
      */
     public static synchronized void xdescribe(String description, Runnable body) {
         isValidContext("xdescribe");
-        currentThread.get().current().xdescribe(description, body);
+        context.get().current().xdescribe(description, body);
     }
 
     /**
@@ -32,7 +33,7 @@ public final class J8Spec {
      */
     public static synchronized void fdescribe(String description, Runnable body) {
         isValidContext("fdescribe");
-        currentThread.get().current().fdescribe(description, body);
+        context.get().current().fdescribe(description, body);
     }
 
     /**
@@ -40,7 +41,7 @@ public final class J8Spec {
      */
     public static synchronized void beforeAll(Runnable body) {
         isValidContext("beforeAll");
-        currentThread.get().current().beforeAll(body);
+        context.get().current().beforeAll(body);
     }
 
     /**
@@ -48,7 +49,7 @@ public final class J8Spec {
      */
     public static synchronized void beforeEach(Runnable body) {
         isValidContext("beforeEach");
-        currentThread.get().current().beforeEach(body);
+        context.get().current().beforeEach(body);
     }
 
     /**
@@ -70,7 +71,7 @@ public final class J8Spec {
         ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
             .body(body)
             .newItBlockDefinition();
-        currentThread.get().current().it(description, itBlockDefinition);
+        context.get().current().it(description, itBlockDefinition);
     }
 
     /**
@@ -92,7 +93,7 @@ public final class J8Spec {
         ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
             .body(body)
             .newIgnoredItBlockDefinition();
-        currentThread.get().current().it(description, itBlockDefinition);
+        context.get().current().it(description, itBlockDefinition);
     }
 
     /**
@@ -114,11 +115,11 @@ public final class J8Spec {
         ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
             .body(body)
             .newFocusedItBlockDefinition();
-        currentThread.get().current().it(description, itBlockDefinition);
+        context.get().current().it(description, itBlockDefinition);
     }
 
     private static void isValidContext(final String methodName) {
-        if (currentThread.get() == null) {
+        if (context.get() == null) {
             throw new IllegalContextException(
                 "'" + methodName + "' should not be invoked from outside a spec definition."
             );
@@ -129,13 +130,11 @@ public final class J8Spec {
      * @since 1.0.0
      */
     public static synchronized DescribeBlock read(Class<?> specClass) {
-        currentThread.set(new Context<>());
+        context.set(new Context<>());
         try {
-            DescribeBlockDefinition describeBlockDefinition = new DescribeBlockDefinition(specClass);
-            describeBlockDefinition.evaluate(currentThread.get());
-            return describeBlockDefinition.toDescribeBlock();
+            return newDescribeBlockDefinition(specClass, context.get()).toDescribeBlock();
         } finally {
-            currentThread.set(null);
+            context.set(null);
         }
     }
 
