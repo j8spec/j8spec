@@ -4,12 +4,12 @@ import org.junit.Test;
 
 import static j8spec.Var.var;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class VarTest {
 
     @Test
-    public void storesValueInVariable() {
+    public void stores_value_in_variable() {
         final Var<String> s = var();
 
         var(s, "value");

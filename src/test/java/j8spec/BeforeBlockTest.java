@@ -7,7 +7,7 @@ import static org.mockito.Mockito.*;
 public class BeforeBlockTest {
 
     @Test
-    public void runsGivenBodyOnlyOnce() {
+    public void runs_given_body_only_once() {
         Runnable body = mock(Runnable.class);
         BeforeBlock beforeBlock = BeforeBlock.newBeforeAllBlock(body);
 
@@ -18,7 +18,7 @@ public class BeforeBlockTest {
     }
 
     @Test
-    public void runsGivenBodyOnEachCall() {
+    public void runs_given_body_on_each_call() {
         Runnable body = mock(Runnable.class);
         BeforeBlock beforeBlock = BeforeBlock.newBeforeEachBlock(body);
 
