@@ -52,18 +52,6 @@ public class J8SpecTest {
         it("some text", () -> {});
     }}
 
-    static class FitBlockOverwrittenSpec {{
-        fit("some text", () -> {
-        });
-        fit("some text", () -> {
-        });
-    }}
-
-    static class FitBlockWithCollectorOverwrittenSpec {{
-        fit("some text", c -> c, () -> {});
-        fit("some text", () -> {});
-    }}
-
     static class ThreadThatSleeps2sSpec {{
         describe("forces thread to sleep", () -> {
             try {
@@ -75,20 +63,6 @@ public class J8SpecTest {
             it("block", () -> {
             });
         });
-    }}
-
-    static class FdescribeSpec {{
-        it("block 1", IT_BLOCK_1);
-        it("block 2", IT_BLOCK_2);
-
-        fdescribe("describe A", () -> {
-            it("block A.1", IT_BLOCK_A1);
-            it("block A.2", IT_BLOCK_A2);
-        });
-    }}
-
-    static class FitSpec {{
-        fit("block 1", IT_BLOCK_1);
     }}
 
     static class ExpectedExceptionSpec {{
@@ -195,21 +169,6 @@ public class J8SpecTest {
     }
 
     @Test
-    public void buildsADescribeBlockMarkingFdescribeBlocksFromTheSpecDefinitionAsFocused() {
-        DescribeBlock describeBlock = read(FdescribeSpec.class);
-
-        assertThat(describeBlock.focused(), is(false));
-        assertThat(describeBlock.describeBlocks().get(0).focused(), is(true));
-    }
-
-    @Test
-    public void buildsADescribeBlockMarkingFitBlocksFromTheSpecDefinitionAsFocused() {
-        DescribeBlock describeBlock = read(FitSpec.class);
-
-        assertThat(describeBlock.itBlock("block 1").focused(), is(true));
-    }
-
-    @Test
     public void buildsADescribeBlockUsingExceptedExceptionsFromTheSpecDefinition() {
         DescribeBlock describeBlock = read(ExpectedExceptionSpec.class);
 
@@ -230,12 +189,6 @@ public class J8SpecTest {
     }
 
     @Test(expected = IllegalContextException.class)
-    public void doesNotAllowFdescribeMethodDirectInvocation() {
-        J8Spec.fdescribe("some text", () -> {
-        });
-    }
-
-    @Test(expected = IllegalContextException.class)
     public void doesNotAllowItMethodDirectInvocation() {
         J8Spec.it("some text", () -> {});
     }
@@ -243,17 +196,6 @@ public class J8SpecTest {
     @Test(expected = IllegalContextException.class)
     public void doesNotAllowItMethodDirectInvocationWithCollector() {
         J8Spec.it("some text", c -> c, () -> {
-        });
-    }
-
-    @Test(expected = IllegalContextException.class)
-    public void doesNotAllowFitMethodDirectInvocation() {
-        J8Spec.fit("some text", () -> {});
-    }
-
-    @Test(expected = IllegalContextException.class)
-    public void doesNotAllowFitMethodWithCollectorDirectInvocation() {
-        J8Spec.fit("some text", c -> c, () -> {
         });
     }
 
@@ -265,16 +207,6 @@ public class J8SpecTest {
     @Test(expected = BlockAlreadyDefinedException.class)
     public void doesNotAllowItBlockWithCollectorToBeReplaced() {
         read(ItBlockWithCollectorOverwrittenSpec.class);
-    }
-
-    @Test(expected = BlockAlreadyDefinedException.class)
-    public void doesNotAllowFitBlockToBeReplaced() {
-        read(FitBlockOverwrittenSpec.class);
-    }
-
-    @Test(expected = BlockAlreadyDefinedException.class)
-    public void doesNotAllowFitBlockWithCollectorToBeReplaced() {
-        read(FitBlockWithCollectorOverwrittenSpec.class);
     }
 
     @Test(expected = IllegalContextException.class)
