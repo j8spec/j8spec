@@ -52,18 +52,6 @@ public class J8SpecTest {
         it("some text", () -> {});
     }}
 
-    static class XitBlockOverwrittenSpec {{
-        xit("some text", () -> {
-        });
-        xit("some text", () -> {
-        });
-    }}
-
-    static class XitBlockWithCollectorOverwrittenSpec {{
-        xit("some text", c -> c, () -> {});
-        xit("some text", () -> {});
-    }}
-
     static class FitBlockOverwrittenSpec {{
         fit("some text", () -> {
         });
@@ -86,22 +74,6 @@ public class J8SpecTest {
 
             it("block", () -> {
             });
-        });
-    }}
-
-    static class XdescribeSpec {{
-        beforeAll(BEFORE_ALL_BLOCK);
-        beforeEach(BEFORE_EACH_BLOCK);
-
-        it("block 1", IT_BLOCK_1);
-        it("block 2", IT_BLOCK_2);
-
-        xdescribe("describe A", () -> {
-            beforeAll(BEFORE_ALL_A_BLOCK);
-            beforeEach(BEFORE_EACH_A_BLOCK);
-
-            it("block A.1", IT_BLOCK_A1);
-            it("block A.2", IT_BLOCK_A2);
         });
     }}
 
@@ -223,26 +195,11 @@ public class J8SpecTest {
     }
 
     @Test
-    public void buildsADescribeBlockMarkingXdescribeBlocksFromTheSpecDefinitionAsIgnored() {
-        DescribeBlock describeBlock = read(XdescribeSpec.class);
-
-        assertThat(describeBlock.ignored(), is(false));
-        assertThat(describeBlock.describeBlocks().get(0).ignored(), is(true));
-    }
-
-    @Test
     public void buildsADescribeBlockMarkingFdescribeBlocksFromTheSpecDefinitionAsFocused() {
         DescribeBlock describeBlock = read(FdescribeSpec.class);
 
         assertThat(describeBlock.focused(), is(false));
         assertThat(describeBlock.describeBlocks().get(0).focused(), is(true));
-    }
-
-    @Test
-    public void buildsADescribeBlockMarkingXitBlocksFromTheSpecDefinitionAsIgnored() {
-        DescribeBlock describeBlock = read(SampleSpec.class);
-
-        assertThat(describeBlock.itBlock("block 3").ignored(), is(true));
     }
 
     @Test
@@ -273,12 +230,6 @@ public class J8SpecTest {
     }
 
     @Test(expected = IllegalContextException.class)
-    public void doesNotAllowXdescribeMethodDirectInvocation() {
-        J8Spec.xdescribe("some text", () -> {
-        });
-    }
-
-    @Test(expected = IllegalContextException.class)
     public void doesNotAllowFdescribeMethodDirectInvocation() {
         J8Spec.fdescribe("some text", () -> {
         });
@@ -292,17 +243,6 @@ public class J8SpecTest {
     @Test(expected = IllegalContextException.class)
     public void doesNotAllowItMethodDirectInvocationWithCollector() {
         J8Spec.it("some text", c -> c, () -> {
-        });
-    }
-
-    @Test(expected = IllegalContextException.class)
-    public void doesNotAllowXitMethodDirectInvocation() {
-        J8Spec.xit("some text", () -> {});
-    }
-
-    @Test(expected = IllegalContextException.class)
-    public void doesNotAllowXitMethodDirectInvocationWithCollector() {
-        J8Spec.xit("some text", c -> c, () -> {
         });
     }
 
@@ -325,16 +265,6 @@ public class J8SpecTest {
     @Test(expected = BlockAlreadyDefinedException.class)
     public void doesNotAllowItBlockWithCollectorToBeReplaced() {
         read(ItBlockWithCollectorOverwrittenSpec.class);
-    }
-
-    @Test(expected = BlockAlreadyDefinedException.class)
-    public void doesNotAllowXitBlockToBeReplaced() {
-        read(XitBlockOverwrittenSpec.class);
-    }
-
-    @Test(expected = BlockAlreadyDefinedException.class)
-    public void doesNotAllowXitBlockWithCollectorToBeReplaced() {
-        read(XitBlockWithCollectorOverwrittenSpec.class);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
