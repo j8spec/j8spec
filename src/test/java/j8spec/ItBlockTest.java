@@ -16,7 +16,7 @@ import static org.junit.Assert.assertThat;
 public class ItBlockTest {
 
     @Test
-    public void runsBeforeBlocksAndThenBody() {
+    public void runs_before_blocks_and_then_body() {
         final List<String> executionOrder = new ArrayList<>();
 
         newItBlock(
@@ -35,14 +35,14 @@ public class ItBlockTest {
     }
 
     @Test
-    public void indicatesIfItShouldBeIgnored() {
+    public void indicates_if_it_should_be_ignored() {
         ItBlock block = newIgnoredItBlock(emptyList(), "it block");
 
         assertThat(block.shouldBeIgnored(), is(true));
     }
 
     @Test
-    public void indicatesIfItShouldNotBeIgnored() {
+    public void indicates_if_it_should_not_be_ignored() {
         ItBlock block = newItBlock(emptyList(), "it block", emptyList(), () -> {});
 
         assertThat(block.shouldBeIgnored(), is(false));

@@ -55,7 +55,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void buildsListOfChildDescriptions() throws InitializationError {
+    public void builds_list_of_child_descriptions() throws InitializationError {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
 
         List<ItBlock> itBlocks = runner.getChildren();
@@ -65,7 +65,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void describesEachChild() throws InitializationError {
+    public void describes_each_child() throws InitializationError {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 
@@ -96,7 +96,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void notifiesWhenAChildStarts() throws InitializationError {
+    public void notifies_when_a_child_starts() throws InitializationError {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 
@@ -109,7 +109,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void runsTheGivenItBlock() throws InitializationError {
+    public void runs_the_given_it_block() throws InitializationError {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 
@@ -119,7 +119,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void notifiesWhenAChildFails() throws InitializationError {
+    public void notifies_when_a_child_fails() throws InitializationError {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 
@@ -137,7 +137,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void notifiesWhenAChildIsIgnored() throws InitializationError {
+    public void notifies_when_a_child_is_ignored() throws InitializationError {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 
@@ -154,7 +154,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void notifiesOnlyTestIgnoredEventWhenAChildIsIgnored() throws InitializationError {
+    public void notifies_only_test_ignored_event_when_a_child_is_ignored() throws InitializationError {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 
@@ -167,7 +167,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void notifiesWhenAChildFinishes() throws InitializationError {
+    public void notifies_when_a_child_finishes() throws InitializationError {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 
@@ -180,7 +180,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void notifiesWhenAChildFinishesEvenWhenItFails() throws InitializationError {
+    public void notifies_when_a_child_finishes_even_when_it_fails() throws InitializationError {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
         doThrow(new RuntimeException()).when(block(BLOCK_1)).run();
@@ -192,7 +192,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void notifiesSuccessWhenExpectedExceptionOccurs() throws InitializationError {
+    public void notifies_success_when_expected_exception_occurs() throws InitializationError {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 
@@ -205,7 +205,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void notifiesFailureWhenNoExceptionOccurs() throws InitializationError {
+    public void notifies_failure_when_no_exception_occurs() throws InitializationError {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 
@@ -220,7 +220,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void notifiesFailureWhenDifferentExceptionOccurs() throws InitializationError {
+    public void notifies_failure_when_different_exception_occurs() throws InitializationError {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 
