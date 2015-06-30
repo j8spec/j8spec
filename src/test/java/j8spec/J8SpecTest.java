@@ -36,6 +36,11 @@ public class J8SpecTest {
         it("some text", NOOP);
     }}
 
+    static class DescribeBlockOverwrittenSpec {{
+        describe("some text", NOOP);
+        describe("some text", NOOP);
+    }}
+
     static class ItBlockWithCollectorOverwrittenSpec {{
         it("some text", c -> c, NOOP);
         it("some text", NOOP);
@@ -144,6 +149,11 @@ public class J8SpecTest {
     @Test(expected = IllegalContextException.class)
     public void does_not_allow_describe_method_direct_invocation() {
         describe("some text", NOOP);
+    }
+
+    @Test(expected = BlockAlreadyDefinedException.class)
+    public void does_not_allow_describe_block_to_be_replaced() {
+        read(DescribeBlockOverwrittenSpec.class);
     }
 
     @Test(expected = IllegalContextException.class)
