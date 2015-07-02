@@ -24,6 +24,7 @@ public final class J8Spec {
      * @since 1.1.0
      */
     public static synchronized void xdescribe(String description, Runnable body) {
+        notAllowedWhenCIModeEnabled("xdescribe");
         isValidContext("xdescribe");
         context.get().current().xdescribe(description, body);
     }
@@ -32,6 +33,7 @@ public final class J8Spec {
      * @since 1.1.0
      */
     public static synchronized void fdescribe(String description, Runnable body) {
+        notAllowedWhenCIModeEnabled("fdescribe");
         isValidContext("fdescribe");
         context.get().current().fdescribe(description, body);
     }
@@ -89,6 +91,7 @@ public final class J8Spec {
         Function<ItBlockDefinitionBuilder, ItBlockDefinitionBuilder> collector,
         Runnable body
     ) {
+        notAllowedWhenCIModeEnabled("xit");
         isValidContext("xit");
         ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
             .body(body)
@@ -111,11 +114,18 @@ public final class J8Spec {
         Function<ItBlockDefinitionBuilder, ItBlockDefinitionBuilder> collector,
         Runnable body
     ) {
+        notAllowedWhenCIModeEnabled("fit");
         isValidContext("fit");
         ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
             .body(body)
             .newFocusedItBlockDefinition();
         context.get().current().it(description, itBlockDefinition);
+    }
+
+    private static void notAllowedWhenCIModeEnabled(final String methodName) {
+        if (Boolean.valueOf(System.getProperty("j8spec.ci.mode", "false"))) {
+            throw new CIModeEnabledException("'" + methodName + "' not allowed when j8spec.ci.mode enabled");
+        }
     }
 
     private static void isValidContext(final String methodName) {
