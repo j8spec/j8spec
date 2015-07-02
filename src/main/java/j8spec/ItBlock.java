@@ -56,21 +56,21 @@ public final class ItBlock implements Runnable {
     }
 
     /**
-     * @since 1.1.0
+     * @since 2.0.0
      */
     public String description() {
         return description;
     }
 
     /**
-     * @since 1.1.0
+     * @since 2.0.0
      */
     public List<String> containerDescriptions() {
         return containerDescriptions;
     }
 
     /**
-     * @since 1.1.0
+     * @since 2.0.0
      */
     @Override
     public void run() {
@@ -79,21 +79,21 @@ public final class ItBlock implements Runnable {
     }
 
     /**
-     * @since 1.1.0
+     * @since 2.0.0
      */
     public boolean shouldBeIgnored() {
         return body == NOOP;
     }
 
     /**
-     * @since 1.1.0
+     * @since 2.0.0
      */
     public Class<? extends Throwable> expected() {
         return expectedException;
     }
 
     /**
-     * @since 1.1.0
+     * @since 2.0.0
      */
     public boolean isExpectedToThrowAnException() {
         return expectedException != null;

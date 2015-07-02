@@ -11,7 +11,7 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 
 /**
- * @since 1.0.0
+ * @since 2.0.0
  */
 public final class DescribeBlock {
 
@@ -126,14 +126,14 @@ public final class DescribeBlock {
     }
 
     /**
-     * @since 1.1.0
+     * @since 2.0.0
      */
     public Class<?> specClass() {
         return specClass;
     }
 
     /**
-     * @since 1.0.0
+     * @since 2.0.0
      */
     public List<ItBlock> flattenItBlocks() {
         LinkedList<ItBlock> blocksCollector = new LinkedList<>();

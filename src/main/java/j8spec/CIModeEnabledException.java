@@ -1,7 +1,7 @@
 package j8spec;
 
 /**
- * @since 1.1.0
+ * @since 2.0.0
  */
 public class CIModeEnabledException extends J8SpecException {
     CIModeEnabledException(String message) {

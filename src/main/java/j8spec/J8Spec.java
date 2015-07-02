@@ -21,7 +21,7 @@ public final class J8Spec {
     }
 
     /**
-     * @since 1.1.0
+     * @since 2.0.0
      */
     public static synchronized void xdescribe(String description, Runnable body) {
         notAllowedWhenCIModeEnabled("xdescribe");
@@ -30,7 +30,7 @@ public final class J8Spec {
     }
 
     /**
-     * @since 1.1.0
+     * @since 2.0.0
      */
     public static synchronized void fdescribe(String description, Runnable body) {
         notAllowedWhenCIModeEnabled("fdescribe");
@@ -39,7 +39,7 @@ public final class J8Spec {
     }
 
     /**
-     * @since 1.1.0
+     * @since 2.0.0
      */
     public static synchronized void beforeAll(Runnable body) {
         isValidContext("beforeAll");
@@ -62,7 +62,7 @@ public final class J8Spec {
     }
 
     /**
-     * @since 1.1.0
+     * @since 2.0.0
      */
     public static synchronized void it(
         String description,
@@ -77,14 +77,14 @@ public final class J8Spec {
     }
 
     /**
-     * @since 1.1.0
+     * @since 2.0.0
      */
     public static synchronized void xit(String description, Runnable body) {
         xit(description, identity(), body);
     }
 
     /**
-     * @since 1.1.0
+     * @since 2.0.0
      */
     public static synchronized void xit(
         String description,
@@ -100,14 +100,14 @@ public final class J8Spec {
     }
 
     /**
-     * @since 1.1.0
+     * @since 2.0.0
      */
     public static synchronized void fit(String description, Runnable body) {
         fit(description, identity(), body);
     }
 
     /**
-     * @since 1.1.0
+     * @since 2.0.0
      */
     public static synchronized void fit(
         String description,
@@ -137,7 +137,7 @@ public final class J8Spec {
     }
 
     /**
-     * @since 1.0.0
+     * @since 2.0.0
      */
     public static synchronized DescribeBlock read(Class<?> specClass) {
         context.set(new Context<>());

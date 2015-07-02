@@ -1,7 +1,7 @@
 package j8spec;
 
 /**
- * @since 1.1.0
+ * @since 2.0.0
  */
 public final class ItBlockDefinitionBuilder {
 
@@ -9,7 +9,7 @@ public final class ItBlockDefinitionBuilder {
     private Class<? extends Throwable> expectedException;
 
     /**
-     * @since 1.1.0
+     * @since 2.0.0
      */
     public ItBlockDefinitionBuilder expected(Class<? extends Throwable> expectedException) {
         this.expectedException = expectedException;
