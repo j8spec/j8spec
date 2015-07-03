@@ -6,6 +6,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 /**
+ * Representation of "it" block ready to be executed.
  * @since 1.0.0
  */
 public final class ItBlock implements Runnable {
@@ -56,6 +57,7 @@ public final class ItBlock implements Runnable {
     }
 
     /**
+     * @return textual description
      * @since 2.0.0
      */
     public String description() {
@@ -63,6 +65,7 @@ public final class ItBlock implements Runnable {
     }
 
     /**
+     * @return textual description of all outer "describe" blocks
      * @since 2.0.0
      */
     public List<String> containerDescriptions() {
@@ -70,6 +73,7 @@ public final class ItBlock implements Runnable {
     }
 
     /**
+     * Runs this block and associated setup code.
      * @since 2.0.0
      */
     @Override
@@ -79,6 +83,7 @@ public final class ItBlock implements Runnable {
     }
 
     /**
+     * @return <code>true</code> if this block should be ignored, <code>false</code> otherwise
      * @since 2.0.0
      */
     public boolean shouldBeIgnored() {
@@ -86,6 +91,8 @@ public final class ItBlock implements Runnable {
     }
 
     /**
+     * @return exception class this block is expected to throw, <code>null</code> otherwise
+     * @see #isExpectedToThrowAnException()
      * @since 2.0.0
      */
     public Class<? extends Throwable> expected() {
@@ -93,6 +100,7 @@ public final class ItBlock implements Runnable {
     }
 
     /**
+     * @return <code>true</code> if this block is expected to throw an exception, <code>false</code> otherwise
      * @since 2.0.0
      */
     public boolean isExpectedToThrowAnException() {

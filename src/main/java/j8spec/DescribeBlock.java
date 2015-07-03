@@ -11,6 +11,7 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 
 /**
+ * Representation of a "describe" block.
  * @since 2.0.0
  */
 public final class DescribeBlock {
@@ -126,6 +127,7 @@ public final class DescribeBlock {
     }
 
     /**
+     * @return spec class where all blocks were defined
      * @since 2.0.0
      */
     public Class<?> specClass() {
@@ -133,6 +135,8 @@ public final class DescribeBlock {
     }
 
     /**
+     * Flattens all "it" blocks into a list ready to be executed.
+     * @return {@link ItBlock} list
      * @since 2.0.0
      */
     public List<ItBlock> flattenItBlocks() {

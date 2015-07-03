@@ -1,6 +1,7 @@
 package j8spec;
 
 /**
+ * Wrapper object to allow "final" variables to have their value modified.
  * @since 1.0.0
  */
 public final class Var<T> {

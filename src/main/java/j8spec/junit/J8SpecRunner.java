@@ -18,6 +18,7 @@ import static java.util.Collections.unmodifiableList;
 import static org.junit.runner.Description.createTestDescription;
 
 /**
+ * JUnit runner for J8Spec specs.
  * @since 1.0.0
  */
 public final class J8SpecRunner extends ParentRunner<ItBlock> {
