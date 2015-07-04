@@ -2,7 +2,6 @@ package j8spec;
 
 /**
  * {@link ItBlockDefinition} builder.
- *
  * @since 2.0.0
  */
 public final class ItBlockDefinitionBuilder {

@@ -8,6 +8,10 @@ import static java.util.function.Function.identity;
 /**
  * J8Spec main facade.
  *
+ * <p>
+ *     <b>Note:</b> this class is thread-safe.
+ * </p>
+ *
  * @since 1.0.0
  */
 public final class J8Spec {
@@ -18,10 +22,11 @@ public final class J8Spec {
      * Defines a new "describe" block.
      *
      * @param description textual description of the new block
-     * @param body code to be executed
-     * @throws IllegalContextException if called directly
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context was defined
-     * already
+     * @param body code that defines inner blocks, like "describe", "it", etc - this code is executed
+     *             immediately
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * defined already
      * @since 1.0.0
      */
     public static synchronized void describe(String description, Runnable body) {
@@ -33,10 +38,11 @@ public final class J8Spec {
      * Defines a new ignored "describe" block.
      *
      * @param description textual description of the new block
-     * @param body code to be executed
-     * @throws IllegalContextException if called directly
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context was defined
-     * already
+     * @param body code that defines inner blocks, like "describe", "it", etc - this code is executed
+     *             immediately
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * defined already
      * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
@@ -50,10 +56,11 @@ public final class J8Spec {
      * Defines a new focused "describe" block.
      *
      * @param description textual description of the new block
-     * @param body code to be executed
-     * @throws IllegalContextException if called directly
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context was defined
-     * already
+     * @param body code that defines inner blocks, like "describe", "it", etc - this code is executed
+     *             immediately
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * defined already
      * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
@@ -67,7 +74,7 @@ public final class J8Spec {
      * Defines a new "before all" block.
      *
      * @param body code to be executed before all "it" blocks
-     * @throws IllegalContextException if called directly
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
      * @since 2.0.0
      */
     public static synchronized void beforeAll(Runnable body) {
@@ -79,7 +86,7 @@ public final class J8Spec {
      * Defines a new "before each" block.
      *
      * @param body code to be executed before each "it" block
-     * @throws IllegalContextException if called directly
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
      * @since 1.0.0
      */
     public static synchronized void beforeEach(Runnable body) {
@@ -92,9 +99,9 @@ public final class J8Spec {
      *
      * @param description textual description of the new block
      * @param body code to be executed
-     * @throws IllegalContextException if called directly
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context was defined
-     * already
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * defined already
      * @since 1.0.0
      */
     public static synchronized void it(String description, Runnable body) {
@@ -107,8 +114,9 @@ public final class J8Spec {
      * @param description textual description of the new block
      * @param collector block configuration collector
      * @param body code to be executed
-     * @throws IllegalContextException if called directly
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context was defined
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * defined already
      * @since 2.0.0
      */
     public static synchronized void it(
@@ -128,8 +136,9 @@ public final class J8Spec {
      *
      * @param description textual description of the new block
      * @param body code to be executed
-     * @throws IllegalContextException if called directly
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context was defined
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * defined already
      * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
@@ -143,8 +152,9 @@ public final class J8Spec {
      * @param description textual description of the new block
      * @param collector block configuration collector
      * @param body code to be executed
-     * @throws IllegalContextException if called directly
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context was defined
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * defined already
      * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
@@ -166,8 +176,9 @@ public final class J8Spec {
      *
      * @param description textual description of the new block
      * @param body code to be executed
-     * @throws IllegalContextException if called directly
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context was defined
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * defined already
      * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
@@ -181,8 +192,9 @@ public final class J8Spec {
      * @param description textual description of the new block
      * @param collector block configuration collector
      * @param body code to be executed
-     * @throws IllegalContextException if called directly
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context was defined
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * defined already
      * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */

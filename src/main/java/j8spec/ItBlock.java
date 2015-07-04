@@ -6,7 +6,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 /**
- * Representation of "it" block ready to be executed.
+ * Representation of a "it" block ready to be executed.
  * @since 1.0.0
  */
 public final class ItBlock implements Runnable {
@@ -101,6 +101,7 @@ public final class ItBlock implements Runnable {
 
     /**
      * @return <code>true</code> if this block is expected to throw an exception, <code>false</code> otherwise
+     * @see #expected()
      * @since 2.0.0
      */
     public boolean isExpectedToThrowAnException() {

@@ -6,6 +6,8 @@ package j8spec;
  */
 public final class Var<T> {
 
+    private T value;
+
     public static <T> Var<T> var() {
         return new Var<>();
     }
@@ -17,8 +19,6 @@ public final class Var<T> {
     public static <T> T var(Var<T> var, T value) {
         return var.value = value;
     }
-
-    private T value;
 
     private Var() {}
 }
