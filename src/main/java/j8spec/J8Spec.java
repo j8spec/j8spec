@@ -3,7 +3,7 @@ package j8spec;
 import java.util.function.Function;
 
 import static j8spec.DescribeBlockDefinition.newDescribeBlockDefinition;
-import static j8spec.ItBlockDefinitionBuilder.newItBlockDefinitionBuilder;
+import static j8spec.ItBlockConfiguration.newItBlockConfiguration;
 import static java.util.function.Function.identity;
 
 /**
@@ -122,11 +122,11 @@ public final class J8Spec {
      */
     public static synchronized void it(
         String description,
-        Function<ItBlockDefinitionBuilder, ItBlockDefinitionBuilder> collector,
+        Function<ItBlockConfiguration, ItBlockConfiguration> collector,
         Runnable body
     ) {
         isValidContext("it");
-        ItBlockDefinition itBlockDefinition = collector.apply(newItBlockDefinitionBuilder())
+        ItBlockDefinition itBlockDefinition = collector.apply(newItBlockConfiguration())
             .body(body)
             .newItBlockDefinition();
         context.get().current().it(description, itBlockDefinition);
@@ -161,12 +161,12 @@ public final class J8Spec {
      */
     public static synchronized void xit(
         String description,
-        Function<ItBlockDefinitionBuilder, ItBlockDefinitionBuilder> collector,
+        Function<ItBlockConfiguration, ItBlockConfiguration> collector,
         Runnable body
     ) {
         notAllowedWhenCIModeEnabled("xit");
         isValidContext("xit");
-        ItBlockDefinition itBlockDefinition = collector.apply(newItBlockDefinitionBuilder())
+        ItBlockDefinition itBlockDefinition = collector.apply(newItBlockConfiguration())
             .body(body)
             .newIgnoredItBlockDefinition();
         context.get().current().it(description, itBlockDefinition);
@@ -201,12 +201,12 @@ public final class J8Spec {
      */
     public static synchronized void fit(
         String description,
-        Function<ItBlockDefinitionBuilder, ItBlockDefinitionBuilder> collector,
+        Function<ItBlockConfiguration, ItBlockConfiguration> collector,
         Runnable body
     ) {
         notAllowedWhenCIModeEnabled("fit");
         isValidContext("fit");
-        ItBlockDefinition itBlockDefinition = collector.apply(newItBlockDefinitionBuilder())
+        ItBlockDefinition itBlockDefinition = collector.apply(newItBlockConfiguration())
             .body(body)
             .newFocusedItBlockDefinition();
         context.get().current().it(description, itBlockDefinition);
