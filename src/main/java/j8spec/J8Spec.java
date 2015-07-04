@@ -17,7 +17,7 @@ import static java.util.function.Function.identity;
  */
 public final class J8Spec {
 
-    private static final ThreadLocal<Context<DescribeBlockDefinition>> context = new ThreadLocal<>();
+    private static final ThreadLocal<Context<DescribeBlockDefinition>> contexts = new ThreadLocal<>();
 
     /**
      * Defines a new "describe" block.
@@ -32,7 +32,7 @@ public final class J8Spec {
      */
     public static synchronized void describe(String description, Runnable body) {
         isValidContext("describe");
-        context.get().current().describe(description, body);
+        contexts.get().current().describe(description, body);
     }
 
     /**
@@ -48,7 +48,7 @@ public final class J8Spec {
      */
     public static synchronized void context(String description, Runnable body) {
         isValidContext("context");
-        context.get().current().describe(description, body);
+        contexts.get().current().describe(description, body);
     }
 
     /**
@@ -66,7 +66,7 @@ public final class J8Spec {
     public static synchronized void xdescribe(String description, Runnable body) {
         notAllowedWhenCIModeEnabled("xdescribe");
         isValidContext("xdescribe");
-        context.get().current().xdescribe(description, body);
+        contexts.get().current().xdescribe(description, body);
     }
 
     /**
@@ -84,7 +84,7 @@ public final class J8Spec {
     public static synchronized void xcontext(String description, Runnable body) {
         notAllowedWhenCIModeEnabled("xcontext");
         isValidContext("xcontext");
-        context.get().current().xdescribe(description, body);
+        contexts.get().current().xdescribe(description, body);
     }
 
     /**
@@ -102,7 +102,7 @@ public final class J8Spec {
     public static synchronized void fdescribe(String description, Runnable body) {
         notAllowedWhenCIModeEnabled("fdescribe");
         isValidContext("fdescribe");
-        context.get().current().fdescribe(description, body);
+        contexts.get().current().fdescribe(description, body);
     }
 
     /**
@@ -120,7 +120,7 @@ public final class J8Spec {
     public static synchronized void fcontext(String description, Runnable body) {
         notAllowedWhenCIModeEnabled("fcontext");
         isValidContext("fcontext");
-        context.get().current().fdescribe(description, body);
+        contexts.get().current().fdescribe(description, body);
     }
 
     /**
@@ -132,7 +132,7 @@ public final class J8Spec {
      */
     public static synchronized void beforeAll(Runnable body) {
         isValidContext("beforeAll");
-        context.get().current().beforeAll(body);
+        contexts.get().current().beforeAll(body);
     }
 
     /**
@@ -144,7 +144,7 @@ public final class J8Spec {
      */
     public static synchronized void beforeEach(Runnable body) {
         isValidContext("beforeEach");
-        context.get().current().beforeEach(body);
+        contexts.get().current().beforeEach(body);
     }
 
     /**
@@ -181,7 +181,7 @@ public final class J8Spec {
         ItBlockDefinition itBlockDefinition = collector.apply(newItBlockConfiguration())
             .body(body)
             .newItBlockDefinition();
-        context.get().current().it(description, itBlockDefinition);
+        contexts.get().current().it(description, itBlockDefinition);
     }
 
     /**
@@ -221,7 +221,7 @@ public final class J8Spec {
         ItBlockDefinition itBlockDefinition = collector.apply(newItBlockConfiguration())
             .body(body)
             .newIgnoredItBlockDefinition();
-        context.get().current().it(description, itBlockDefinition);
+        contexts.get().current().it(description, itBlockDefinition);
     }
 
     /**
@@ -261,7 +261,7 @@ public final class J8Spec {
         ItBlockDefinition itBlockDefinition = collector.apply(newItBlockConfiguration())
             .body(body)
             .newFocusedItBlockDefinition();
-        context.get().current().it(description, itBlockDefinition);
+        contexts.get().current().it(description, itBlockDefinition);
     }
 
     private static void notAllowedWhenCIModeEnabled(final String methodName) {
@@ -271,7 +271,7 @@ public final class J8Spec {
     }
 
     private static void isValidContext(final String methodName) {
-        if (context.get() == null) {
+        if (contexts.get() == null) {
             throw new IllegalContextException(
                 "'" + methodName + "' should not be invoked from outside a spec definition."
             );
@@ -287,11 +287,11 @@ public final class J8Spec {
      * @since 2.0.0
      */
     public static synchronized DescribeBlock read(Class<?> specClass) {
-        context.set(new Context<>());
+        contexts.set(new Context<>());
         try {
-            return newDescribeBlockDefinition(specClass, context.get()).toDescribeBlock();
+            return newDescribeBlockDefinition(specClass, contexts.get()).toDescribeBlock();
         } finally {
-            context.set(null);
+            contexts.set(null);
         }
     }
 
