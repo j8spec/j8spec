@@ -20,12 +20,24 @@ public class J8SpecCIModeTest {
         });
     }}
 
+    static class FcontextSpec {{
+        fcontext("describe 1", () -> {
+            it("block 1", NOOP);
+        });
+    }}
+
     static class XitSpec {{
         xit("block 1", NOOP);
     }}
 
     static class XdescribeSpec {{
         xdescribe("describe 1", () -> {
+            it("block 1", NOOP);
+        });
+    }}
+
+    static class XcontextSpec {{
+        xcontext("describe 1", () -> {
             it("block 1", NOOP);
         });
     }}
@@ -51,6 +63,11 @@ public class J8SpecCIModeTest {
     }
 
     @Test(expected = CIModeEnabledException.class)
+    public void does_not_allow_fcontext_blocks_when_ci_mode_enabled() {
+        read(FcontextSpec.class);
+    }
+
+    @Test(expected = CIModeEnabledException.class)
     public void does_not_allow_xit_blocks_when_ci_mode_enabled() {
         read(XitSpec.class);
     }
@@ -58,5 +75,10 @@ public class J8SpecCIModeTest {
     @Test(expected = CIModeEnabledException.class)
     public void does_not_allow_xdescribe_blocks_when_ci_mode_enabled() {
         read(XdescribeSpec.class);
+    }
+
+    @Test(expected = CIModeEnabledException.class)
+    public void does_not_allow_xcontext_blocks_when_ci_mode_enabled() {
+        read(XcontextSpec.class);
     }
 }

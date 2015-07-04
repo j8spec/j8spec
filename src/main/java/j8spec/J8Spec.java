@@ -36,6 +36,22 @@ public final class J8Spec {
     }
 
     /**
+     * Alias for {@link #describe(String, Runnable)}.
+     *
+     * @param description textual description of the new block
+     * @param body code that defines inner blocks, like "describe", "it", etc - this code is executed
+     *             immediately
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * defined already
+     * @since 2.0.0
+     */
+    public static synchronized void context(String description, Runnable body) {
+        isValidContext("context");
+        context.get().current().describe(description, body);
+    }
+
+    /**
      * Defines a new ignored "describe" block.
      *
      * @param description textual description of the new block
@@ -54,6 +70,24 @@ public final class J8Spec {
     }
 
     /**
+     * Alias for {@link #xdescribe(String, Runnable)}.
+     *
+     * @param description textual description of the new block
+     * @param body code that defines inner blocks, like "describe", "it", etc - this code is executed
+     *             immediately
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * defined already
+     * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
+     * @since 2.0.0
+     */
+    public static synchronized void xcontext(String description, Runnable body) {
+        notAllowedWhenCIModeEnabled("xcontext");
+        isValidContext("xcontext");
+        context.get().current().xdescribe(description, body);
+    }
+
+    /**
      * Defines a new focused "describe" block.
      *
      * @param description textual description of the new block
@@ -68,6 +102,24 @@ public final class J8Spec {
     public static synchronized void fdescribe(String description, Runnable body) {
         notAllowedWhenCIModeEnabled("fdescribe");
         isValidContext("fdescribe");
+        context.get().current().fdescribe(description, body);
+    }
+
+    /**
+     * Alias for {@link #fdescribe(String, Runnable)}.
+     *
+     * @param description textual description of the new block
+     * @param body code that defines inner blocks, like "describe", "it", etc - this code is executed
+     *             immediately
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * defined already
+     * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
+     * @since 2.0.0
+     */
+    public static synchronized void fcontext(String description, Runnable body) {
+        notAllowedWhenCIModeEnabled("fcontext");
+        isValidContext("fcontext");
         context.get().current().fdescribe(description, body);
     }
 
