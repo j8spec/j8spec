@@ -36,6 +36,16 @@ public class J8SpecIgnoreTest {
         });
     }}
 
+    static class XcontextSpec {{
+        it("block 1", IT_BLOCK_1);
+        it("block 2", IT_BLOCK_2);
+
+        xcontext("context A", () -> {
+            it("block A.1", IT_BLOCK_A1);
+            it("block A.2", IT_BLOCK_A2);
+        });
+    }}
+
     static class XitSpec {{
         xit("block 1", IT_BLOCK_1);
     }}
@@ -43,6 +53,14 @@ public class J8SpecIgnoreTest {
     @Test
     public void builds_a_describe_block_marking_xdescribe_blocks_from_the_spec_definition_as_ignored() {
         DescribeBlock describeBlock = read(XdescribeSpec.class);
+
+        assertThat(describeBlock.ignored(), is(false));
+        assertThat(describeBlock.describeBlocks().get(0).ignored(), is(true));
+    }
+
+    @Test
+    public void builds_a_describe_block_marking_xcontext_blocks_from_the_spec_definition_as_ignored() {
+        DescribeBlock describeBlock = read(XcontextSpec.class);
 
         assertThat(describeBlock.ignored(), is(false));
         assertThat(describeBlock.describeBlocks().get(0).ignored(), is(true));
@@ -58,6 +76,11 @@ public class J8SpecIgnoreTest {
     @Test(expected = IllegalContextException.class)
     public void does_not_allow_xdescribe_method_direct_invocation() {
         xdescribe("some text", NOOP);
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void does_not_allow_xcontext_method_direct_invocation() {
+        xcontext("some text", NOOP);
     }
 
     @Test(expected = IllegalContextException.class)
