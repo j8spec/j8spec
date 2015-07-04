@@ -227,10 +227,11 @@ public final class J8Spec {
     }
 
     /**
-     * Uses a spec class to build and populate a {@link DescribeBlock} object.
+     * Uses the given spec class to build and populate a {@link DescribeBlock} object.
      *
-     * @param specClass class that contains the spec definition
+     * @param specClass class with a public default constructor that contains the spec definition
      * @return {@link DescribeBlock} object that represents the spec definition
+     * @throws SpecInitializationException if it is not possible to create an instance of <code>specClass</code>
      * @since 2.0.0
      */
     public static synchronized DescribeBlock read(Class<?> specClass) {
