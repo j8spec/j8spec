@@ -36,6 +36,22 @@ public final class J8Spec {
     }
 
     /**
+     * Alias for {@link #describe(String, Runnable)}.
+     *
+     * @param description textual description of the new block
+     * @param body code that defines inner blocks, like "describe", "it", etc - this code is executed
+     *             immediately
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * defined already
+     * @since 2.0.0
+     */
+    public static synchronized void context(String description, Runnable body) {
+        isValidContext("context");
+        context.get().current().describe(description, body);
+    }
+
+    /**
      * Defines a new ignored "describe" block.
      *
      * @param description textual description of the new block

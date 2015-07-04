@@ -25,6 +25,8 @@ public class J8SpecTest {
     private static final Runnable IT_BLOCK_AA1 = () -> {};
     private static final Runnable IT_BLOCK_AA2 = () -> {};
 
+    private static final Runnable IT_BLOCK_B1 = () -> {};
+
     static class EmptySpec {}
 
     static class BadSpec {
@@ -39,6 +41,11 @@ public class J8SpecTest {
     static class DescribeBlockOverwrittenSpec {{
         describe("some text", NOOP);
         describe("some text", NOOP);
+    }}
+
+    static class ContextBlockOverwrittenSpec {{
+        context("some text", NOOP);
+        context("some text", NOOP);
     }}
 
     static class ItBlockWithCollectorOverwrittenSpec {{
@@ -77,6 +84,10 @@ public class J8SpecTest {
                 it("block A.A.2", IT_BLOCK_AA2);
             });
         });
+
+        context("context B", () -> {
+            it("block B.1", IT_BLOCK_B1);
+        });
     }}
 
     @Test
@@ -114,6 +125,9 @@ public class J8SpecTest {
 
         DescribeBlock describeAA = describeA.describeBlocks().get(0);
         assertThat(describeAA.description(), is("describe A.A"));
+
+        DescribeBlock contextB = rootDescribeBlock.describeBlocks().get(1);
+        assertThat(contextB.description(), is("context B"));
     }
 
     @Test
@@ -154,6 +168,16 @@ public class J8SpecTest {
     @Test(expected = BlockAlreadyDefinedException.class)
     public void does_not_allow_describe_block_to_be_replaced() {
         read(DescribeBlockOverwrittenSpec.class);
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void does_not_allow_context_method_direct_invocation() {
+        context("some text", NOOP);
+    }
+
+    @Test(expected = BlockAlreadyDefinedException.class)
+    public void does_not_allow_context_block_to_be_replaced() {
+        read(ContextBlockOverwrittenSpec.class);
     }
 
     @Test(expected = IllegalContextException.class)
