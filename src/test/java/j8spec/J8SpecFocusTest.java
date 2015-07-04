@@ -36,6 +36,16 @@ public class J8SpecFocusTest {
         });
     }}
 
+    static class FcontextSpec {{
+        it("block 1", IT_BLOCK_1);
+        it("block 2", IT_BLOCK_2);
+
+        J8Spec.fcontext("context A", () -> {
+            it("block A.1", IT_BLOCK_A1);
+            it("block A.2", IT_BLOCK_A2);
+        });
+    }}
+
     static class FitSpec {{
         fit("block 1", IT_BLOCK_1);
     }}
@@ -43,6 +53,14 @@ public class J8SpecFocusTest {
     @Test
     public void builds_a_describe_block_marking_fdescribe_blocks_from_the_spec_definition_as_focused() {
         DescribeBlock describeBlock = read(FdescribeSpec.class);
+
+        assertThat(describeBlock.focused(), is(false));
+        assertThat(describeBlock.describeBlocks().get(0).focused(), is(true));
+    }
+
+    @Test
+    public void builds_a_describe_block_marking_fcontext_blocks_from_the_spec_definition_as_focused() {
+        DescribeBlock describeBlock = read(FcontextSpec.class);
 
         assertThat(describeBlock.focused(), is(false));
         assertThat(describeBlock.describeBlocks().get(0).focused(), is(true));
@@ -58,6 +76,11 @@ public class J8SpecFocusTest {
     @Test(expected = IllegalContextException.class)
     public void does_not_allow_fdescribe_method_direct_invocation() {
         fdescribe("some text", NOOP);
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void does_not_allow_fcontext_method_direct_invocation() {
+        fcontext("some text", NOOP);
     }
 
     @Test(expected = IllegalContextException.class)
