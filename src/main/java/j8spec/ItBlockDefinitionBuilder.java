@@ -9,6 +9,12 @@ public final class ItBlockDefinitionBuilder {
     private Runnable body;
     private Class<? extends Throwable> expectedException;
 
+    static ItBlockDefinitionBuilder newItBlockDefinitionBuilder() {
+        return new ItBlockDefinitionBuilder();
+    }
+
+    private ItBlockDefinitionBuilder() {}
+
     /**
      * Defines the exception class the new "it" block is expected to throw.
      *

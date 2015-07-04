@@ -3,6 +3,7 @@ package j8spec;
 import java.util.function.Function;
 
 import static j8spec.DescribeBlockDefinition.newDescribeBlockDefinition;
+import static j8spec.ItBlockDefinitionBuilder.newItBlockDefinitionBuilder;
 import static java.util.function.Function.identity;
 
 /**
@@ -125,7 +126,7 @@ public final class J8Spec {
         Runnable body
     ) {
         isValidContext("it");
-        ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
+        ItBlockDefinition itBlockDefinition = collector.apply(newItBlockDefinitionBuilder())
             .body(body)
             .newItBlockDefinition();
         context.get().current().it(description, itBlockDefinition);
@@ -165,7 +166,7 @@ public final class J8Spec {
     ) {
         notAllowedWhenCIModeEnabled("xit");
         isValidContext("xit");
-        ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
+        ItBlockDefinition itBlockDefinition = collector.apply(newItBlockDefinitionBuilder())
             .body(body)
             .newIgnoredItBlockDefinition();
         context.get().current().it(description, itBlockDefinition);
@@ -205,7 +206,7 @@ public final class J8Spec {
     ) {
         notAllowedWhenCIModeEnabled("fit");
         isValidContext("fit");
-        ItBlockDefinition itBlockDefinition = collector.apply(new ItBlockDefinitionBuilder())
+        ItBlockDefinition itBlockDefinition = collector.apply(newItBlockDefinitionBuilder())
             .body(body)
             .newFocusedItBlockDefinition();
         context.get().current().it(description, itBlockDefinition);
