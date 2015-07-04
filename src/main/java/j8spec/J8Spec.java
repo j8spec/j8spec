@@ -82,6 +82,7 @@ public final class J8Spec {
      * @since 2.0.0
      */
     public static synchronized void xcontext(String description, Runnable body) {
+        notAllowedWhenCIModeEnabled("xcontext");
         isValidContext("xcontext");
         context.get().current().xdescribe(description, body);
     }
@@ -117,6 +118,7 @@ public final class J8Spec {
      * @since 2.0.0
      */
     public static synchronized void fcontext(String description, Runnable body) {
+        notAllowedWhenCIModeEnabled("fcontext");
         isValidContext("fcontext");
         context.get().current().fdescribe(description, body);
     }
