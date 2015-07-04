@@ -1,22 +1,33 @@
 package j8spec;
 
 /**
- * @since 1.1.0
+ * Represents a "it" block configuration.
+ * @since 2.0.0
  */
-public final class ItBlockDefinitionBuilder {
+public final class ItBlockConfiguration {
 
     private Runnable body;
     private Class<? extends Throwable> expectedException;
 
+    static ItBlockConfiguration newItBlockConfiguration() {
+        return new ItBlockConfiguration();
+    }
+
+    private ItBlockConfiguration() {}
+
     /**
-     * @since 1.1.0
+     * Defines the exception class the new "it" block is expected to throw.
+     *
+     * @param expectedException exception class
+     * @return this
+     * @since 2.0.0
      */
-    public ItBlockDefinitionBuilder expected(Class<? extends Throwable> expectedException) {
+    public ItBlockConfiguration expected(Class<? extends Throwable> expectedException) {
         this.expectedException = expectedException;
         return this;
     }
 
-    ItBlockDefinitionBuilder body(Runnable body) {
+    ItBlockConfiguration body(Runnable body) {
         this.body = body;
         return this;
     }
