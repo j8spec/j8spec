@@ -11,12 +11,12 @@ More details here: [j8spec.github.io](http://j8spec.github.io).
 Requirements:
 
 - [JDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-- [Gradle](http://gradle.org/gradle-download/)
 
 Then run:
 
 ```
-$ gradle
+$ cd j8spec
+$ ./gradlew
 ```
 
 That's it.
