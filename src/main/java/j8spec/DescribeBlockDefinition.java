@@ -54,29 +54,34 @@ final class DescribeBlockDefinition {
         this.context = context;
     }
 
-    void describe(String description, SafeBlock body) {
-        addDescribe(description, body, DEFAULT);
+    void describe(String description, SafeBlock block) {
+        addDescribe(description, block, DEFAULT);
     }
 
-    void xdescribe(String description, SafeBlock body) {
-        addDescribe(description, body, IGNORED);
+    void xdescribe(String description, SafeBlock block) {
+        addDescribe(description, block, IGNORED);
     }
 
-    void fdescribe(String description, SafeBlock body) {
-        addDescribe(description, body, FOCUSED);
+    void fdescribe(String description, SafeBlock block) {
+        addDescribe(description, block, FOCUSED);
     }
 
-    private void addDescribe(String description, SafeBlock body, BlockExecutionFlag executionFlag) {
+    private void addDescribe(String description, SafeBlock block, BlockExecutionFlag executionFlag) {
         ensureIsNotAlreadyDefined(
             description,
             describeBlockDefinitions.stream().anyMatch(d -> d.description.equals(description))
         );
 
-        DescribeBlockDefinition block = new DescribeBlockDefinition(specClass, description, executionFlag, context);
-        describeBlockDefinitions.add(block);
+        DescribeBlockDefinition describeBlockDefinition = new DescribeBlockDefinition(
+            specClass,
+            description,
+            executionFlag,
+            context
+        );
+        describeBlockDefinitions.add(describeBlockDefinition);
 
-        context.switchTo(block);
-        body.execute();
+        context.switchTo(describeBlockDefinition);
+        block.execute();
         context.restore();
     }
 

@@ -16,7 +16,7 @@ import static org.junit.Assert.assertThat;
 public class ItBlockTest {
 
     @Test
-    public void runs_before_blocks_and_then_body() throws Throwable {
+    public void runs_before_blocks_and_then_block() throws Throwable {
         final List<String> executionOrder = new ArrayList<>();
 
         newItBlock(
@@ -26,12 +26,12 @@ public class ItBlockTest {
                 newBeforeEachBlock(() -> executionOrder.add("beforeEach1")),
                 newBeforeEachBlock(() -> executionOrder.add("beforeEach2"))
             ),
-            () -> executionOrder.add("body")
+            () -> executionOrder.add("block")
         ).tryToExecute();
 
         assertThat(executionOrder.get(0), is("beforeEach1"));
         assertThat(executionOrder.get(1), is("beforeEach2"));
-        assertThat(executionOrder.get(2), is("body"));
+        assertThat(executionOrder.get(2), is("block"));
     }
 
     @Test

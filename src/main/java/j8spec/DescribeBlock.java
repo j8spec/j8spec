@@ -203,7 +203,7 @@ public final class DescribeBlock {
             if (shouldBeIgnored.test(this, itBlock)) {
                 blocksCollector.add(newIgnoredItBlock(allContainerDescriptions(), description));
             } else {
-                blocksCollector.add(newItBlock(allContainerDescriptions(), description, beforeBlocks, itBlock.body(), itBlock.expected()));
+                blocksCollector.add(newItBlock(allContainerDescriptions(), description, beforeBlocks, itBlock.block(), itBlock.expected()));
             }
         }
 

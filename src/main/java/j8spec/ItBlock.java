@@ -14,26 +14,26 @@ public final class ItBlock implements UnsafeBlock {
     private final List<String> containerDescriptions;
     private final String description;
     private final List<BeforeBlock> beforeBlocks;
-    private final UnsafeBlock body;
+    private final UnsafeBlock block;
     private final Class<? extends Throwable> expectedException;
 
     static ItBlock newItBlock(
         List<String> containerDescriptions,
         String description,
         List<BeforeBlock> beforeBlocks,
-        UnsafeBlock body
+        UnsafeBlock block
     ) {
-        return new ItBlock(containerDescriptions, description, beforeBlocks, body, null);
+        return new ItBlock(containerDescriptions, description, beforeBlocks, block, null);
     }
 
     static ItBlock newItBlock(
         List<String> containerDescriptions,
         String description,
         List<BeforeBlock> beforeBlocks,
-        UnsafeBlock body,
+        UnsafeBlock block,
         Class<? extends Throwable> expectedException
     ) {
-        return new ItBlock(containerDescriptions, description, beforeBlocks, body, expectedException);
+        return new ItBlock(containerDescriptions, description, beforeBlocks, block, expectedException);
     }
 
     static ItBlock newIgnoredItBlock(List<String> containerDescriptions, String description) {
@@ -44,13 +44,13 @@ public final class ItBlock implements UnsafeBlock {
         List<String> containerDescriptions,
         String description,
         List<BeforeBlock> beforeBlocks,
-        UnsafeBlock body,
+        UnsafeBlock block,
         Class<? extends Throwable> expectedException
     ) {
         this.containerDescriptions = unmodifiableList(containerDescriptions);
         this.description = description;
         this.beforeBlocks = unmodifiableList(beforeBlocks);
-        this.body = body;
+        this.block = block;
         this.expectedException = expectedException;
     }
 
@@ -79,7 +79,7 @@ public final class ItBlock implements UnsafeBlock {
         for (BeforeBlock beforeBlock : beforeBlocks) {
             beforeBlock.tryToExecute();
         }
-        body.tryToExecute();
+        block.tryToExecute();
     }
 
     /**
@@ -87,7 +87,7 @@ public final class ItBlock implements UnsafeBlock {
      * @since 2.0.0
      */
     public boolean shouldBeIgnored() {
-        return body == NOOP;
+        return block == NOOP;
     }
 
     /**

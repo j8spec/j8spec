@@ -132,16 +132,16 @@ public class J8SpecTest {
     public void builds_a_describe_block_using_it_blocks_from_the_spec_definition() {
         DescribeBlock rootDescribeBlock = read(SampleSpec.class);
 
-        assertThat(rootDescribeBlock.itBlock("block 1").body(), is(IT_BLOCK_1));
-        assertThat(rootDescribeBlock.itBlock("block 2").body(), is(IT_BLOCK_2));
+        assertThat(rootDescribeBlock.itBlock("block 1").block(), is(IT_BLOCK_1));
+        assertThat(rootDescribeBlock.itBlock("block 2").block(), is(IT_BLOCK_2));
 
         DescribeBlock describeA = rootDescribeBlock.describeBlocks().get(0);
-        assertThat(describeA.itBlock("block A.1").body(), is(IT_BLOCK_A1));
-        assertThat(describeA.itBlock("block A.2").body(), is(IT_BLOCK_A2));
+        assertThat(describeA.itBlock("block A.1").block(), is(IT_BLOCK_A1));
+        assertThat(describeA.itBlock("block A.2").block(), is(IT_BLOCK_A2));
 
         DescribeBlock describeAA = describeA.describeBlocks().get(0);
-        assertThat(describeAA.itBlock("block A.A.1").body(), is(IT_BLOCK_AA1));
-        assertThat(describeAA.itBlock("block A.A.2").body(), is(IT_BLOCK_AA2));
+        assertThat(describeAA.itBlock("block A.A.1").block(), is(IT_BLOCK_AA1));
+        assertThat(describeAA.itBlock("block A.A.2").block(), is(IT_BLOCK_AA2));
     }
 
     @Test
