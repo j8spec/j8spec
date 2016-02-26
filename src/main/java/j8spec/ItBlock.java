@@ -75,11 +75,11 @@ public final class ItBlock implements UnsafeBlock {
      * @since 2.0.0
      */
     @Override
-    public void run() throws Throwable {
+    public void tryToExecute() throws Throwable {
         for (BeforeBlock beforeBlock : beforeBlocks) {
-            beforeBlock.run();
+            beforeBlock.tryToExecute();
         }
-        body.run();
+        body.tryToExecute();
     }
 
     /**

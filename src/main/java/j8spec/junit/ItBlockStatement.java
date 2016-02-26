@@ -24,6 +24,6 @@ final class ItBlockStatement extends Statement {
 
     @Override
     public void evaluate() throws Throwable {
-        itBlock.run();
+        itBlock.tryToExecute();
     }
 }

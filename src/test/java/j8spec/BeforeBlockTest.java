@@ -11,10 +11,10 @@ public class BeforeBlockTest {
         UnsafeBlock body = mock(UnsafeBlock.class);
         BeforeBlock beforeBlock = BeforeBlock.newBeforeAllBlock(body);
 
-        beforeBlock.run();
-        beforeBlock.run();
+        beforeBlock.tryToExecute();
+        beforeBlock.tryToExecute();
 
-        verify(body, times(1)).run();
+        verify(body, times(1)).tryToExecute();
     }
 
     @Test
@@ -22,9 +22,9 @@ public class BeforeBlockTest {
         UnsafeBlock body = mock(UnsafeBlock.class);
         BeforeBlock beforeBlock = BeforeBlock.newBeforeEachBlock(body);
 
-        beforeBlock.run();
-        beforeBlock.run();
+        beforeBlock.tryToExecute();
+        beforeBlock.tryToExecute();
 
-        verify(body, times(2)).run();
+        verify(body, times(2)).tryToExecute();
     }
 }

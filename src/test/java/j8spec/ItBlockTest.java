@@ -27,7 +27,7 @@ public class ItBlockTest {
                 newBeforeEachBlock(() -> executionOrder.add("beforeEach2"))
             ),
             () -> executionOrder.add("body")
-        ).run();
+        ).tryToExecute();
 
         assertThat(executionOrder.get(0), is("beforeEach1"));
         assertThat(executionOrder.get(1), is("beforeEach2"));

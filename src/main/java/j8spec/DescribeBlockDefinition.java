@@ -76,7 +76,7 @@ final class DescribeBlockDefinition {
         describeBlockDefinitions.add(block);
 
         context.switchTo(block);
-        body.run();
+        body.execute();
         context.restore();
     }
 

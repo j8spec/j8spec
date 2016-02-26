@@ -21,12 +21,12 @@ final class BeforeBlock implements UnsafeBlock {
     }
 
     @Override
-    public void run() throws Throwable {
+    public void tryToExecute() throws Throwable {
         if (this.justOnce && this.onceAlready) {
             return;
         }
 
         onceAlready = true;
-        body.run();
+        body.tryToExecute();
     }
 }

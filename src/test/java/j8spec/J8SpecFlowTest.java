@@ -40,7 +40,7 @@ public class J8SpecFlowTest {
         log = new ArrayList<>();
         DescribeBlock describeBlock = read(SampleSpec.class);
         for (ItBlock itBlock : describeBlock.flattenItBlocks()) {
-            itBlock.run();
+            itBlock.tryToExecute();
         }
     }
 

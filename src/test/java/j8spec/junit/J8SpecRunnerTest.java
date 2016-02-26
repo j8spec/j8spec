@@ -27,7 +27,7 @@ public class J8SpecRunnerTest {
     private static final String BLOCK_3 = "block 3";
     private static final String BLOCK_4 = "block 4";
 
-    public static class CustomException extends RuntimeException {}
+    public static class CustomException extends Exception {}
 
     public static class SampleSpec {{
         it(BLOCK_1, newBlock(BLOCK_1));
@@ -116,7 +116,7 @@ public class J8SpecRunnerTest {
 
         runner.runChild(itBlocks.get(0), mock(RunNotifier.class));
 
-        verify(block(BLOCK_1)).run();
+        verify(block(BLOCK_1)).tryToExecute();
     }
 
     @Test
@@ -129,7 +129,7 @@ public class J8SpecRunnerTest {
         runNotifier.addListener(listener);
 
         RuntimeException runtimeException = new RuntimeException();
-        doThrow(runtimeException).when(block(BLOCK_1)).run();
+        doThrow(runtimeException).when(block(BLOCK_1)).tryToExecute();
 
         runner.runChild(itBlocks.get(0), runNotifier);
 
@@ -151,7 +151,7 @@ public class J8SpecRunnerTest {
         assertThat(listener.getDescription(), is(runner.describeChild(itBlocks.get(2))));
         assertThat(listener.isIgnored(), is(true));
 
-        verify(block(BLOCK_3), never()).run();
+        verify(block(BLOCK_3), never()).tryToExecute();
     }
 
     @Test
@@ -184,7 +184,7 @@ public class J8SpecRunnerTest {
     public void notifies_when_a_child_finishes_even_when_it_fails() throws Throwable {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
-        doThrow(new RuntimeException()).when(block(BLOCK_1)).run();
+        doThrow(new RuntimeException()).when(block(BLOCK_1)).tryToExecute();
         RunNotifier runNotifier = mock(RunNotifier.class);
 
         runner.runChild(itBlocks.get(0), runNotifier);
@@ -198,7 +198,7 @@ public class J8SpecRunnerTest {
         List<ItBlock> itBlocks = runner.getChildren();
 
         RunNotifier runNotifier = mock(RunNotifier.class);
-        doThrow(new CustomException()).when(block(BLOCK_4)).run();
+        doThrow(new CustomException()).when(block(BLOCK_4)).tryToExecute();
 
         runner.runChild(itBlocks.get(3), runNotifier);
 
@@ -225,7 +225,7 @@ public class J8SpecRunnerTest {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 
-        doThrow(new RuntimeException()).when(block(BLOCK_4)).run();
+        doThrow(new RuntimeException()).when(block(BLOCK_4)).tryToExecute();
 
         RunNotifier runNotifier = new RunNotifier();
         RunListenerHelper listener = new RunListenerHelper();
