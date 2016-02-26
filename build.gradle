@@ -5,7 +5,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'io.github.j8spec'
-version = '2.1.0-SNAPSHOT'
+version = '3.0.0-SNAPSHOT'
 ext.isReleaseBuild = !version.endsWith("SNAPSHOT")
 
 sourceCompatibility = '1.8'
@@ -89,7 +89,7 @@ uploadArchives {
                     developer {
                         id 'tprado'
                         name 'Thiago Prado'
-                        email 'tprado@thoughtworks.com'
+                        email 'thiago.gozzi.prado@gmail.com'
                     }
                 }
             }
