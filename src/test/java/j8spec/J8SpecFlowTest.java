@@ -36,10 +36,12 @@ public class J8SpecFlowTest {
     private static List<String> log;
 
     @Before
-    public void resetDescribeBlock() {
+    public void resetDescribeBlock() throws Throwable {
         log = new ArrayList<>();
         DescribeBlock describeBlock = read(SampleSpec.class);
-        describeBlock.flattenItBlocks().forEach(Runnable::run);
+        for (ItBlock itBlock : describeBlock.flattenItBlocks()) {
+            itBlock.tryToExecute();
+        }
     }
 
     @Test

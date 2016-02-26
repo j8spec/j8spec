@@ -5,10 +5,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static j8spec.J8Spec.*;
+import static j8spec.UnsafeBlock.NOOP;
 
 public class J8SpecCIModeTest {
-
-    private static final Runnable NOOP = () -> {};
 
     static class FitSpec {{
         fit("block 1", NOOP);

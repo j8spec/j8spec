@@ -9,33 +9,31 @@ import static java.util.Collections.unmodifiableList;
  * Representation of a "it" block ready to be executed.
  * @since 1.0.0
  */
-public final class ItBlock implements Runnable {
-
-    private static final Runnable NOOP = () -> {};
+public final class ItBlock implements UnsafeBlock {
 
     private final List<String> containerDescriptions;
     private final String description;
     private final List<BeforeBlock> beforeBlocks;
-    private final Runnable body;
+    private final UnsafeBlock block;
     private final Class<? extends Throwable> expectedException;
 
     static ItBlock newItBlock(
         List<String> containerDescriptions,
         String description,
         List<BeforeBlock> beforeBlocks,
-        Runnable body
+        UnsafeBlock block
     ) {
-        return new ItBlock(containerDescriptions, description, beforeBlocks, body, null);
+        return new ItBlock(containerDescriptions, description, beforeBlocks, block, null);
     }
 
     static ItBlock newItBlock(
         List<String> containerDescriptions,
         String description,
         List<BeforeBlock> beforeBlocks,
-        Runnable body,
+        UnsafeBlock block,
         Class<? extends Throwable> expectedException
     ) {
-        return new ItBlock(containerDescriptions, description, beforeBlocks, body, expectedException);
+        return new ItBlock(containerDescriptions, description, beforeBlocks, block, expectedException);
     }
 
     static ItBlock newIgnoredItBlock(List<String> containerDescriptions, String description) {
@@ -46,13 +44,13 @@ public final class ItBlock implements Runnable {
         List<String> containerDescriptions,
         String description,
         List<BeforeBlock> beforeBlocks,
-        Runnable body,
+        UnsafeBlock block,
         Class<? extends Throwable> expectedException
     ) {
         this.containerDescriptions = unmodifiableList(containerDescriptions);
         this.description = description;
         this.beforeBlocks = unmodifiableList(beforeBlocks);
-        this.body = body;
+        this.block = block;
         this.expectedException = expectedException;
     }
 
@@ -77,9 +75,11 @@ public final class ItBlock implements Runnable {
      * @since 2.0.0
      */
     @Override
-    public void run() {
-        beforeBlocks.forEach(Runnable::run);
-        body.run();
+    public void tryToExecute() throws Throwable {
+        for (BeforeBlock beforeBlock : beforeBlocks) {
+            beforeBlock.tryToExecute();
+        }
+        block.tryToExecute();
     }
 
     /**
@@ -87,7 +87,7 @@ public final class ItBlock implements Runnable {
      * @since 2.0.0
      */
     public boolean shouldBeIgnored() {
-        return body == NOOP;
+        return block == NOOP;
     }
 
     /**

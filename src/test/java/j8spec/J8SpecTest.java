@@ -13,19 +13,17 @@ import static org.junit.Assert.assertThat;
 
 public class J8SpecTest {
 
-    private static final Runnable NOOP = () -> {};
+    private static final UnsafeBlock IT_BLOCK_1 = () -> {};
+    private static final UnsafeBlock IT_BLOCK_2 = () -> {};
+    private static final UnsafeBlock IT_BLOCK_3 = () -> {};
 
-    private static final Runnable IT_BLOCK_1 = () -> {};
-    private static final Runnable IT_BLOCK_2 = () -> {};
-    private static final Runnable IT_BLOCK_3 = () -> {};
+    private static final UnsafeBlock IT_BLOCK_A1 = () -> {};
+    private static final UnsafeBlock IT_BLOCK_A2 = () -> {};
 
-    private static final Runnable IT_BLOCK_A1 = () -> {};
-    private static final Runnable IT_BLOCK_A2 = () -> {};
+    private static final UnsafeBlock IT_BLOCK_AA1 = () -> {};
+    private static final UnsafeBlock IT_BLOCK_AA2 = () -> {};
 
-    private static final Runnable IT_BLOCK_AA1 = () -> {};
-    private static final Runnable IT_BLOCK_AA2 = () -> {};
-
-    private static final Runnable IT_BLOCK_B1 = () -> {};
+    private static final UnsafeBlock IT_BLOCK_B1 = () -> {};
 
     static class EmptySpec {}
 
@@ -34,23 +32,23 @@ public class J8SpecTest {
     }
 
     static class ItBlockOverwrittenSpec {{
-        it("some text", NOOP);
-        it("some text", NOOP);
+        it("some text", UnsafeBlock.NOOP);
+        it("some text", UnsafeBlock.NOOP);
     }}
 
     static class DescribeBlockOverwrittenSpec {{
-        describe("some text", NOOP);
-        describe("some text", NOOP);
+        describe("some text", SafeBlock.NOOP);
+        describe("some text", SafeBlock.NOOP);
     }}
 
     static class ContextBlockOverwrittenSpec {{
-        context("some text", NOOP);
-        context("some text", NOOP);
+        context("some text", SafeBlock.NOOP);
+        context("some text", SafeBlock.NOOP);
     }}
 
     static class ItBlockWithCollectorOverwrittenSpec {{
-        it("some text", c -> c, NOOP);
-        it("some text", NOOP);
+        it("some text", c -> c, UnsafeBlock.NOOP);
+        it("some text", UnsafeBlock.NOOP);
     }}
 
     static class ThreadThatSleeps2sSpec {{
@@ -61,7 +59,7 @@ public class J8SpecTest {
                 throw new RuntimeException(e);
             }
 
-            it("block", NOOP);
+            it("block", UnsafeBlock.NOOP);
         });
     }}
 
@@ -134,16 +132,16 @@ public class J8SpecTest {
     public void builds_a_describe_block_using_it_blocks_from_the_spec_definition() {
         DescribeBlock rootDescribeBlock = read(SampleSpec.class);
 
-        assertThat(rootDescribeBlock.itBlock("block 1").body(), is(IT_BLOCK_1));
-        assertThat(rootDescribeBlock.itBlock("block 2").body(), is(IT_BLOCK_2));
+        assertThat(rootDescribeBlock.itBlock("block 1").block(), is(IT_BLOCK_1));
+        assertThat(rootDescribeBlock.itBlock("block 2").block(), is(IT_BLOCK_2));
 
         DescribeBlock describeA = rootDescribeBlock.describeBlocks().get(0);
-        assertThat(describeA.itBlock("block A.1").body(), is(IT_BLOCK_A1));
-        assertThat(describeA.itBlock("block A.2").body(), is(IT_BLOCK_A2));
+        assertThat(describeA.itBlock("block A.1").block(), is(IT_BLOCK_A1));
+        assertThat(describeA.itBlock("block A.2").block(), is(IT_BLOCK_A2));
 
         DescribeBlock describeAA = describeA.describeBlocks().get(0);
-        assertThat(describeAA.itBlock("block A.A.1").body(), is(IT_BLOCK_AA1));
-        assertThat(describeAA.itBlock("block A.A.2").body(), is(IT_BLOCK_AA2));
+        assertThat(describeAA.itBlock("block A.A.1").block(), is(IT_BLOCK_AA1));
+        assertThat(describeAA.itBlock("block A.A.2").block(), is(IT_BLOCK_AA2));
     }
 
     @Test
@@ -162,7 +160,7 @@ public class J8SpecTest {
 
     @Test(expected = IllegalContextException.class)
     public void does_not_allow_describe_method_direct_invocation() {
-        describe("some text", NOOP);
+        describe("some text", SafeBlock.NOOP);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
@@ -172,7 +170,7 @@ public class J8SpecTest {
 
     @Test(expected = IllegalContextException.class)
     public void does_not_allow_context_method_direct_invocation() {
-        context("some text", NOOP);
+        context("some text", SafeBlock.NOOP);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
@@ -182,12 +180,12 @@ public class J8SpecTest {
 
     @Test(expected = IllegalContextException.class)
     public void does_not_allow_it_method_direct_invocation() {
-        it("some text", NOOP);
+        it("some text", UnsafeBlock.NOOP);
     }
 
     @Test(expected = IllegalContextException.class)
     public void does_not_allow_it_method_direct_invocation_with_collector() {
-        it("some text", c -> c, NOOP);
+        it("some text", c -> c, UnsafeBlock.NOOP);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
@@ -203,7 +201,7 @@ public class J8SpecTest {
     @Test(expected = IllegalContextException.class)
     public void forgets_last_spec() {
         read(SampleSpec.class);
-        describe("some text", NOOP);
+        describe("some text", SafeBlock.NOOP);
     }
 
     @Test(expected = IllegalContextException.class)
@@ -213,7 +211,7 @@ public class J8SpecTest {
         } catch (BlockAlreadyDefinedException e) {
         }
 
-        it("some text", NOOP);
+        it("some text", UnsafeBlock.NOOP);
     }
 
     @Test()

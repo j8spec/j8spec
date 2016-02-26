@@ -8,22 +8,20 @@ import static org.junit.Assert.assertThat;
 
 public class J8SpecFocusTest {
 
-    private static final Runnable NOOP = () -> {};
+    private static final UnsafeBlock IT_BLOCK_1 = () -> {};
+    private static final UnsafeBlock IT_BLOCK_2 = () -> {};
 
-    private static final Runnable IT_BLOCK_1 = () -> {};
-    private static final Runnable IT_BLOCK_2 = () -> {};
-
-    private static final Runnable IT_BLOCK_A1 = () -> {};
-    private static final Runnable IT_BLOCK_A2 = () -> {};
+    private static final UnsafeBlock IT_BLOCK_A1 = () -> {};
+    private static final UnsafeBlock IT_BLOCK_A2 = () -> {};
 
     static class FitBlockOverwrittenSpec {{
-        fit("some text", NOOP);
-        fit("some text", NOOP);
+        fit("some text", UnsafeBlock.NOOP);
+        fit("some text", UnsafeBlock.NOOP);
     }}
 
     static class FitBlockWithCollectorOverwrittenSpec {{
-        fit("some text", c -> c, NOOP);
-        fit("some text", NOOP);
+        fit("some text", c -> c, UnsafeBlock.NOOP);
+        fit("some text", UnsafeBlock.NOOP);
     }}
 
     static class FdescribeSpec {{
@@ -75,22 +73,22 @@ public class J8SpecFocusTest {
 
     @Test(expected = IllegalContextException.class)
     public void does_not_allow_fdescribe_method_direct_invocation() {
-        fdescribe("some text", NOOP);
+        fdescribe("some text", SafeBlock.NOOP);
     }
 
     @Test(expected = IllegalContextException.class)
     public void does_not_allow_fcontext_method_direct_invocation() {
-        fcontext("some text", NOOP);
+        fcontext("some text", SafeBlock.NOOP);
     }
 
     @Test(expected = IllegalContextException.class)
     public void does_not_allow_fit_method_direct_invocation() {
-        fit("some text", NOOP);
+        fit("some text", UnsafeBlock.NOOP);
     }
 
     @Test(expected = IllegalContextException.class)
     public void does_not_allow_fit_method_with_collector_direct_invocation() {
-        fit("some text", c -> c, NOOP);
+        fit("some text", c -> c, UnsafeBlock.NOOP);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)

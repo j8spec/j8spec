@@ -17,8 +17,8 @@ final class DescribeBlockDefinition {
     private final BlockExecutionFlag executionFlag;
     private final Context<DescribeBlockDefinition> context;
 
-    private final List<Runnable> beforeAllBlocks = new LinkedList<>();
-    private final List<Runnable> beforeEachBlocks = new LinkedList<>();
+    private final List<UnsafeBlock> beforeAllBlocks = new LinkedList<>();
+    private final List<UnsafeBlock> beforeEachBlocks = new LinkedList<>();
     private final Map<String, ItBlockDefinition> itBlockDefinitions = new HashMap<>();
 
     private final List<DescribeBlockDefinition> describeBlockDefinitions = new LinkedList<>();
@@ -54,37 +54,42 @@ final class DescribeBlockDefinition {
         this.context = context;
     }
 
-    void describe(String description, Runnable body) {
-        addDescribe(description, body, DEFAULT);
+    void describe(String description, SafeBlock block) {
+        addDescribe(description, block, DEFAULT);
     }
 
-    void xdescribe(String description, Runnable body) {
-        addDescribe(description, body, IGNORED);
+    void xdescribe(String description, SafeBlock block) {
+        addDescribe(description, block, IGNORED);
     }
 
-    void fdescribe(String description, Runnable body) {
-        addDescribe(description, body, FOCUSED);
+    void fdescribe(String description, SafeBlock block) {
+        addDescribe(description, block, FOCUSED);
     }
 
-    private void addDescribe(String description, Runnable body, BlockExecutionFlag executionFlag) {
+    private void addDescribe(String description, SafeBlock block, BlockExecutionFlag executionFlag) {
         ensureIsNotAlreadyDefined(
             description,
             describeBlockDefinitions.stream().anyMatch(d -> d.description.equals(description))
         );
 
-        DescribeBlockDefinition block = new DescribeBlockDefinition(specClass, description, executionFlag, context);
-        describeBlockDefinitions.add(block);
+        DescribeBlockDefinition describeBlockDefinition = new DescribeBlockDefinition(
+            specClass,
+            description,
+            executionFlag,
+            context
+        );
+        describeBlockDefinitions.add(describeBlockDefinition);
 
-        context.switchTo(block);
-        body.run();
+        context.switchTo(describeBlockDefinition);
+        block.execute();
         context.restore();
     }
 
-    void beforeAll(Runnable beforeAllBlock) {
+    void beforeAll(UnsafeBlock beforeAllBlock) {
         this.beforeAllBlocks.add(beforeAllBlock);
     }
 
-    void beforeEach(Runnable beforeEachBlock) {
+    void beforeEach(UnsafeBlock beforeEachBlock) {
         this.beforeEachBlocks.add(beforeEachBlock);
     }
 

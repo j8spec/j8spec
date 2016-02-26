@@ -6,7 +6,7 @@ package j8spec;
  */
 public final class ItBlockConfiguration {
 
-    private Runnable body;
+    private UnsafeBlock block;
     private Class<? extends Throwable> expectedException;
 
     static ItBlockConfiguration newItBlockConfiguration() {
@@ -27,20 +27,20 @@ public final class ItBlockConfiguration {
         return this;
     }
 
-    ItBlockConfiguration body(Runnable body) {
-        this.body = body;
+    ItBlockConfiguration block(UnsafeBlock block) {
+        this.block = block;
         return this;
     }
 
     ItBlockDefinition newItBlockDefinition() {
-        return ItBlockDefinition.newItBlockDefinition(body, expectedException);
+        return ItBlockDefinition.newItBlockDefinition(block, expectedException);
     }
 
     ItBlockDefinition newIgnoredItBlockDefinition() {
-        return ItBlockDefinition.newIgnoredItBlockDefinition(body, expectedException);
+        return ItBlockDefinition.newIgnoredItBlockDefinition(block, expectedException);
     }
 
     ItBlockDefinition newFocusedItBlockDefinition() {
-        return ItBlockDefinition.newFocusedItBlockDefinition(body, expectedException);
+        return ItBlockDefinition.newFocusedItBlockDefinition(block, expectedException);
     }
 }
