@@ -30,13 +30,13 @@ public final class J8Spec {
      * defined already
      * @since 1.0.0
      */
-    public static synchronized void describe(String description, Runnable body) {
+    public static synchronized void describe(String description, SafeBlock body) {
         isValidContext("describe");
         contexts.get().current().describe(description, body);
     }
 
     /**
-     * Alias for {@link #describe(String, Runnable)}.
+     * Alias for {@link #describe(String, SafeBlock)}.
      *
      * @param description textual description of the new block
      * @param body code that defines inner blocks, like "describe", "it", etc - this code is executed
@@ -46,7 +46,7 @@ public final class J8Spec {
      * defined already
      * @since 2.0.0
      */
-    public static synchronized void context(String description, Runnable body) {
+    public static synchronized void context(String description, SafeBlock body) {
         isValidContext("context");
         contexts.get().current().describe(description, body);
     }
@@ -63,14 +63,14 @@ public final class J8Spec {
      * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
-    public static synchronized void xdescribe(String description, Runnable body) {
+    public static synchronized void xdescribe(String description, SafeBlock body) {
         notAllowedWhenCIModeEnabled("xdescribe");
         isValidContext("xdescribe");
         contexts.get().current().xdescribe(description, body);
     }
 
     /**
-     * Alias for {@link #xdescribe(String, Runnable)}.
+     * Alias for {@link #xdescribe(String, SafeBlock)}.
      *
      * @param description textual description of the new block
      * @param body code that defines inner blocks, like "describe", "it", etc - this code is executed
@@ -81,7 +81,7 @@ public final class J8Spec {
      * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
-    public static synchronized void xcontext(String description, Runnable body) {
+    public static synchronized void xcontext(String description, SafeBlock body) {
         notAllowedWhenCIModeEnabled("xcontext");
         isValidContext("xcontext");
         contexts.get().current().xdescribe(description, body);
@@ -99,14 +99,14 @@ public final class J8Spec {
      * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
-    public static synchronized void fdescribe(String description, Runnable body) {
+    public static synchronized void fdescribe(String description, SafeBlock body) {
         notAllowedWhenCIModeEnabled("fdescribe");
         isValidContext("fdescribe");
         contexts.get().current().fdescribe(description, body);
     }
 
     /**
-     * Alias for {@link #fdescribe(String, Runnable)}.
+     * Alias for {@link #fdescribe(String, SafeBlock)}.
      *
      * @param description textual description of the new block
      * @param body code that defines inner blocks, like "describe", "it", etc - this code is executed
@@ -117,7 +117,7 @@ public final class J8Spec {
      * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
-    public static synchronized void fcontext(String description, Runnable body) {
+    public static synchronized void fcontext(String description, SafeBlock body) {
         notAllowedWhenCIModeEnabled("fcontext");
         isValidContext("fcontext");
         contexts.get().current().fdescribe(description, body);
@@ -130,7 +130,7 @@ public final class J8Spec {
      * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
      * @since 2.0.0
      */
-    public static synchronized void beforeAll(Runnable body) {
+    public static synchronized void beforeAll(UnsafeBlock body) {
         isValidContext("beforeAll");
         contexts.get().current().beforeAll(body);
     }
@@ -142,7 +142,7 @@ public final class J8Spec {
      * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
      * @since 1.0.0
      */
-    public static synchronized void beforeEach(Runnable body) {
+    public static synchronized void beforeEach(UnsafeBlock body) {
         isValidContext("beforeEach");
         contexts.get().current().beforeEach(body);
     }
@@ -157,7 +157,7 @@ public final class J8Spec {
      * defined already
      * @since 1.0.0
      */
-    public static synchronized void it(String description, Runnable body) {
+    public static synchronized void it(String description, UnsafeBlock body) {
         it(description, identity(), body);
     }
 
@@ -175,7 +175,7 @@ public final class J8Spec {
     public static synchronized void it(
         String description,
         Function<ItBlockConfiguration, ItBlockConfiguration> collector,
-        Runnable body
+        UnsafeBlock body
     ) {
         isValidContext("it");
         ItBlockDefinition itBlockDefinition = collector.apply(newItBlockConfiguration())
@@ -195,7 +195,7 @@ public final class J8Spec {
      * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
-    public static synchronized void xit(String description, Runnable body) {
+    public static synchronized void xit(String description, UnsafeBlock body) {
         xit(description, identity(), body);
     }
 
@@ -214,7 +214,7 @@ public final class J8Spec {
     public static synchronized void xit(
         String description,
         Function<ItBlockConfiguration, ItBlockConfiguration> collector,
-        Runnable body
+        UnsafeBlock body
     ) {
         notAllowedWhenCIModeEnabled("xit");
         isValidContext("xit");
@@ -235,7 +235,7 @@ public final class J8Spec {
      * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
-    public static synchronized void fit(String description, Runnable body) {
+    public static synchronized void fit(String description, UnsafeBlock body) {
         fit(description, identity(), body);
     }
 
@@ -254,7 +254,7 @@ public final class J8Spec {
     public static synchronized void fit(
         String description,
         Function<ItBlockConfiguration, ItBlockConfiguration> collector,
-        Runnable body
+        UnsafeBlock body
     ) {
         notAllowedWhenCIModeEnabled("fit");
         isValidContext("fit");

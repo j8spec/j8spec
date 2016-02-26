@@ -9,21 +9,19 @@ import static java.util.Collections.unmodifiableList;
  * Representation of a "it" block ready to be executed.
  * @since 1.0.0
  */
-public final class ItBlock implements Runnable {
-
-    private static final Runnable NOOP = () -> {};
+public final class ItBlock implements UnsafeBlock {
 
     private final List<String> containerDescriptions;
     private final String description;
     private final List<BeforeBlock> beforeBlocks;
-    private final Runnable body;
+    private final UnsafeBlock body;
     private final Class<? extends Throwable> expectedException;
 
     static ItBlock newItBlock(
         List<String> containerDescriptions,
         String description,
         List<BeforeBlock> beforeBlocks,
-        Runnable body
+        UnsafeBlock body
     ) {
         return new ItBlock(containerDescriptions, description, beforeBlocks, body, null);
     }
@@ -32,7 +30,7 @@ public final class ItBlock implements Runnable {
         List<String> containerDescriptions,
         String description,
         List<BeforeBlock> beforeBlocks,
-        Runnable body,
+        UnsafeBlock body,
         Class<? extends Throwable> expectedException
     ) {
         return new ItBlock(containerDescriptions, description, beforeBlocks, body, expectedException);
@@ -46,7 +44,7 @@ public final class ItBlock implements Runnable {
         List<String> containerDescriptions,
         String description,
         List<BeforeBlock> beforeBlocks,
-        Runnable body,
+        UnsafeBlock body,
         Class<? extends Throwable> expectedException
     ) {
         this.containerDescriptions = unmodifiableList(containerDescriptions);
@@ -77,8 +75,10 @@ public final class ItBlock implements Runnable {
      * @since 2.0.0
      */
     @Override
-    public void run() {
-        beforeBlocks.forEach(Runnable::run);
+    public void run() throws Throwable {
+        for (BeforeBlock beforeBlock : beforeBlocks) {
+            beforeBlock.run();
+        }
         body.run();
     }
 

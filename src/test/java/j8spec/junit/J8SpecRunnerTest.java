@@ -1,6 +1,7 @@
 package j8spec.junit;
 
 import j8spec.ItBlock;
+import j8spec.UnsafeBlock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.Description;
@@ -37,15 +38,15 @@ public class J8SpecRunnerTest {
         describe("describe A", () -> it("block A.1", () -> {}));
     }}
 
-    private static Map<String, Runnable> blocks;
+    private static Map<String, UnsafeBlock> blocks;
 
-    private static Runnable newBlock(String id) {
-        Runnable block = mock(Runnable.class);
+    private static UnsafeBlock newBlock(String id) {
+        UnsafeBlock block = mock(UnsafeBlock.class);
         blocks.put(id, block);
         return block;
     }
 
-    private static Runnable block(String id) {
+    private static UnsafeBlock block(String id) {
         return blocks.get(id);
     }
 
@@ -109,7 +110,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void runs_the_given_it_block() throws InitializationError {
+    public void runs_the_given_it_block() throws Throwable {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 
@@ -119,7 +120,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void notifies_when_a_child_fails() throws InitializationError {
+    public void notifies_when_a_child_fails() throws Throwable {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 
@@ -137,7 +138,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void notifies_when_a_child_is_ignored() throws InitializationError {
+    public void notifies_when_a_child_is_ignored() throws Throwable {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 
@@ -180,7 +181,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void notifies_when_a_child_finishes_even_when_it_fails() throws InitializationError {
+    public void notifies_when_a_child_finishes_even_when_it_fails() throws Throwable {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
         doThrow(new RuntimeException()).when(block(BLOCK_1)).run();
@@ -192,7 +193,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void notifies_success_when_expected_exception_occurs() throws InitializationError {
+    public void notifies_success_when_expected_exception_occurs() throws Throwable {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 
@@ -220,7 +221,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void notifies_failure_when_different_exception_occurs() throws InitializationError {
+    public void notifies_failure_when_different_exception_occurs() throws Throwable {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<ItBlock> itBlocks = runner.getChildren();
 

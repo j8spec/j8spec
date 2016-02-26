@@ -7,8 +7,8 @@ import static org.mockito.Mockito.*;
 public class BeforeBlockTest {
 
     @Test
-    public void runs_given_body_only_once() {
-        Runnable body = mock(Runnable.class);
+    public void runs_given_body_only_once() throws Throwable {
+        UnsafeBlock body = mock(UnsafeBlock.class);
         BeforeBlock beforeBlock = BeforeBlock.newBeforeAllBlock(body);
 
         beforeBlock.run();
@@ -18,8 +18,8 @@ public class BeforeBlockTest {
     }
 
     @Test
-    public void runs_given_body_on_each_call() {
-        Runnable body = mock(Runnable.class);
+    public void runs_given_body_on_each_call() throws Throwable {
+        UnsafeBlock body = mock(UnsafeBlock.class);
         BeforeBlock beforeBlock = BeforeBlock.newBeforeEachBlock(body);
 
         beforeBlock.run();

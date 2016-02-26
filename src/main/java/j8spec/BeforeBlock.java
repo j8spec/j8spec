@@ -1,27 +1,27 @@
 package j8spec;
 
-final class BeforeBlock implements Runnable {
+final class BeforeBlock implements UnsafeBlock {
 
-    private final Runnable body;
+    private final UnsafeBlock body;
     private final boolean justOnce;
     private boolean onceAlready;
 
-    static BeforeBlock newBeforeAllBlock(Runnable body) {
+    static BeforeBlock newBeforeAllBlock(UnsafeBlock body) {
         return new BeforeBlock(body, true);
     }
 
-    static BeforeBlock newBeforeEachBlock(Runnable body) {
+    static BeforeBlock newBeforeEachBlock(UnsafeBlock body) {
         return new BeforeBlock(body, false);
     }
 
-    private BeforeBlock(Runnable body, boolean justOnce) {
+    private BeforeBlock(UnsafeBlock body, boolean justOnce) {
         this.body = body;
         this.justOnce = justOnce;
         this.onceAlready = false;
     }
 
     @Override
-    public void run() {
+    public void run() throws Throwable {
         if (this.justOnce && this.onceAlready) {
             return;
         }

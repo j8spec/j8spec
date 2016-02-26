@@ -19,18 +19,16 @@ public class DescribeBlockTest {
 
     private static final String LS = System.getProperty("line.separator");
 
-    private static final Runnable NOOP = () -> {};
-
-    private static final Runnable BEFORE_ALL_BLOCK = () -> {};
-    private static final Runnable BEFORE_EACH_BLOCK = () -> {};
-    private static final Runnable BLOCK_1 = () -> {};
-    private static final Runnable BLOCK_2 = () -> {};
-    private static final Runnable BEFORE_ALL_BLOCK_A = () -> {};
-    private static final Runnable BEFORE_EACH_BLOCK_A = () -> {};
-    private static final Runnable BLOCK_A_1 = () -> {};
-    private static final Runnable BLOCK_A_2 = () -> {};
-    private static final Runnable BLOCK_A_A_1 = () -> {};
-    private static final Runnable BLOCK_A_A_2 = () -> {};
+    private static final UnsafeBlock BEFORE_ALL_BLOCK = () -> {};
+    private static final UnsafeBlock BEFORE_EACH_BLOCK = () -> {};
+    private static final UnsafeBlock BLOCK_1 = () -> {};
+    private static final UnsafeBlock BLOCK_2 = () -> {};
+    private static final UnsafeBlock BEFORE_ALL_BLOCK_A = () -> {};
+    private static final UnsafeBlock BEFORE_EACH_BLOCK_A = () -> {};
+    private static final UnsafeBlock BLOCK_A_1 = () -> {};
+    private static final UnsafeBlock BLOCK_A_2 = () -> {};
+    private static final UnsafeBlock BLOCK_A_A_1 = () -> {};
+    private static final UnsafeBlock BLOCK_A_A_2 = () -> {};
 
     static class SampleSpec {}
 
@@ -142,8 +140,8 @@ public class DescribeBlockTest {
 
     private DescribeBlock aDescribeBlockWithNoBeforeBlocks() {
         Map<String, ItBlockDefinition> itBlocks = new HashMap<>();
-        itBlocks.put("block 1", newItBlockDefinition(NOOP));
-        itBlocks.put("block 2", newItBlockDefinition(NOOP));
+        itBlocks.put("block 1", newItBlockDefinition(UnsafeBlock.NOOP));
+        itBlocks.put("block 2", newItBlockDefinition(UnsafeBlock.NOOP));
 
         DescribeBlock rootDescribeBlock = newRootDescribeBlock(SampleSpec.class, emptyList(), emptyList(), itBlocks);
 

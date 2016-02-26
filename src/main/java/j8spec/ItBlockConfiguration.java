@@ -6,7 +6,7 @@ package j8spec;
  */
 public final class ItBlockConfiguration {
 
-    private Runnable body;
+    private UnsafeBlock body;
     private Class<? extends Throwable> expectedException;
 
     static ItBlockConfiguration newItBlockConfiguration() {
@@ -27,7 +27,7 @@ public final class ItBlockConfiguration {
         return this;
     }
 
-    ItBlockConfiguration body(Runnable body) {
+    ItBlockConfiguration body(UnsafeBlock body) {
         this.body = body;
         return this;
     }

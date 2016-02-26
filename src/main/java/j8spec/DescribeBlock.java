@@ -25,8 +25,8 @@ public final class DescribeBlock {
 
     private final DescribeBlock parent;
     private final String description;
-    private final List<Runnable> beforeAllBlocks;
-    private final List<Runnable> beforeEachBlocks;
+    private final List<UnsafeBlock> beforeAllBlocks;
+    private final List<UnsafeBlock> beforeEachBlocks;
     private final Map<String, ItBlockDefinition> itBlockDefinitions;
     private final List<DescribeBlock> describeBlocks = new LinkedList<>();
     private final Class<?> specClass;
@@ -34,8 +34,8 @@ public final class DescribeBlock {
 
     static DescribeBlock newRootDescribeBlock(
         Class<?> specClass,
-        List<Runnable> beforeAllBlocks,
-        List<Runnable> beforeEachBlocks,
+        List<UnsafeBlock> beforeAllBlocks,
+        List<UnsafeBlock> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks
     ) {
         return new DescribeBlock(specClass, beforeAllBlocks, beforeEachBlocks, itBlocks);
@@ -43,8 +43,8 @@ public final class DescribeBlock {
 
     private DescribeBlock(
         Class<?> specClass,
-        List<Runnable> beforeAllBlocks,
-        List<Runnable> beforeEachBlocks,
+        List<UnsafeBlock> beforeAllBlocks,
+        List<UnsafeBlock> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlockDefinitions
     ) {
         this.parent = null;
@@ -59,8 +59,8 @@ public final class DescribeBlock {
     private DescribeBlock(
         DescribeBlock parent,
         String description,
-        List<Runnable> beforeAllBlocks,
-        List<Runnable> beforeEachBlocks,
+        List<UnsafeBlock> beforeAllBlocks,
+        List<UnsafeBlock> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlockDefinitions,
         BlockExecutionFlag executionFlag
     ) {
@@ -75,8 +75,8 @@ public final class DescribeBlock {
 
     DescribeBlock addDescribeBlock(
         String description,
-        List<Runnable> beforeAllBlocks,
-        List<Runnable> beforeEachBlocks,
+        List<UnsafeBlock> beforeAllBlocks,
+        List<UnsafeBlock> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks
     ) {
         DescribeBlock describeBlock = new DescribeBlock(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, DEFAULT);
@@ -86,8 +86,8 @@ public final class DescribeBlock {
 
     DescribeBlock addIgnoredDescribeBlock(
         String description,
-        List<Runnable> beforeAllBlocks,
-        List<Runnable> beforeEachBlocks,
+        List<UnsafeBlock> beforeAllBlocks,
+        List<UnsafeBlock> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks
     ) {
         DescribeBlock describeBlock = new DescribeBlock(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, IGNORED);
@@ -97,8 +97,8 @@ public final class DescribeBlock {
 
     DescribeBlock addFocusedDescribeBlock(
         String description,
-        List<Runnable> beforeAllBlocks,
-        List<Runnable> beforeEachBlocks,
+        List<UnsafeBlock> beforeAllBlocks,
+        List<UnsafeBlock> beforeEachBlocks,
         Map<String, ItBlockDefinition> itBlocks
     ) {
         DescribeBlock describeBlock = new DescribeBlock(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, FOCUSED);
@@ -165,11 +165,11 @@ public final class DescribeBlock {
         return new LinkedList<>(describeBlocks);
     }
 
-    List<Runnable> beforeAllBlocks() {
+    List<UnsafeBlock> beforeAllBlocks() {
         return beforeAllBlocks;
     }
 
-    List<Runnable> beforeEachBlocks() {
+    List<UnsafeBlock> beforeEachBlocks() {
         return beforeEachBlocks;
     }
 

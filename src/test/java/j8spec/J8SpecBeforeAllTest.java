@@ -3,18 +3,17 @@ package j8spec;
 import org.junit.Test;
 
 import static j8spec.J8Spec.*;
+import static j8spec.UnsafeBlock.NOOP;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class J8SpecBeforeAllTest {
 
-    private static final Runnable NOOP = () -> {};
-
-    private static final Runnable BEFORE_ALL_0_BLOCK = () -> {};
-    private static final Runnable BEFORE_ALL_1_BLOCK = () -> {};
-    private static final Runnable BEFORE_ALL_A_BLOCK = () -> {};
-    private static final Runnable BEFORE_ALL_AA_BLOCK = () -> {};
+    private static final UnsafeBlock BEFORE_ALL_0_BLOCK = () -> {};
+    private static final UnsafeBlock BEFORE_ALL_1_BLOCK = () -> {};
+    private static final UnsafeBlock BEFORE_ALL_A_BLOCK = () -> {};
+    private static final UnsafeBlock BEFORE_ALL_AA_BLOCK = () -> {};
 
     static class NoBeforeAllSpec {{
         it("block 1", NOOP);
