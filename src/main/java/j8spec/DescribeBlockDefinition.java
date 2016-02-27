@@ -1,9 +1,7 @@
 package j8spec;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import static j8spec.BlockExecutionFlag.DEFAULT;
 import static j8spec.BlockExecutionFlag.FOCUSED;
@@ -19,7 +17,7 @@ final class DescribeBlockDefinition {
 
     private final List<UnsafeBlock> beforeAllBlocks = new LinkedList<>();
     private final List<UnsafeBlock> beforeEachBlocks = new LinkedList<>();
-    private final Map<String, ItBlockDefinition> itBlockDefinitions = new HashMap<>();
+    private final List<ItBlockDefinition> itBlockDefinitions = new LinkedList<>();
 
     private final List<DescribeBlockDefinition> describeBlockDefinitions = new LinkedList<>();
 
@@ -96,14 +94,14 @@ final class DescribeBlockDefinition {
     void it(ItBlockDefinition itBlockDefinition) {
         ensureIsNotAlreadyDefined(
             itBlockDefinition.description(),
-            itBlockDefinitions.containsKey(itBlockDefinition.description())
+            itBlockDefinitions.stream().anyMatch(i -> i.description().equals(itBlockDefinition.description()))
         );
 
-        itBlockDefinitions.put(itBlockDefinition.description(), itBlockDefinition);
+        itBlockDefinitions.add(itBlockDefinition);
     }
 
-    private void ensureIsNotAlreadyDefined(String blockName, boolean result) {
-        if (result) {
+    private void ensureIsNotAlreadyDefined(String blockName, boolean isAlreadyDefined) {
+        if (isAlreadyDefined) {
             throw new BlockAlreadyDefinedException(blockName + " block already defined");
         }
     }

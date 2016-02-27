@@ -2,13 +2,13 @@ package j8spec;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
-import static j8spec.BlockExecutionFlag.*;
+import static j8spec.BlockExecutionFlag.DEFAULT;
+import static j8spec.BlockExecutionFlag.FOCUSED;
+import static j8spec.BlockExecutionFlag.IGNORED;
 import static j8spec.ItBlock.newIgnoredItBlock;
 import static j8spec.ItBlock.newItBlock;
 import static java.util.Collections.unmodifiableList;
-import static java.util.Collections.unmodifiableMap;
 
 /**
  * Representation of a "describe" block.
@@ -27,7 +27,7 @@ public final class DescribeBlock {
     private final String description;
     private final List<UnsafeBlock> beforeAllBlocks;
     private final List<UnsafeBlock> beforeEachBlocks;
-    private final Map<String, ItBlockDefinition> itBlockDefinitions;
+    private final List<ItBlockDefinition> itBlockDefinitions;
     private final List<DescribeBlock> describeBlocks = new LinkedList<>();
     private final Class<?> specClass;
     private final BlockExecutionFlag executionFlag;
@@ -36,7 +36,7 @@ public final class DescribeBlock {
         Class<?> specClass,
         List<UnsafeBlock> beforeAllBlocks,
         List<UnsafeBlock> beforeEachBlocks,
-        Map<String, ItBlockDefinition> itBlocks
+        List<ItBlockDefinition> itBlocks
     ) {
         return new DescribeBlock(specClass, beforeAllBlocks, beforeEachBlocks, itBlocks);
     }
@@ -45,14 +45,14 @@ public final class DescribeBlock {
         Class<?> specClass,
         List<UnsafeBlock> beforeAllBlocks,
         List<UnsafeBlock> beforeEachBlocks,
-        Map<String, ItBlockDefinition> itBlockDefinitions
+        List<ItBlockDefinition> itBlockDefinitions
     ) {
         this.parent = null;
         this.specClass = specClass;
         this.description = specClass.getName();
         this.beforeAllBlocks = unmodifiableList(beforeAllBlocks);
         this.beforeEachBlocks = unmodifiableList(beforeEachBlocks);
-        this.itBlockDefinitions = unmodifiableMap(itBlockDefinitions);
+        this.itBlockDefinitions = unmodifiableList(itBlockDefinitions);
         this.executionFlag = DEFAULT;
     }
 
@@ -61,7 +61,7 @@ public final class DescribeBlock {
         String description,
         List<UnsafeBlock> beforeAllBlocks,
         List<UnsafeBlock> beforeEachBlocks,
-        Map<String, ItBlockDefinition> itBlockDefinitions,
+        List<ItBlockDefinition> itBlockDefinitions,
         BlockExecutionFlag executionFlag
     ) {
         this.parent = parent;
@@ -69,7 +69,7 @@ public final class DescribeBlock {
         this.description = description;
         this.beforeAllBlocks = unmodifiableList(beforeAllBlocks);
         this.beforeEachBlocks = unmodifiableList(beforeEachBlocks);
-        this.itBlockDefinitions = unmodifiableMap(itBlockDefinitions);
+        this.itBlockDefinitions = unmodifiableList(itBlockDefinitions);
         this.executionFlag = executionFlag;
     }
 
@@ -77,7 +77,7 @@ public final class DescribeBlock {
         String description,
         List<UnsafeBlock> beforeAllBlocks,
         List<UnsafeBlock> beforeEachBlocks,
-        Map<String, ItBlockDefinition> itBlocks
+        List<ItBlockDefinition> itBlocks
     ) {
         DescribeBlock describeBlock = new DescribeBlock(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, DEFAULT);
         describeBlocks.add(describeBlock);
@@ -88,7 +88,7 @@ public final class DescribeBlock {
         String description,
         List<UnsafeBlock> beforeAllBlocks,
         List<UnsafeBlock> beforeEachBlocks,
-        Map<String, ItBlockDefinition> itBlocks
+        List<ItBlockDefinition> itBlocks
     ) {
         DescribeBlock describeBlock = new DescribeBlock(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, IGNORED);
         describeBlocks.add(describeBlock);
@@ -99,7 +99,7 @@ public final class DescribeBlock {
         String description,
         List<UnsafeBlock> beforeAllBlocks,
         List<UnsafeBlock> beforeEachBlocks,
-        Map<String, ItBlockDefinition> itBlocks
+        List<ItBlockDefinition> itBlocks
     ) {
         DescribeBlock describeBlock = new DescribeBlock(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, FOCUSED);
         describeBlocks.add(describeBlock);
@@ -116,8 +116,8 @@ public final class DescribeBlock {
     private void toString(StringBuilder sb, String indentation) {
         sb.append(indentation).append(description);
 
-        for (Map.Entry<String, ItBlockDefinition> blocks : itBlockDefinitions.entrySet()) {
-            sb.append(LS).append(indentation).append("  ").append(blocks.getKey());
+        for (ItBlockDefinition block : itBlockDefinitions) {
+            sb.append(LS).append(indentation).append("  ").append(block.description());
         }
 
         for (DescribeBlock describeBlock : describeBlocks) {
@@ -153,7 +153,7 @@ public final class DescribeBlock {
     }
 
     private boolean thereIsAtLeastOneFocusedBlock() {
-        return itBlockDefinitions.values().stream().anyMatch(ItBlockDefinition::focused)
+        return itBlockDefinitions.stream().anyMatch(ItBlockDefinition::focused)
             || describeBlocks.stream().anyMatch(b -> b.focused() || b.thereIsAtLeastOneFocusedBlock());
     }
 
@@ -174,7 +174,10 @@ public final class DescribeBlock {
     }
 
     ItBlockDefinition itBlock(String itBlockDescription) {
-        return itBlockDefinitions.get(itBlockDescription);
+        return itBlockDefinitions.stream()
+            .filter(i -> i.description().equals(itBlockDescription))
+            .findFirst()
+            .orElse(null);
     }
 
     boolean ignored() {
@@ -196,7 +199,7 @@ public final class DescribeBlock {
         beforeBlocks.addAll(parentBeforeAllBlocks);
         beforeBlocks.addAll(collectBeforeEachBlocks());
 
-        for (ItBlockDefinition itBlock : this.itBlockDefinitions.values()) {
+        for (ItBlockDefinition itBlock : this.itBlockDefinitions) {
             if (shouldBeIgnored.test(this, itBlock)) {
                 blocksCollector.add(newIgnoredItBlock(allContainerDescriptions(), itBlock.description()));
             } else {
