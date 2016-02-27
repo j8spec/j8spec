@@ -179,9 +179,10 @@ public final class J8Spec {
     ) {
         isValidContext("it");
         ItBlockDefinition itBlockDefinition = collector.apply(newItBlockConfiguration())
+            .description(description)
             .block(block)
             .newItBlockDefinition();
-        contexts.get().current().it(description, itBlockDefinition);
+        contexts.get().current().it(itBlockDefinition);
     }
 
     /**
@@ -219,9 +220,10 @@ public final class J8Spec {
         notAllowedWhenCIModeEnabled("xit");
         isValidContext("xit");
         ItBlockDefinition itBlockDefinition = collector.apply(newItBlockConfiguration())
+            .description(description)
             .block(block)
             .newIgnoredItBlockDefinition();
-        contexts.get().current().it(description, itBlockDefinition);
+        contexts.get().current().it(itBlockDefinition);
     }
 
     /**
@@ -259,9 +261,10 @@ public final class J8Spec {
         notAllowedWhenCIModeEnabled("fit");
         isValidContext("fit");
         ItBlockDefinition itBlockDefinition = collector.apply(newItBlockConfiguration())
+            .description(description)
             .block(block)
             .newFocusedItBlockDefinition();
-        contexts.get().current().it(description, itBlockDefinition);
+        contexts.get().current().it(itBlockDefinition);
     }
 
     private static void notAllowedWhenCIModeEnabled(final String methodName) {

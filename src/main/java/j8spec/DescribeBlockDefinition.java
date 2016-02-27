@@ -93,9 +93,13 @@ final class DescribeBlockDefinition {
         this.beforeEachBlocks.add(beforeEachBlock);
     }
 
-    void it(String description, ItBlockDefinition itBlockDefinition) {
-        ensureIsNotAlreadyDefined(description, itBlockDefinitions.containsKey(description));
-        itBlockDefinitions.put(description, itBlockDefinition);
+    void it(ItBlockDefinition itBlockDefinition) {
+        ensureIsNotAlreadyDefined(
+            itBlockDefinition.description(),
+            itBlockDefinitions.containsKey(itBlockDefinition.description())
+        );
+
+        itBlockDefinitions.put(itBlockDefinition.description(), itBlockDefinition);
     }
 
     private void ensureIsNotAlreadyDefined(String blockName, boolean result) {

@@ -6,38 +6,70 @@ import static j8spec.BlockExecutionFlag.IGNORED;
 
 final class ItBlockDefinition {
 
+    private final String description;
     private final UnsafeBlock block;
     private final BlockExecutionFlag executionFlag;
     private final Class<? extends Throwable> expectedException;
 
-    static ItBlockDefinition newItBlockDefinition(UnsafeBlock block) {
-        return new ItBlockDefinition(block, DEFAULT, null);
+    static ItBlockDefinition newItBlockDefinition(
+        String description,
+        UnsafeBlock block,
+        Class<? extends Throwable> expectedException
+    ) {
+        return new ItBlockDefinition(description, block, DEFAULT, expectedException);
     }
 
-    static ItBlockDefinition newItBlockDefinition(UnsafeBlock block, Class<? extends Throwable> expectedException) {
-        return new ItBlockDefinition(block, DEFAULT, expectedException);
+    static ItBlockDefinition newItBlockDefinition(
+        String description,
+        UnsafeBlock block
+    ) {
+        return newItBlockDefinition(description, block, null);
     }
 
-    static ItBlockDefinition newIgnoredItBlockDefinition(UnsafeBlock block) {
-        return new ItBlockDefinition(block, IGNORED, null);
+    static ItBlockDefinition newIgnoredItBlockDefinition(
+        String description,
+        UnsafeBlock block,
+        Class<? extends Throwable> expectedException
+    ) {
+        return new ItBlockDefinition(description, block, IGNORED, expectedException);
     }
 
-    static ItBlockDefinition newIgnoredItBlockDefinition(UnsafeBlock block, Class<? extends Throwable> expectedException) {
-        return new ItBlockDefinition(block, IGNORED, expectedException);
+    static ItBlockDefinition newIgnoredItBlockDefinition(
+        String description,
+        UnsafeBlock block
+    ) {
+        return newIgnoredItBlockDefinition(description, block, null);
     }
 
-    static ItBlockDefinition newFocusedItBlockDefinition(UnsafeBlock block) {
-        return new ItBlockDefinition(block, FOCUSED, null);
+    static ItBlockDefinition newFocusedItBlockDefinition(
+        String description,
+        UnsafeBlock block,
+        Class<? extends Throwable> expectedException
+    ) {
+        return new ItBlockDefinition(description, block, FOCUSED, expectedException);
     }
 
-    static ItBlockDefinition newFocusedItBlockDefinition(UnsafeBlock block, Class<? extends Throwable> expectedException) {
-        return new ItBlockDefinition(block, FOCUSED, expectedException);
+    static ItBlockDefinition newFocusedItBlockDefinition(
+        String description,
+        UnsafeBlock block
+    ) {
+        return newFocusedItBlockDefinition(description, block, null);
     }
 
-    private ItBlockDefinition(UnsafeBlock block, BlockExecutionFlag executionFlag, Class<? extends Throwable> expectedException) {
+    private ItBlockDefinition(
+        String description,
+        UnsafeBlock block,
+        BlockExecutionFlag executionFlag,
+        Class<? extends Throwable> expectedException
+    ) {
+        this.description = description;
         this.block = block;
         this.executionFlag = executionFlag;
         this.expectedException = expectedException;
+    }
+
+    String description() {
+        return description;
     }
 
     UnsafeBlock block() {

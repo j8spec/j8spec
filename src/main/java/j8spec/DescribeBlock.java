@@ -196,14 +196,11 @@ public final class DescribeBlock {
         beforeBlocks.addAll(parentBeforeAllBlocks);
         beforeBlocks.addAll(collectBeforeEachBlocks());
 
-        for (Map.Entry<String, ItBlockDefinition> entry : this.itBlockDefinitions.entrySet()) {
-            String description = entry.getKey();
-            ItBlockDefinition itBlock = entry.getValue();
-
+        for (ItBlockDefinition itBlock : this.itBlockDefinitions.values()) {
             if (shouldBeIgnored.test(this, itBlock)) {
-                blocksCollector.add(newIgnoredItBlock(allContainerDescriptions(), description));
+                blocksCollector.add(newIgnoredItBlock(allContainerDescriptions(), itBlock.description()));
             } else {
-                blocksCollector.add(newItBlock(allContainerDescriptions(), description, beforeBlocks, itBlock.block(), itBlock.expected()));
+                blocksCollector.add(newItBlock(allContainerDescriptions(), itBlock.description(), beforeBlocks, itBlock.block(), itBlock.expected()));
             }
         }
 
