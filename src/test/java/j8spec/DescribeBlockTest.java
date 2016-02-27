@@ -140,7 +140,7 @@ public class DescribeBlockTest {
     }
 
     private DescribeBlock anEmptyDescribeBlock() {
-        return newRootDescribeBlock(SampleSpec.class, emptyList(), emptyList(), emptyList());
+        return newRootDescribeBlock(SampleSpec.class.getName(), emptyList(), emptyList(), emptyList());
     }
 
     private DescribeBlock aDescribeBlockWithNoBeforeBlocks() {
@@ -148,7 +148,12 @@ public class DescribeBlockTest {
         itBlocks.add(newItBlockDefinition("block 1", UnsafeBlock.NOOP));
         itBlocks.add(newItBlockDefinition("block 2", UnsafeBlock.NOOP));
 
-        DescribeBlock rootDescribeBlock = newRootDescribeBlock(SampleSpec.class, emptyList(), emptyList(), itBlocks);
+        DescribeBlock rootDescribeBlock = newRootDescribeBlock(
+            SampleSpec.class.getName(),
+            emptyList(),
+            emptyList(),
+            itBlocks
+        );
 
         rootDescribeBlock.addDescribeBlock("child 1", emptyList(), emptyList(), itBlocks, DEFAULT);
         rootDescribeBlock.addDescribeBlock("child 2", emptyList(), emptyList(), itBlocks, DEFAULT);
@@ -162,7 +167,7 @@ public class DescribeBlockTest {
         itBlocks.add(newItBlockDefinition("block 2", BLOCK_2));
 
         DescribeBlock rootDescribeBlock = newRootDescribeBlock(
-            SampleSpec.class,
+            SampleSpec.class.getName(),
             singletonList(BEFORE_ALL_BLOCK),
             singletonList(BEFORE_EACH_BLOCK),
             itBlocks
@@ -188,7 +193,7 @@ public class DescribeBlockTest {
         itBlocks.add(newIgnoredItBlockDefinition("block 1", BLOCK_1));
 
         return newRootDescribeBlock(
-            SampleSpec.class,
+            SampleSpec.class.getName(),
             singletonList(BEFORE_ALL_BLOCK),
             singletonList(BEFORE_EACH_BLOCK),
             itBlocks
@@ -200,7 +205,7 @@ public class DescribeBlockTest {
         itBlocks.add(newItBlockDefinition("block 1", BLOCK_1, Exception.class));
 
         return newRootDescribeBlock(
-            SampleSpec.class,
+            SampleSpec.class.getName(),
             singletonList(BEFORE_ALL_BLOCK),
             singletonList(BEFORE_EACH_BLOCK),
             itBlocks
@@ -213,7 +218,7 @@ public class DescribeBlockTest {
         itBlocks.add(newItBlockDefinition("block 2", BLOCK_2));
 
         DescribeBlock rootDescribeBlock = newRootDescribeBlock(
-            SampleSpec.class,
+            SampleSpec.class.getName(),
             singletonList(BEFORE_ALL_BLOCK),
             singletonList(BEFORE_EACH_BLOCK),
             itBlocks
@@ -238,7 +243,12 @@ public class DescribeBlockTest {
         List<ItBlockDefinition> itBlocks = new LinkedList<>();
         itBlocks.add(newItBlockDefinition("block 1", BLOCK_1));
 
-        DescribeBlock rootDescribeBlock = newRootDescribeBlock(SampleSpec.class, emptyList(), emptyList(), itBlocks);
+        DescribeBlock rootDescribeBlock = newRootDescribeBlock(
+            SampleSpec.class.getName(),
+            emptyList(),
+            emptyList(),
+            itBlocks
+        );
 
         List<ItBlockDefinition> itBlocksA = new LinkedList<>();
         itBlocksA.add(newItBlockDefinition("block A1", BLOCK_A_1));
@@ -266,7 +276,7 @@ public class DescribeBlockTest {
         itBlocks.add(newItBlockDefinition("block 1", BLOCK_1));
 
         DescribeBlock rootDescribeBlock = newRootDescribeBlock(
-            SampleSpec.class,
+            SampleSpec.class.getName(),
             singletonList(BEFORE_ALL_BLOCK),
             singletonList(BEFORE_EACH_BLOCK),
             itBlocks

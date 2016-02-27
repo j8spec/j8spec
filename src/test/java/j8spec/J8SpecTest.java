@@ -92,7 +92,6 @@ public class J8SpecTest {
     public void builds_a_describe_block_using_the_given_spec_as_description() {
         DescribeBlock describeBlock = read(EmptySpec.class);
 
-        assertThat(describeBlock.specClass(), equalTo(EmptySpec.class));
         assertThat(describeBlock.description(), is("j8spec.J8SpecTest$EmptySpec"));
     }
 
@@ -101,17 +100,6 @@ public class J8SpecTest {
         DescribeBlock describeBlock = read(EmptySpec.class);
 
         assertThat(describeBlock.flattenItBlocks(), is(emptyList()));
-    }
-
-    @Test
-    public void builds_a_describe_block_where_all_inner_describe_blocks_have_the_same_spec_class() {
-        DescribeBlock rootDescribeBlock = read(SampleSpec.class);
-
-        DescribeBlock describeA = rootDescribeBlock.describeBlocks().get(0);
-        assertThat(describeA.specClass(), equalTo(SampleSpec.class));
-
-        DescribeBlock describeAA = describeA.describeBlocks().get(0);
-        assertThat(describeAA.specClass(), equalTo(SampleSpec.class));
     }
 
     @Test

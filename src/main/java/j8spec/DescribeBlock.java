@@ -29,31 +29,15 @@ public final class DescribeBlock {
     private final List<UnsafeBlock> beforeEachBlocks;
     private final List<ItBlockDefinition> itBlockDefinitions;
     private final List<DescribeBlock> describeBlocks = new LinkedList<>();
-    private final Class<?> specClass;
     private final BlockExecutionFlag executionFlag;
 
     static DescribeBlock newRootDescribeBlock(
-        Class<?> specClass,
+        String description,
         List<UnsafeBlock> beforeAllBlocks,
         List<UnsafeBlock> beforeEachBlocks,
         List<ItBlockDefinition> itBlocks
     ) {
-        return new DescribeBlock(specClass, beforeAllBlocks, beforeEachBlocks, itBlocks);
-    }
-
-    private DescribeBlock(
-        Class<?> specClass,
-        List<UnsafeBlock> beforeAllBlocks,
-        List<UnsafeBlock> beforeEachBlocks,
-        List<ItBlockDefinition> itBlockDefinitions
-    ) {
-        this.parent = null;
-        this.specClass = specClass;
-        this.description = specClass.getName();
-        this.beforeAllBlocks = unmodifiableList(beforeAllBlocks);
-        this.beforeEachBlocks = unmodifiableList(beforeEachBlocks);
-        this.itBlockDefinitions = unmodifiableList(itBlockDefinitions);
-        this.executionFlag = DEFAULT;
+        return new DescribeBlock(null, description, beforeAllBlocks, beforeEachBlocks, itBlocks, DEFAULT);
     }
 
     private DescribeBlock(
@@ -65,7 +49,6 @@ public final class DescribeBlock {
         BlockExecutionFlag executionFlag
     ) {
         this.parent = parent;
-        this.specClass = parent.specClass;
         this.description = description;
         this.beforeAllBlocks = unmodifiableList(beforeAllBlocks);
         this.beforeEachBlocks = unmodifiableList(beforeEachBlocks);
@@ -110,14 +93,6 @@ public final class DescribeBlock {
             sb.append(LS);
             describeBlock.toString(sb, indentation + "  ");
         }
-    }
-
-    /**
-     * @return spec class where all blocks were defined
-     * @since 2.0.0
-     */
-    public Class<?> specClass() {
-        return specClass;
     }
 
     /**

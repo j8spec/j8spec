@@ -10,7 +10,6 @@ import static j8spec.DescribeBlock.newRootDescribeBlock;
 
 final class DescribeBlockDefinition {
 
-    private final Class<?> specClass;
     private final String description;
     private final BlockExecutionFlag executionFlag;
     private final Context<DescribeBlockDefinition> context;
@@ -21,8 +20,11 @@ final class DescribeBlockDefinition {
 
     private final List<DescribeBlockDefinition> describeBlockDefinitions = new LinkedList<>();
 
-    static DescribeBlockDefinition newDescribeBlockDefinition(Class<?> specClass, Context<DescribeBlockDefinition> context) {
-        DescribeBlockDefinition block = new DescribeBlockDefinition(specClass, context);
+    static DescribeBlockDefinition newDescribeBlockDefinition(
+        Class<?> specClass,
+        Context<DescribeBlockDefinition> context
+    ) {
+        DescribeBlockDefinition block = new DescribeBlockDefinition(specClass.getName(), DEFAULT, context);
         context.switchTo(block);
 
         try {
@@ -36,17 +38,11 @@ final class DescribeBlockDefinition {
         return block;
     }
 
-    private DescribeBlockDefinition(Class<?> specClass, Context<DescribeBlockDefinition> context) {
-        this(specClass, specClass.getName(), DEFAULT, context);
-    }
-
     private DescribeBlockDefinition(
-        Class<?> specClass,
         String description,
         BlockExecutionFlag executionFlag,
         Context<DescribeBlockDefinition> context
     ) {
-        this.specClass = specClass;
         this.description = description;
         this.executionFlag = executionFlag;
         this.context = context;
@@ -71,7 +67,6 @@ final class DescribeBlockDefinition {
         );
 
         DescribeBlockDefinition describeBlockDefinition = new DescribeBlockDefinition(
-            specClass,
             description,
             executionFlag,
             context
@@ -107,7 +102,7 @@ final class DescribeBlockDefinition {
     }
 
     DescribeBlock toDescribeBlock() {
-        DescribeBlock root = newRootDescribeBlock(specClass, beforeAllBlocks, beforeEachBlocks, itBlockDefinitions);
+        DescribeBlock root = newRootDescribeBlock(description, beforeAllBlocks, beforeEachBlocks, itBlockDefinitions);
         describeBlockDefinitions.stream().forEach(block -> block.addAllDescribeBlocksTo(root));
         return root;
     }

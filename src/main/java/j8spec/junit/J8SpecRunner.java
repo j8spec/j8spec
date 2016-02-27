@@ -23,14 +23,16 @@ import static org.junit.runner.Description.createTestDescription;
  */
 public final class J8SpecRunner extends ParentRunner<ItBlock> {
 
-    private final DescribeBlock describeBlock;
+    private final String specName;
     private final Map<ItBlock, Description> descriptions = new HashMap<>();
-    private List<ItBlock> itBlocks;
+    private final List<ItBlock> itBlocks;
 
     public J8SpecRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
         try {
-            describeBlock = J8Spec.read(testClass);
+            specName = testClass.getName();
+            DescribeBlock describeBlock = J8Spec.read(testClass);
+            itBlocks = unmodifiableList(describeBlock.flattenItBlocks());
         } catch (Exception e) {
             throw new InitializationError(e);
         }
@@ -38,9 +40,6 @@ public final class J8SpecRunner extends ParentRunner<ItBlock> {
 
     @Override
     protected List<ItBlock> getChildren() {
-        if (itBlocks == null) {
-            itBlocks = unmodifiableList(describeBlock.flattenItBlocks());
-        }
         return itBlocks;
     }
 
@@ -49,7 +48,7 @@ public final class J8SpecRunner extends ParentRunner<ItBlock> {
         if (!descriptions.containsKey(itBlock)) {
             descriptions.put(
                 itBlock,
-                createTestDescription(describeBlock.specClass().getName(), buildChildName(itBlock))
+                createTestDescription(specName, buildChildName(itBlock))
             );
         }
         return descriptions.get(itBlock);
