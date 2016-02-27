@@ -77,31 +77,17 @@ public final class DescribeBlock {
         String description,
         List<UnsafeBlock> beforeAllBlocks,
         List<UnsafeBlock> beforeEachBlocks,
-        List<ItBlockDefinition> itBlocks
+        List<ItBlockDefinition> itBlocks,
+        BlockExecutionFlag executionFlag
     ) {
-        DescribeBlock describeBlock = new DescribeBlock(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, DEFAULT);
-        describeBlocks.add(describeBlock);
-        return describeBlock;
-    }
-
-    DescribeBlock addIgnoredDescribeBlock(
-        String description,
-        List<UnsafeBlock> beforeAllBlocks,
-        List<UnsafeBlock> beforeEachBlocks,
-        List<ItBlockDefinition> itBlocks
-    ) {
-        DescribeBlock describeBlock = new DescribeBlock(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, IGNORED);
-        describeBlocks.add(describeBlock);
-        return describeBlock;
-    }
-
-    DescribeBlock addFocusedDescribeBlock(
-        String description,
-        List<UnsafeBlock> beforeAllBlocks,
-        List<UnsafeBlock> beforeEachBlocks,
-        List<ItBlockDefinition> itBlocks
-    ) {
-        DescribeBlock describeBlock = new DescribeBlock(this, description, beforeAllBlocks, beforeEachBlocks, itBlocks, FOCUSED);
+        DescribeBlock describeBlock = new DescribeBlock(
+            this,
+            description,
+            beforeAllBlocks,
+            beforeEachBlocks,
+            itBlocks,
+            executionFlag
+        );
         describeBlocks.add(describeBlock);
         return describeBlock;
     }

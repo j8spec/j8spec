@@ -5,6 +5,9 @@ import org.junit.Test;
 import java.util.LinkedList;
 import java.util.List;
 
+import static j8spec.BlockExecutionFlag.DEFAULT;
+import static j8spec.BlockExecutionFlag.FOCUSED;
+import static j8spec.BlockExecutionFlag.IGNORED;
 import static j8spec.DescribeBlock.newRootDescribeBlock;
 import static j8spec.ItBlockDefinition.newFocusedItBlockDefinition;
 import static j8spec.ItBlockDefinition.newIgnoredItBlockDefinition;
@@ -147,8 +150,8 @@ public class DescribeBlockTest {
 
         DescribeBlock rootDescribeBlock = newRootDescribeBlock(SampleSpec.class, emptyList(), emptyList(), itBlocks);
 
-        rootDescribeBlock.addDescribeBlock("child 1", emptyList(), emptyList(), itBlocks);
-        rootDescribeBlock.addDescribeBlock("child 2", emptyList(), emptyList(), itBlocks);
+        rootDescribeBlock.addDescribeBlock("child 1", emptyList(), emptyList(), itBlocks, DEFAULT);
+        rootDescribeBlock.addDescribeBlock("child 2", emptyList(), emptyList(), itBlocks, DEFAULT);
 
         return rootDescribeBlock;
     }
@@ -173,7 +176,8 @@ public class DescribeBlockTest {
             "describe A",
             singletonList(BEFORE_ALL_BLOCK_A),
             singletonList(BEFORE_EACH_BLOCK_A),
-            itBlocksA
+            itBlocksA,
+            DEFAULT
         );
 
         return rootDescribeBlock;
@@ -219,11 +223,12 @@ public class DescribeBlockTest {
         itBlocksA.add(newFocusedItBlockDefinition("block A1", BLOCK_A_1));
         itBlocksA.add(newItBlockDefinition("block A2", BLOCK_A_2));
 
-        rootDescribeBlock.addIgnoredDescribeBlock(
+        rootDescribeBlock.addDescribeBlock(
             "describe A",
             singletonList(BEFORE_ALL_BLOCK),
             singletonList(BEFORE_EACH_BLOCK),
-            itBlocksA
+            itBlocksA,
+            IGNORED
         );
 
         return rootDescribeBlock;
@@ -239,13 +244,19 @@ public class DescribeBlockTest {
         itBlocksA.add(newItBlockDefinition("block A1", BLOCK_A_1));
         itBlocksA.add(newItBlockDefinition("block A2", BLOCK_A_2));
 
-        DescribeBlock describeA = rootDescribeBlock.addFocusedDescribeBlock("describe A", emptyList(), emptyList(), itBlocksA);
+        DescribeBlock describeA = rootDescribeBlock.addDescribeBlock(
+            "describe A",
+            emptyList(),
+            emptyList(),
+            itBlocksA,
+            FOCUSED
+        );
 
         List<ItBlockDefinition> itBlocksAA = new LinkedList<>();
         itBlocksAA.add(newItBlockDefinition("block AA1", BLOCK_A_A_1));
         itBlocksAA.add(newItBlockDefinition("block AA2", BLOCK_A_A_2));
 
-        describeA.addDescribeBlock("describe A A", emptyList(), emptyList(), itBlocksAA);
+        describeA.addDescribeBlock("describe A A", emptyList(), emptyList(), itBlocksAA, DEFAULT);
 
         return rootDescribeBlock;
     }
@@ -265,11 +276,12 @@ public class DescribeBlockTest {
         itBlocksA.add(newItBlockDefinition("block A1", BLOCK_A_1));
         itBlocksA.add(newItBlockDefinition("block A2", BLOCK_A_2));
 
-        rootDescribeBlock.addIgnoredDescribeBlock(
+        rootDescribeBlock.addDescribeBlock(
             "describe A",
             singletonList(BEFORE_ALL_BLOCK),
             singletonList(BEFORE_EACH_BLOCK),
-            itBlocksA
+            itBlocksA,
+            IGNORED
         );
 
         return rootDescribeBlock;

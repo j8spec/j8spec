@@ -107,31 +107,20 @@ final class DescribeBlockDefinition {
     }
 
     DescribeBlock toDescribeBlock() {
-        return toDescribeBlock(null);
+        DescribeBlock root = newRootDescribeBlock(specClass, beforeAllBlocks, beforeEachBlocks, itBlockDefinitions);
+        describeBlockDefinitions.stream().forEach(block -> block.addAllDescribeBlocksTo(root));
+        return root;
     }
 
-    private DescribeBlock toDescribeBlock(DescribeBlock parent) {
-        DescribeBlock describeBlock = newDescribeBlock(parent);
-        this.describeBlockDefinitions.stream().forEach(block -> block.toDescribeBlock(describeBlock));
-        return describeBlock;
-    }
+    private void addAllDescribeBlocksTo(DescribeBlock parent) {
+        DescribeBlock describeBlock = parent.addDescribeBlock(
+            description,
+            beforeAllBlocks,
+            beforeEachBlocks,
+            itBlockDefinitions,
+            executionFlag
+        );
 
-    private DescribeBlock newDescribeBlock(DescribeBlock parent) {
-        if (parent == null) {
-            return newRootDescribeBlock(specClass, beforeAllBlocks, beforeEachBlocks, itBlockDefinitions);
-        }
-        return addDescribeBlockTo(parent);
-    }
-
-    private DescribeBlock addDescribeBlockTo(DescribeBlock parent) {
-        if (IGNORED.equals(executionFlag)) {
-            return parent.addIgnoredDescribeBlock(description, beforeAllBlocks, beforeEachBlocks, itBlockDefinitions);
-        }
-
-        if (FOCUSED.equals(executionFlag)) {
-            return parent.addFocusedDescribeBlock(description, beforeAllBlocks, beforeEachBlocks, itBlockDefinitions);
-        }
-
-        return parent.addDescribeBlock(description, beforeAllBlocks, beforeEachBlocks, itBlockDefinitions);
+        describeBlockDefinitions.stream().forEach(block -> block.addAllDescribeBlocksTo(describeBlock));
     }
 }
