@@ -3,6 +3,9 @@ package j8spec;
 import java.util.List;
 import java.util.function.Function;
 
+import static j8spec.BlockExecutionFlag.DEFAULT;
+import static j8spec.BlockExecutionFlag.FOCUSED;
+import static j8spec.BlockExecutionFlag.IGNORED;
 import static j8spec.DescribeBlockDefinition.newDescribeBlockDefinition;
 import static j8spec.ItBlockConfiguration.newItBlockConfiguration;
 import static java.util.function.Function.identity;
@@ -33,7 +36,7 @@ public final class J8Spec {
      */
     public static synchronized void describe(String description, SafeBlock block) {
         isValidContext("describe");
-        contexts.get().current().describe(description, block);
+        contexts.get().current().addDescribe(description, block, DEFAULT);
     }
 
     /**
@@ -49,7 +52,7 @@ public final class J8Spec {
      */
     public static synchronized void context(String description, SafeBlock block) {
         isValidContext("context");
-        contexts.get().current().describe(description, block);
+        contexts.get().current().addDescribe(description, block, DEFAULT);
     }
 
     /**
@@ -67,7 +70,7 @@ public final class J8Spec {
     public static synchronized void xdescribe(String description, SafeBlock block) {
         notAllowedWhenCIModeEnabled("xdescribe");
         isValidContext("xdescribe");
-        contexts.get().current().xdescribe(description, block);
+        contexts.get().current().addDescribe(description, block, IGNORED);
     }
 
     /**
@@ -85,7 +88,7 @@ public final class J8Spec {
     public static synchronized void xcontext(String description, SafeBlock block) {
         notAllowedWhenCIModeEnabled("xcontext");
         isValidContext("xcontext");
-        contexts.get().current().xdescribe(description, block);
+        contexts.get().current().addDescribe(description, block, IGNORED);
     }
 
     /**
@@ -103,7 +106,7 @@ public final class J8Spec {
     public static synchronized void fdescribe(String description, SafeBlock block) {
         notAllowedWhenCIModeEnabled("fdescribe");
         isValidContext("fdescribe");
-        contexts.get().current().fdescribe(description, block);
+        contexts.get().current().addDescribe(description, block, FOCUSED);
     }
 
     /**
@@ -121,7 +124,7 @@ public final class J8Spec {
     public static synchronized void fcontext(String description, SafeBlock block) {
         notAllowedWhenCIModeEnabled("fcontext");
         isValidContext("fcontext");
-        contexts.get().current().fdescribe(description, block);
+        contexts.get().current().addDescribe(description, block, FOCUSED);
     }
 
     /**
@@ -133,7 +136,7 @@ public final class J8Spec {
      */
     public static synchronized void beforeAll(UnsafeBlock block) {
         isValidContext("beforeAll");
-        contexts.get().current().beforeAll(block);
+        contexts.get().current().addBeforeAll(block);
     }
 
     /**
@@ -145,7 +148,7 @@ public final class J8Spec {
      */
     public static synchronized void beforeEach(UnsafeBlock block) {
         isValidContext("beforeEach");
-        contexts.get().current().beforeEach(block);
+        contexts.get().current().addBeforeEach(block);
     }
 
     /**
@@ -183,7 +186,7 @@ public final class J8Spec {
             .description(description)
             .block(block)
             .newItBlockDefinition();
-        contexts.get().current().it(itBlockDefinition);
+        contexts.get().current().addIt(itBlockDefinition);
     }
 
     /**
@@ -224,7 +227,7 @@ public final class J8Spec {
             .description(description)
             .block(block)
             .newIgnoredItBlockDefinition();
-        contexts.get().current().it(itBlockDefinition);
+        contexts.get().current().addIt(itBlockDefinition);
     }
 
     /**
@@ -265,7 +268,7 @@ public final class J8Spec {
             .description(description)
             .block(block)
             .newFocusedItBlockDefinition();
-        contexts.get().current().it(itBlockDefinition);
+        contexts.get().current().addIt(itBlockDefinition);
     }
 
     private static void notAllowedWhenCIModeEnabled(final String methodName) {

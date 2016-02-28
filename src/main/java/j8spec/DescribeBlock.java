@@ -77,22 +77,14 @@ final class DescribeBlock {
 
     private ShouldBeIgnoredPredicate shouldBeIgnoredPredicate() {
         if (thereIsAtLeastOneFocusedBlock()) {
-            return (p, b) -> !b.focused() && !p.containerFocused();
+            return (describeBlock, itBlockDefinition) -> !itBlockDefinition.focused() && !describeBlock.containerFocused();
         }
-        return (p, b) -> b.ignored() || p.containerIgnored();
+        return (describeBlock, itBlockDefinition) -> itBlockDefinition.ignored() || describeBlock.containerIgnored();
     }
 
     private boolean thereIsAtLeastOneFocusedBlock() {
         return itBlockDefinitions.stream().anyMatch(ItBlockDefinition::focused)
             || describeBlocks.stream().anyMatch(b -> b.focused() || b.thereIsAtLeastOneFocusedBlock());
-    }
-
-    boolean ignored() {
-        return IGNORED.equals(executionFlag);
-    }
-
-    boolean focused() {
-        return FOCUSED.equals(executionFlag);
     }
 
     private void collectItBlocks(
@@ -158,6 +150,14 @@ final class DescribeBlock {
         this.beforeEachBlocks.stream().map(BeforeBlock::newBeforeEachBlock).forEach(beforeEachBlocks::add);
 
         return beforeEachBlocks;
+    }
+
+    private boolean ignored() {
+        return IGNORED.equals(executionFlag);
+    }
+
+    private boolean focused() {
+        return FOCUSED.equals(executionFlag);
     }
 
     private boolean isRoot() {

@@ -4,8 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static j8spec.BlockExecutionFlag.DEFAULT;
-import static j8spec.BlockExecutionFlag.FOCUSED;
-import static j8spec.BlockExecutionFlag.IGNORED;
 import static j8spec.DescribeBlock.newRootDescribeBlock;
 
 final class DescribeBlockDefinition {
@@ -48,19 +46,7 @@ final class DescribeBlockDefinition {
         this.context = context;
     }
 
-    void describe(String description, SafeBlock block) {
-        addDescribe(description, block, DEFAULT);
-    }
-
-    void xdescribe(String description, SafeBlock block) {
-        addDescribe(description, block, IGNORED);
-    }
-
-    void fdescribe(String description, SafeBlock block) {
-        addDescribe(description, block, FOCUSED);
-    }
-
-    private void addDescribe(String description, SafeBlock block, BlockExecutionFlag executionFlag) {
+    void addDescribe(String description, SafeBlock block, BlockExecutionFlag executionFlag) {
         ensureIsNotAlreadyDefined(
             description,
             describeBlockDefinitions.stream().anyMatch(d -> d.description.equals(description))
@@ -78,15 +64,15 @@ final class DescribeBlockDefinition {
         context.restore();
     }
 
-    void beforeAll(UnsafeBlock beforeAllBlock) {
+    void addBeforeAll(UnsafeBlock beforeAllBlock) {
         this.beforeAllBlocks.add(beforeAllBlock);
     }
 
-    void beforeEach(UnsafeBlock beforeEachBlock) {
+    void addBeforeEach(UnsafeBlock beforeEachBlock) {
         this.beforeEachBlocks.add(beforeEachBlock);
     }
 
-    void it(ItBlockDefinition itBlockDefinition) {
+    void addIt(ItBlockDefinition itBlockDefinition) {
         ensureIsNotAlreadyDefined(
             itBlockDefinition.description(),
             itBlockDefinitions.stream().anyMatch(i -> i.description().equals(itBlockDefinition.description()))
