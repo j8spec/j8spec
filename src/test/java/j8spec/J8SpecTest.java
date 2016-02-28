@@ -3,27 +3,23 @@ package j8spec;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.List;
 
-import static j8spec.J8Spec.*;
+import static j8spec.J8Spec.beforeAll;
+import static j8spec.J8Spec.beforeEach;
+import static j8spec.J8Spec.context;
+import static j8spec.J8Spec.describe;
+import static j8spec.J8Spec.it;
+import static j8spec.J8Spec.read;
+import static j8spec.UnsafeBlock.NOOP;
 import static j8spec.Var.var;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class J8SpecTest {
-
-    private static final UnsafeBlock IT_BLOCK_1 = () -> {};
-    private static final UnsafeBlock IT_BLOCK_2 = () -> {};
-    private static final UnsafeBlock IT_BLOCK_3 = () -> {};
-
-    private static final UnsafeBlock IT_BLOCK_A1 = () -> {};
-    private static final UnsafeBlock IT_BLOCK_A2 = () -> {};
-
-    private static final UnsafeBlock IT_BLOCK_AA1 = () -> {};
-    private static final UnsafeBlock IT_BLOCK_AA2 = () -> {};
-
-    private static final UnsafeBlock IT_BLOCK_B1 = () -> {};
 
     static class EmptySpec {}
 
@@ -64,81 +60,48 @@ public class J8SpecTest {
     }}
 
     static class ExpectedExceptionSpec {{
-        it("block 1", c -> c.expected(Exception.class), IT_BLOCK_1);
-        xit("block 2", c -> c.expected(Exception.class), IT_BLOCK_2);
-        fit("block 3", c -> c.expected(Exception.class), IT_BLOCK_3);
+        it("block 1", c -> c.expected(Exception.class), UnsafeBlock.NOOP);
     }}
 
     static class SampleSpec {{
-        it("block 1", IT_BLOCK_1);
-        it("block 2", IT_BLOCK_2);
+        it("block 1", UnsafeBlock.NOOP);
+        it("block 2", UnsafeBlock.NOOP);
 
         describe("describe A", () -> {
-            it("block A.1", IT_BLOCK_A1);
-            it("block A.2", IT_BLOCK_A2);
+            it("block A.1", UnsafeBlock.NOOP);
+            it("block A.2", UnsafeBlock.NOOP);
 
             describe("describe A.A", () -> {
-                it("block A.A.1", IT_BLOCK_AA1);
-                it("block A.A.2", IT_BLOCK_AA2);
+                it("block A.A.1", UnsafeBlock.NOOP);
+                it("block A.A.2", UnsafeBlock.NOOP);
             });
         });
 
         context("context B", () -> {
-            it("block B.1", IT_BLOCK_B1);
+            it("block B.1", UnsafeBlock.NOOP);
         });
     }}
 
     @Test
-    public void builds_a_describe_block_using_the_given_spec_as_description() {
-        DescribeBlock describeBlock = read(EmptySpec.class);
-
-        assertThat(describeBlock.description(), is("j8spec.J8SpecTest$EmptySpec"));
+    public void reads_an_empty_spec() {
+        assertThat(read(EmptySpec.class), is(emptyList()));
     }
 
     @Test
-    public void builds_a_describe_block_based_on_an_empty_spec() {
-        DescribeBlock describeBlock = read(EmptySpec.class);
+    public void composes_the_description_of_it_blocks_using_their_containers() {
+        List<ItBlock> itBlocks = read(SampleSpec.class);
 
-        assertThat(describeBlock.flattenItBlocks(), is(emptyList()));
+        assertThat(itBlocks.get(0).containerDescriptions(), hasItems("j8spec.J8SpecTest$SampleSpec"));
+        assertThat(itBlocks.get(2).containerDescriptions(), hasItems("j8spec.J8SpecTest$SampleSpec", "describe A"));
+        assertThat(itBlocks.get(4).containerDescriptions(), hasItems("j8spec.J8SpecTest$SampleSpec", "describe A", "describe A.A"));
+        assertThat(itBlocks.get(6).containerDescriptions(), hasItems("j8spec.J8SpecTest$SampleSpec", "context B"));
     }
 
     @Test
-    public void builds_a_describe_block_using_the_description_from_the_spec_definition() {
-        DescribeBlock rootDescribeBlock = read(SampleSpec.class);
+    public void builds_a_it_block_using_excepted_exception_from_the_spec_definition() {
+        List<ItBlock> itBlocks = read(ExpectedExceptionSpec.class);
 
-        DescribeBlock describeA = rootDescribeBlock.describeBlocks().get(0);
-        assertThat(describeA.description(), is("describe A"));
-
-        DescribeBlock describeAA = describeA.describeBlocks().get(0);
-        assertThat(describeAA.description(), is("describe A.A"));
-
-        DescribeBlock contextB = rootDescribeBlock.describeBlocks().get(1);
-        assertThat(contextB.description(), is("context B"));
-    }
-
-    @Test
-    public void builds_a_describe_block_using_it_blocks_from_the_spec_definition() {
-        DescribeBlock rootDescribeBlock = read(SampleSpec.class);
-
-        assertThat(rootDescribeBlock.itBlock("block 1").block(), is(IT_BLOCK_1));
-        assertThat(rootDescribeBlock.itBlock("block 2").block(), is(IT_BLOCK_2));
-
-        DescribeBlock describeA = rootDescribeBlock.describeBlocks().get(0);
-        assertThat(describeA.itBlock("block A.1").block(), is(IT_BLOCK_A1));
-        assertThat(describeA.itBlock("block A.2").block(), is(IT_BLOCK_A2));
-
-        DescribeBlock describeAA = describeA.describeBlocks().get(0);
-        assertThat(describeAA.itBlock("block A.A.1").block(), is(IT_BLOCK_AA1));
-        assertThat(describeAA.itBlock("block A.A.2").block(), is(IT_BLOCK_AA2));
-    }
-
-    @Test
-    public void builds_a_describe_block_using_excepted_exceptions_from_the_spec_definition() {
-        DescribeBlock describeBlock = read(ExpectedExceptionSpec.class);
-
-        assertThat(describeBlock.itBlock("block 1").expected(), is(equalTo(Exception.class)));
-        assertThat(describeBlock.itBlock("block 2").expected(), is(equalTo(Exception.class)));
-        assertThat(describeBlock.itBlock("block 3").expected(), is(equalTo(Exception.class)));
+        assertThat(itBlocks.get(0).expected(), is(equalTo(Exception.class)));
     }
 
     @Test(expected = SpecInitializationException.class)
@@ -154,6 +117,16 @@ public class J8SpecTest {
     @Test(expected = BlockAlreadyDefinedException.class)
     public void does_not_allow_describe_block_to_be_replaced() {
         read(DescribeBlockOverwrittenSpec.class);
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void does_not_allow_before_all_method_direct_invocation() {
+        beforeAll(NOOP);
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void does_not_allow_before_each_method_direct_invocation() {
+        beforeEach(NOOP);
     }
 
     @Test(expected = IllegalContextException.class)
@@ -204,22 +177,22 @@ public class J8SpecTest {
 
     @Test()
     public void allows_multiple_threads_to_build_describe_blocks() throws InterruptedException {
-        final Var<DescribeBlock> sleepDescribe = var();
+        final Var<List<ItBlock>> sleepItBlocks = var();
 
-        Thread anotherDescribeBlockThread = new Thread(() -> {
-            var(sleepDescribe, read(ThreadThatSleeps2sSpec.class));
+        Thread anotherSpecThread = new Thread(() -> {
+            var(sleepItBlocks, read(ThreadThatSleeps2sSpec.class));
         });
-        anotherDescribeBlockThread.start();
+        anotherSpecThread.start();
 
         Thread.sleep(1000);
 
-        DescribeBlock emptyDescribeBlock = read(EmptySpec.class);
+        List<ItBlock> emptyItBlockList = read(EmptySpec.class);
 
-        anotherDescribeBlockThread.join();
+        anotherSpecThread.join();
 
-        assertThat(emptyDescribeBlock.flattenItBlocks(), is(Collections.<ItBlock>emptyList()));
+        assertThat(emptyItBlockList, is(Collections.<ItBlock>emptyList()));
 
-        assertThat(var(sleepDescribe).flattenItBlocks().size(), is(1));
-        assertThat(var(sleepDescribe).flattenItBlocks().get(0).description(), is("block"));
+        assertThat(var(sleepItBlocks).size(), is(1));
+        assertThat(var(sleepItBlocks).get(0).description(), is("block"));
     }
 }

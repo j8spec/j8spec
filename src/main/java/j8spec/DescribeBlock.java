@@ -10,18 +10,12 @@ import static j8spec.ItBlock.newIgnoredItBlock;
 import static j8spec.ItBlock.newItBlock;
 import static java.util.Collections.unmodifiableList;
 
-/**
- * Representation of a "describe" block.
- * @since 2.0.0
- */
-public final class DescribeBlock {
+final class DescribeBlock {
 
     @FunctionalInterface
     private interface ShouldBeIgnoredPredicate {
         boolean test(DescribeBlock describeBlock, ItBlockDefinition itBlockDefinition);
     }
-
-    private static final String LS = System.getProperty("line.separator");
 
     private final DescribeBlock parent;
     private final String description;
@@ -75,32 +69,7 @@ public final class DescribeBlock {
         return describeBlock;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        toString(sb, "");
-        return sb.toString();
-    }
-
-    private void toString(StringBuilder sb, String indentation) {
-        sb.append(indentation).append(description);
-
-        for (ItBlockDefinition block : itBlockDefinitions) {
-            sb.append(LS).append(indentation).append("  ").append(block.description());
-        }
-
-        for (DescribeBlock describeBlock : describeBlocks) {
-            sb.append(LS);
-            describeBlock.toString(sb, indentation + "  ");
-        }
-    }
-
-    /**
-     * Flattens all "it" blocks into a list ready to be executed.
-     * @return {@link ItBlock} list
-     * @since 2.0.0
-     */
-    public List<ItBlock> flattenItBlocks() {
+    List<ItBlock> flattenItBlocks() {
         LinkedList<ItBlock> blocksCollector = new LinkedList<>();
         collectItBlocks(blocksCollector, new LinkedList<>(), shouldBeIgnoredPredicate());
         return blocksCollector;
@@ -116,29 +85,6 @@ public final class DescribeBlock {
     private boolean thereIsAtLeastOneFocusedBlock() {
         return itBlockDefinitions.stream().anyMatch(ItBlockDefinition::focused)
             || describeBlocks.stream().anyMatch(b -> b.focused() || b.thereIsAtLeastOneFocusedBlock());
-    }
-
-    String description() {
-        return description;
-    }
-
-    List<DescribeBlock> describeBlocks() {
-        return new LinkedList<>(describeBlocks);
-    }
-
-    List<UnsafeBlock> beforeAllBlocks() {
-        return beforeAllBlocks;
-    }
-
-    List<UnsafeBlock> beforeEachBlocks() {
-        return beforeEachBlocks;
-    }
-
-    ItBlockDefinition itBlock(String itBlockDescription) {
-        return itBlockDefinitions.stream()
-            .filter(i -> i.description().equals(itBlockDescription))
-            .findFirst()
-            .orElse(null);
     }
 
     boolean ignored() {

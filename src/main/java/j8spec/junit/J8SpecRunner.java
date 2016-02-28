@@ -1,6 +1,5 @@
 package j8spec.junit;
 
-import j8spec.DescribeBlock;
 import j8spec.ItBlock;
 import j8spec.J8Spec;
 import org.junit.runner.Description;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import static j8spec.junit.ItBlockStatement.newStatement;
-import static java.util.Collections.unmodifiableList;
 import static org.junit.runner.Description.createTestDescription;
 
 /**
@@ -31,8 +29,7 @@ public final class J8SpecRunner extends ParentRunner<ItBlock> {
         super(testClass);
         try {
             specName = testClass.getName();
-            DescribeBlock describeBlock = J8Spec.read(testClass);
-            itBlocks = unmodifiableList(describeBlock.flattenItBlocks());
+            itBlocks = J8Spec.read(testClass);
         } catch (Exception e) {
             throw new InitializationError(e);
         }

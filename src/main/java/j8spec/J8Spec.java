@@ -1,5 +1,6 @@
 package j8spec;
 
+import java.util.List;
 import java.util.function.Function;
 
 import static j8spec.DescribeBlockDefinition.newDescribeBlockDefinition;
@@ -282,17 +283,17 @@ public final class J8Spec {
     }
 
     /**
-     * Uses the given spec class to build and populate a {@link DescribeBlock} object.
+     * Uses the given spec class to build and populate a {@link ItBlock} objects.
      *
      * @param specClass class with a public default constructor that contains the spec definition
-     * @return {@link DescribeBlock} object that represents the spec definition
+     * @return {@link ItBlock} objects that represent the spec definition
      * @throws SpecInitializationException if it is not possible to create an instance of <code>specClass</code>
      * @since 2.0.0
      */
-    public static synchronized DescribeBlock read(Class<?> specClass) {
+    public static synchronized List<ItBlock> read(Class<?> specClass) {
         contexts.set(new Context<>());
         try {
-            return newDescribeBlockDefinition(specClass, contexts.get()).toDescribeBlock();
+            return newDescribeBlockDefinition(specClass, contexts.get()).toDescribeBlock().flattenItBlocks();
         } finally {
             contexts.set(null);
         }

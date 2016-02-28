@@ -12,7 +12,6 @@ import static j8spec.DescribeBlock.newRootDescribeBlock;
 import static j8spec.ItBlockDefinition.newFocusedItBlockDefinition;
 import static j8spec.ItBlockDefinition.newIgnoredItBlockDefinition;
 import static j8spec.ItBlockDefinition.newItBlockDefinition;
-import static java.lang.String.join;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -21,8 +20,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class DescribeBlockTest {
-
-    private static final String LS = System.getProperty("line.separator");
 
     private static final UnsafeBlock BEFORE_ALL_BLOCK = () -> {};
     private static final UnsafeBlock BEFORE_EACH_BLOCK = () -> {};
@@ -36,30 +33,6 @@ public class DescribeBlockTest {
     private static final UnsafeBlock BLOCK_A_A_2 = () -> {};
 
     static class SampleSpec {}
-
-    @Test
-    public void has_a_string_representation_when_empty() {
-        assertThat(anEmptyDescribeBlock().toString(), is("j8spec.DescribeBlockTest$SampleSpec"));
-    }
-
-    @Test
-    public void has_a_string_representation_when_it_contains_child_describe_blocks() {
-        assertThat(
-            aDescribeBlockWithNoBeforeBlocks().toString(),
-            is(join(
-                LS,
-                "j8spec.DescribeBlockTest$SampleSpec",
-                "  block 1",
-                "  block 2",
-                "  child 1",
-                "    block 1",
-                "    block 2",
-                "  child 2",
-                "    block 1",
-                "    block 2"
-            ))
-        );
-    }
 
     @Test
     public void builds_it_blocks_with_given_description() {
@@ -137,28 +110,6 @@ public class DescribeBlockTest {
         List<ItBlock> itBlocks = describeBlock.flattenItBlocks();
 
         assertThat(itBlocks.get(0).expected(), is(equalTo(Exception.class)));
-    }
-
-    private DescribeBlock anEmptyDescribeBlock() {
-        return newRootDescribeBlock(SampleSpec.class.getName(), emptyList(), emptyList(), emptyList());
-    }
-
-    private DescribeBlock aDescribeBlockWithNoBeforeBlocks() {
-        List<ItBlockDefinition> itBlocks = new LinkedList<>();
-        itBlocks.add(newItBlockDefinition("block 1", UnsafeBlock.NOOP));
-        itBlocks.add(newItBlockDefinition("block 2", UnsafeBlock.NOOP));
-
-        DescribeBlock rootDescribeBlock = newRootDescribeBlock(
-            SampleSpec.class.getName(),
-            emptyList(),
-            emptyList(),
-            itBlocks
-        );
-
-        rootDescribeBlock.addDescribeBlock("child 1", emptyList(), emptyList(), itBlocks, DEFAULT);
-        rootDescribeBlock.addDescribeBlock("child 2", emptyList(), emptyList(), itBlocks, DEFAULT);
-
-        return rootDescribeBlock;
     }
 
     private DescribeBlock aDescribeBlockWithInnerDescribeBlocks() {
