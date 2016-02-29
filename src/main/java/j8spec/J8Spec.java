@@ -182,11 +182,11 @@ public final class J8Spec {
         UnsafeBlock block
     ) {
         isValidContext("it");
-        ItBlockDefinition itBlockDefinition = collector.apply(newItBlockConfiguration())
+        ItBlockConfiguration configuration = collector.apply(newItBlockConfiguration())
             .description(description)
             .block(block)
-            .newItBlockDefinition();
-        contexts.get().current().addIt(itBlockDefinition);
+            .executionFlag(DEFAULT);
+        contexts.get().current().addIt(configuration);
     }
 
     /**
@@ -223,11 +223,11 @@ public final class J8Spec {
     ) {
         notAllowedWhenCIModeEnabled("xit");
         isValidContext("xit");
-        ItBlockDefinition itBlockDefinition = collector.apply(newItBlockConfiguration())
+        ItBlockConfiguration configuration = collector.apply(newItBlockConfiguration())
             .description(description)
             .block(block)
-            .newIgnoredItBlockDefinition();
-        contexts.get().current().addIt(itBlockDefinition);
+            .executionFlag(IGNORED);
+        contexts.get().current().addIt(configuration);
     }
 
     /**
@@ -264,11 +264,11 @@ public final class J8Spec {
     ) {
         notAllowedWhenCIModeEnabled("fit");
         isValidContext("fit");
-        ItBlockDefinition itBlockDefinition = collector.apply(newItBlockConfiguration())
+        ItBlockConfiguration configuration = collector.apply(newItBlockConfiguration())
             .description(description)
             .block(block)
-            .newFocusedItBlockDefinition();
-        contexts.get().current().addIt(itBlockDefinition);
+            .executionFlag(FOCUSED);
+        contexts.get().current().addIt(configuration);
     }
 
     private static void notAllowedWhenCIModeEnabled(final String methodName) {

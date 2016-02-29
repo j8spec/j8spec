@@ -5,6 +5,7 @@ import java.util.List;
 
 import static j8spec.BlockExecutionFlag.DEFAULT;
 import static j8spec.DescribeBlock.newRootDescribeBlock;
+import static j8spec.ItBlockDefinition.newItBlockDefinition;
 
 final class DescribeBlockDefinition {
 
@@ -72,10 +73,17 @@ final class DescribeBlockDefinition {
         this.beforeEachBlocks.add(beforeEachBlock);
     }
 
-    void addIt(ItBlockDefinition itBlockDefinition) {
+    void addIt(ItBlockConfiguration itBlockConfig) {
         ensureIsNotAlreadyDefined(
-            itBlockDefinition.description(),
-            itBlockDefinitions.stream().anyMatch(i -> i.description().equals(itBlockDefinition.description()))
+            itBlockConfig.description(),
+            itBlockDefinitions.stream().anyMatch(i -> i.description().equals(itBlockConfig.description()))
+        );
+
+        ItBlockDefinition itBlockDefinition = newItBlockDefinition(
+            itBlockConfig.description(),
+            itBlockConfig.block(),
+            itBlockConfig.executionFlag(),
+            itBlockConfig.expected()
         );
 
         itBlockDefinitions.add(itBlockDefinition);

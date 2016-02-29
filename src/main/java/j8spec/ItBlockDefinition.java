@@ -1,6 +1,5 @@
 package j8spec;
 
-import static j8spec.BlockExecutionFlag.DEFAULT;
 import static j8spec.BlockExecutionFlag.FOCUSED;
 import static j8spec.BlockExecutionFlag.IGNORED;
 
@@ -14,46 +13,18 @@ final class ItBlockDefinition {
     static ItBlockDefinition newItBlockDefinition(
         String description,
         UnsafeBlock block,
+        BlockExecutionFlag executionFlag,
         Class<? extends Throwable> expectedException
     ) {
-        return new ItBlockDefinition(description, block, DEFAULT, expectedException);
+        return new ItBlockDefinition(description, block, executionFlag, expectedException);
     }
 
     static ItBlockDefinition newItBlockDefinition(
         String description,
-        UnsafeBlock block
-    ) {
-        return newItBlockDefinition(description, block, null);
-    }
-
-    static ItBlockDefinition newIgnoredItBlockDefinition(
-        String description,
         UnsafeBlock block,
-        Class<? extends Throwable> expectedException
+        BlockExecutionFlag executionFlag
     ) {
-        return new ItBlockDefinition(description, block, IGNORED, expectedException);
-    }
-
-    static ItBlockDefinition newIgnoredItBlockDefinition(
-        String description,
-        UnsafeBlock block
-    ) {
-        return newIgnoredItBlockDefinition(description, block, null);
-    }
-
-    static ItBlockDefinition newFocusedItBlockDefinition(
-        String description,
-        UnsafeBlock block,
-        Class<? extends Throwable> expectedException
-    ) {
-        return new ItBlockDefinition(description, block, FOCUSED, expectedException);
-    }
-
-    static ItBlockDefinition newFocusedItBlockDefinition(
-        String description,
-        UnsafeBlock block
-    ) {
-        return newFocusedItBlockDefinition(description, block, null);
+        return newItBlockDefinition(description, block, executionFlag, null);
     }
 
     private ItBlockDefinition(

@@ -9,8 +9,6 @@ import static j8spec.BlockExecutionFlag.DEFAULT;
 import static j8spec.BlockExecutionFlag.FOCUSED;
 import static j8spec.BlockExecutionFlag.IGNORED;
 import static j8spec.DescribeBlock.newRootDescribeBlock;
-import static j8spec.ItBlockDefinition.newFocusedItBlockDefinition;
-import static j8spec.ItBlockDefinition.newIgnoredItBlockDefinition;
 import static j8spec.ItBlockDefinition.newItBlockDefinition;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -114,8 +112,8 @@ public class DescribeBlockTest {
 
     private DescribeBlock aDescribeBlockWithInnerDescribeBlocks() {
         List<ItBlockDefinition> itBlocks = new LinkedList<>();
-        itBlocks.add(newItBlockDefinition("block 1", BLOCK_1));
-        itBlocks.add(newItBlockDefinition("block 2", BLOCK_2));
+        itBlocks.add(newItBlockDefinition("block 1", BLOCK_1, DEFAULT));
+        itBlocks.add(newItBlockDefinition("block 2", BLOCK_2, DEFAULT));
 
         DescribeBlock rootDescribeBlock = newRootDescribeBlock(
             SampleSpec.class.getName(),
@@ -125,8 +123,8 @@ public class DescribeBlockTest {
         );
 
         List<ItBlockDefinition> itBlocksA = new LinkedList<>();
-        itBlocksA.add(newItBlockDefinition("block A1", BLOCK_A_1));
-        itBlocksA.add(newItBlockDefinition("block A2", BLOCK_A_2));
+        itBlocksA.add(newItBlockDefinition("block A1", BLOCK_A_1, DEFAULT));
+        itBlocksA.add(newItBlockDefinition("block A2", BLOCK_A_2, DEFAULT));
 
         rootDescribeBlock.addDescribeBlock(
             "describe A",
@@ -141,7 +139,7 @@ public class DescribeBlockTest {
 
     private DescribeBlock aDescribeBlockWithIgnoredItBlocks() {
         List<ItBlockDefinition> itBlocks = new LinkedList<>();
-        itBlocks.add(newIgnoredItBlockDefinition("block 1", BLOCK_1));
+        itBlocks.add(newItBlockDefinition("block 1", BLOCK_1, IGNORED));
 
         return newRootDescribeBlock(
             SampleSpec.class.getName(),
@@ -153,7 +151,7 @@ public class DescribeBlockTest {
 
     private DescribeBlock aDescribeBlockWithExpectedException() {
         List<ItBlockDefinition> itBlocks = new LinkedList<>();
-        itBlocks.add(newItBlockDefinition("block 1", BLOCK_1, Exception.class));
+        itBlocks.add(newItBlockDefinition("block 1", BLOCK_1, DEFAULT, Exception.class));
 
         return newRootDescribeBlock(
             SampleSpec.class.getName(),
@@ -165,8 +163,8 @@ public class DescribeBlockTest {
 
     private DescribeBlock aDescribeBlockWithFocusedItBlocks() {
         List<ItBlockDefinition> itBlocks = new LinkedList<>();
-        itBlocks.add(newItBlockDefinition("block 1", BLOCK_1));
-        itBlocks.add(newItBlockDefinition("block 2", BLOCK_2));
+        itBlocks.add(newItBlockDefinition("block 1", BLOCK_1, DEFAULT));
+        itBlocks.add(newItBlockDefinition("block 2", BLOCK_2, DEFAULT));
 
         DescribeBlock rootDescribeBlock = newRootDescribeBlock(
             SampleSpec.class.getName(),
@@ -176,8 +174,8 @@ public class DescribeBlockTest {
         );
 
         List<ItBlockDefinition> itBlocksA = new LinkedList<>();
-        itBlocksA.add(newFocusedItBlockDefinition("block A1", BLOCK_A_1));
-        itBlocksA.add(newItBlockDefinition("block A2", BLOCK_A_2));
+        itBlocksA.add(newItBlockDefinition("block A1", BLOCK_A_1, FOCUSED));
+        itBlocksA.add(newItBlockDefinition("block A2", BLOCK_A_2, DEFAULT));
 
         rootDescribeBlock.addDescribeBlock(
             "describe A",
@@ -192,7 +190,7 @@ public class DescribeBlockTest {
 
     private DescribeBlock aDescribeBlockWithFocusedDescribeBlocks() {
         List<ItBlockDefinition> itBlocks = new LinkedList<>();
-        itBlocks.add(newItBlockDefinition("block 1", BLOCK_1));
+        itBlocks.add(newItBlockDefinition("block 1", BLOCK_1, DEFAULT));
 
         DescribeBlock rootDescribeBlock = newRootDescribeBlock(
             SampleSpec.class.getName(),
@@ -202,8 +200,8 @@ public class DescribeBlockTest {
         );
 
         List<ItBlockDefinition> itBlocksA = new LinkedList<>();
-        itBlocksA.add(newItBlockDefinition("block A1", BLOCK_A_1));
-        itBlocksA.add(newItBlockDefinition("block A2", BLOCK_A_2));
+        itBlocksA.add(newItBlockDefinition("block A1", BLOCK_A_1, DEFAULT));
+        itBlocksA.add(newItBlockDefinition("block A2", BLOCK_A_2, DEFAULT));
 
         DescribeBlock describeA = rootDescribeBlock.addDescribeBlock(
             "describe A",
@@ -214,8 +212,8 @@ public class DescribeBlockTest {
         );
 
         List<ItBlockDefinition> itBlocksAA = new LinkedList<>();
-        itBlocksAA.add(newItBlockDefinition("block AA1", BLOCK_A_A_1));
-        itBlocksAA.add(newItBlockDefinition("block AA2", BLOCK_A_A_2));
+        itBlocksAA.add(newItBlockDefinition("block AA1", BLOCK_A_A_1, DEFAULT));
+        itBlocksAA.add(newItBlockDefinition("block AA2", BLOCK_A_A_2, DEFAULT));
 
         describeA.addDescribeBlock("describe A A", emptyList(), emptyList(), itBlocksAA, DEFAULT);
 
@@ -224,7 +222,7 @@ public class DescribeBlockTest {
 
     private DescribeBlock aDescribeBlockWithIgnoredDescribeBlocks() {
         List<ItBlockDefinition> itBlocks = new LinkedList<>();
-        itBlocks.add(newItBlockDefinition("block 1", BLOCK_1));
+        itBlocks.add(newItBlockDefinition("block 1", BLOCK_1, DEFAULT));
 
         DescribeBlock rootDescribeBlock = newRootDescribeBlock(
             SampleSpec.class.getName(),
@@ -234,8 +232,8 @@ public class DescribeBlockTest {
         );
 
         List<ItBlockDefinition> itBlocksA = new LinkedList<>();
-        itBlocksA.add(newItBlockDefinition("block A1", BLOCK_A_1));
-        itBlocksA.add(newItBlockDefinition("block A2", BLOCK_A_2));
+        itBlocksA.add(newItBlockDefinition("block A1", BLOCK_A_1, DEFAULT));
+        itBlocksA.add(newItBlockDefinition("block A2", BLOCK_A_2, DEFAULT));
 
         rootDescribeBlock.addDescribeBlock(
             "describe A",

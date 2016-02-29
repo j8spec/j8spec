@@ -8,6 +8,7 @@ public final class ItBlockConfiguration {
 
     private String description;
     private UnsafeBlock block;
+    private BlockExecutionFlag executionFlag;
     private Class<? extends Throwable> expectedException;
 
     static ItBlockConfiguration newItBlockConfiguration() {
@@ -28,9 +29,17 @@ public final class ItBlockConfiguration {
         return this;
     }
 
+    Class<? extends Throwable> expected() {
+        return expectedException;
+    }
+
     ItBlockConfiguration description(String description) {
         this.description = description;
         return this;
+    }
+
+    String description() {
+        return description;
     }
 
     ItBlockConfiguration block(UnsafeBlock block) {
@@ -38,15 +47,16 @@ public final class ItBlockConfiguration {
         return this;
     }
 
-    ItBlockDefinition newItBlockDefinition() {
-        return ItBlockDefinition.newItBlockDefinition(description, block, expectedException);
+    UnsafeBlock block() {
+        return block;
     }
 
-    ItBlockDefinition newIgnoredItBlockDefinition() {
-        return ItBlockDefinition.newIgnoredItBlockDefinition(description, block, expectedException);
+    ItBlockConfiguration executionFlag(BlockExecutionFlag executionFlag) {
+        this.executionFlag = executionFlag;
+        return this;
     }
 
-    ItBlockDefinition newFocusedItBlockDefinition() {
-        return ItBlockDefinition.newFocusedItBlockDefinition(description, block, expectedException);
+    BlockExecutionFlag executionFlag() {
+        return executionFlag;
     }
 }
