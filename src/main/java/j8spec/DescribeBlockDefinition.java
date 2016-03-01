@@ -4,20 +4,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static j8spec.BlockExecutionFlag.DEFAULT;
-import static j8spec.DescribeBlock.newRootDescribeBlock;
 import static j8spec.ItBlockDefinition.newItBlockDefinition;
 
-final class DescribeBlockDefinition {
+final class DescribeBlockDefinition implements BlockDefinition {
 
     private final String description;
     private final BlockExecutionFlag executionFlag;
     private final Context<DescribeBlockDefinition> context;
-
-    private final List<UnsafeBlock> beforeAllBlocks = new LinkedList<>();
-    private final List<UnsafeBlock> beforeEachBlocks = new LinkedList<>();
-    private final List<ItBlockDefinition> itBlockDefinitions = new LinkedList<>();
-
-    private final List<DescribeBlockDefinition> describeBlockDefinitions = new LinkedList<>();
+    private final List<BlockDefinition> blockDefinitions = new LinkedList<>();
+    private final List<BlockDefinition> hooks = new LinkedList<>();
 
     static DescribeBlockDefinition newDescribeBlockDefinition(
         Class<?> specClass,
@@ -48,17 +43,13 @@ final class DescribeBlockDefinition {
     }
 
     void addDescribe(String description, SafeBlock block, BlockExecutionFlag executionFlag) {
-        ensureIsNotAlreadyDefined(
-            description,
-            describeBlockDefinitions.stream().anyMatch(d -> d.description.equals(description))
-        );
-
         DescribeBlockDefinition describeBlockDefinition = new DescribeBlockDefinition(
             description,
             executionFlag,
             context
         );
-        describeBlockDefinitions.add(describeBlockDefinition);
+
+        blockDefinitions.add(describeBlockDefinition);
 
         context.switchTo(describeBlockDefinition);
         block.execute();
@@ -66,19 +57,14 @@ final class DescribeBlockDefinition {
     }
 
     void addBeforeAll(UnsafeBlock beforeAllBlock) {
-        this.beforeAllBlocks.add(beforeAllBlock);
+        hooks.add(new BeforeAllBlockDefinition(beforeAllBlock));
     }
 
     void addBeforeEach(UnsafeBlock beforeEachBlock) {
-        this.beforeEachBlocks.add(beforeEachBlock);
+        hooks.add(new BeforeEachBlockDefinition(beforeEachBlock));
     }
 
     void addIt(ItBlockConfiguration itBlockConfig) {
-        ensureIsNotAlreadyDefined(
-            itBlockConfig.description(),
-            itBlockDefinitions.stream().anyMatch(i -> i.description().equals(itBlockConfig.description()))
-        );
-
         ItBlockDefinition itBlockDefinition = newItBlockDefinition(
             itBlockConfig.description(),
             itBlockConfig.block(),
@@ -86,30 +72,21 @@ final class DescribeBlockDefinition {
             itBlockConfig.expected()
         );
 
-        itBlockDefinitions.add(itBlockDefinition);
+        blockDefinitions.add(itBlockDefinition);
     }
 
-    private void ensureIsNotAlreadyDefined(String blockName, boolean isAlreadyDefined) {
-        if (isAlreadyDefined) {
-            throw new BlockAlreadyDefinedException(blockName + " block already defined");
+    @Override
+    public void accept(BlockDefinitionVisitor visitor) {
+        visitor.describe(description, executionFlag);
+
+        for (BlockDefinition blockDefinition : hooks) {
+            blockDefinition.accept(visitor);
         }
-    }
 
-    DescribeBlock toDescribeBlock() {
-        DescribeBlock root = newRootDescribeBlock(description, beforeAllBlocks, beforeEachBlocks, itBlockDefinitions);
-        describeBlockDefinitions.stream().forEach(block -> block.addAllDescribeBlocksTo(root));
-        return root;
-    }
+        for (BlockDefinition blockDefinition : blockDefinitions) {
+            blockDefinition.accept(visitor);
+        }
 
-    private void addAllDescribeBlocksTo(DescribeBlock parent) {
-        DescribeBlock describeBlock = parent.addDescribeBlock(
-            description,
-            beforeAllBlocks,
-            beforeEachBlocks,
-            itBlockDefinitions,
-            executionFlag
-        );
-
-        describeBlockDefinitions.stream().forEach(block -> block.addAllDescribeBlocksTo(describeBlock));
+        visitor.describe();
     }
 }

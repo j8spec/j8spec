@@ -296,7 +296,17 @@ public final class J8Spec {
     public static synchronized List<ItBlock> read(Class<?> specClass) {
         contexts.set(new Context<>());
         try {
-            return newDescribeBlockDefinition(specClass, contexts.get()).toDescribeBlock().flattenItBlocks();
+            DescribeBlockDefinition describeBlockDefinition = newDescribeBlockDefinition(specClass, contexts.get());
+
+            describeBlockDefinition.accept(new DuplicatedBlockValidator());
+
+            BlockExecutionStrategySelector strategySelector = new BlockExecutionStrategySelector();
+            describeBlockDefinition.accept(strategySelector);
+
+            ExecutableSpecBuilder specBuilder = new ExecutableSpecBuilder(strategySelector.strategy());
+            describeBlockDefinition.accept(specBuilder);
+
+            return specBuilder.build();
         } finally {
             contexts.set(null);
         }

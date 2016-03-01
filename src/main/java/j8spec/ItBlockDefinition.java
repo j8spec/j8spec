@@ -3,7 +3,7 @@ package j8spec;
 import static j8spec.BlockExecutionFlag.FOCUSED;
 import static j8spec.BlockExecutionFlag.IGNORED;
 
-final class ItBlockDefinition {
+final class ItBlockDefinition implements BlockDefinition {
 
     private final String description;
     private final UnsafeBlock block;
@@ -57,5 +57,10 @@ final class ItBlockDefinition {
 
     Class<? extends Throwable> expected() {
         return expectedException;
+    }
+
+    @Override
+    public void accept(BlockDefinitionVisitor visitor) {
+        visitor.it(description, block, executionFlag, expectedException);
     }
 }

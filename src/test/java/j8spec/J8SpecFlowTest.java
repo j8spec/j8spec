@@ -45,6 +45,14 @@ public class J8SpecFlowTest {
             it("block A1", () -> log.add("block A1"));
             it("block A2", () -> log.add("block A2"));
         });
+
+        it("block 3", () -> log.add("block 3"));
+    }}
+
+    static class OddHookOrderSpec {{
+        it("block 1", () -> log.add("block 1"));
+        beforeAll(() -> log.add("before all 1"));
+        beforeEach(() -> log.add("before each 1"));
     }}
 
     static class FdescribeSpec {{
@@ -173,6 +181,17 @@ public class J8SpecFlowTest {
     }
 
     @Test
+    public void respects_hook_order_even_when_they_are_defined_after() throws Throwable {
+        executeSpec(OddHookOrderSpec.class);
+
+        assertThat(log, is(asList(
+            "before all 1",
+            "before each 1",
+            "block 1"
+        )));
+    }
+
+    @Test
     public void full_spec_flow() throws Throwable {
         executeSpec(SampleSpec.class);
 
@@ -201,7 +220,11 @@ public class J8SpecFlowTest {
             "before each 2",
             "describe A before each 1",
             "describe A before each 2",
-            "block A2"
+            "block A2",
+
+            "before each 1",
+            "before each 2",
+            "block 3"
         )));
     }
 
