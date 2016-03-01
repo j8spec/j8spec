@@ -4,7 +4,7 @@ import static j8spec.BlockExecutionFlag.FOCUSED;
 import static j8spec.BlockExecutionStrategy.BLACK_LIST;
 import static j8spec.BlockExecutionStrategy.WHITE_LIST;
 
-class BlockExecutionStrategySelector extends BlockDefinitionVisitor {
+final class BlockExecutionStrategySelector extends BlockDefinitionVisitor {
 
     private BlockExecutionStrategy strategy = BLACK_LIST;
 

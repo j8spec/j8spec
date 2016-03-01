@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-class DuplicatedBlockValidator extends BlockDefinitionVisitor {
+final class DuplicatedBlockValidator extends BlockDefinitionVisitor {
 
     private final Deque<Set<String>> groupDescriptions = new LinkedList<>();
     private final Deque<Set<String>> exampleDescriptions = new LinkedList<>();
