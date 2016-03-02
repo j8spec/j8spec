@@ -1,8 +1,5 @@
 package j8spec;
 
-import static j8spec.BlockExecutionFlag.FOCUSED;
-import static j8spec.BlockExecutionFlag.IGNORED;
-
 final class ItBlockDefinition implements BlockDefinition {
 
     private final String description;
@@ -45,18 +42,6 @@ final class ItBlockDefinition implements BlockDefinition {
 
     UnsafeBlock block() {
         return block;
-    }
-
-    boolean ignored() {
-        return IGNORED.equals(executionFlag);
-    }
-
-    boolean focused() {
-        return FOCUSED.equals(executionFlag);
-    }
-
-    Class<? extends Throwable> expected() {
-        return expectedException;
     }
 
     @Override
