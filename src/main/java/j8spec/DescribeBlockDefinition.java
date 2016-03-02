@@ -77,7 +77,7 @@ final class DescribeBlockDefinition implements BlockDefinition {
 
     @Override
     public void accept(BlockDefinitionVisitor visitor) {
-        visitor.describe(description, executionFlag);
+        visitor.startGroup(description, executionFlag);
 
         for (BlockDefinition blockDefinition : hooks) {
             blockDefinition.accept(visitor);
@@ -87,6 +87,6 @@ final class DescribeBlockDefinition implements BlockDefinition {
             blockDefinition.accept(visitor);
         }
 
-        visitor.describe();
+        visitor.endGroup();
     }
 }

@@ -61,6 +61,6 @@ final class ItBlockDefinition implements BlockDefinition {
 
     @Override
     public void accept(BlockDefinitionVisitor visitor) {
-        visitor.it(description, block, executionFlag, expectedException);
+        visitor.example(description, block, executionFlag, expectedException);
     }
 }

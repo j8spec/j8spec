@@ -16,9 +16,9 @@ public class BlockExecutionStrategySelectorTest {
         BlockExecutionStrategySelector selector = new BlockExecutionStrategySelector();
 
         selector
-            .describe("group 1", DEFAULT)
-                .it("example 1", NOOP, DEFAULT, null)
-            .describe();
+            .startGroup("group 1", DEFAULT)
+                .example("example 1", NOOP, DEFAULT, null)
+            .endGroup();
 
         assertThat(selector.strategy(), is(BlockExecutionStrategy.BLACK_LIST));
     }
@@ -28,9 +28,9 @@ public class BlockExecutionStrategySelectorTest {
         BlockExecutionStrategySelector selector = new BlockExecutionStrategySelector();
 
         selector
-            .describe("group 1", FOCUSED)
-                .it("example 1", NOOP, DEFAULT, null)
-            .describe();
+            .startGroup("group 1", FOCUSED)
+                .example("example 1", NOOP, DEFAULT, null)
+            .endGroup();
 
         assertThat(selector.strategy(), is(WHITE_LIST));
     }
@@ -40,9 +40,9 @@ public class BlockExecutionStrategySelectorTest {
         BlockExecutionStrategySelector selector = new BlockExecutionStrategySelector();
 
         selector
-            .describe("group 1", DEFAULT)
-                .it("example 1", NOOP, FOCUSED, null)
-            .describe();
+            .startGroup("group 1", DEFAULT)
+                .example("example 1", NOOP, FOCUSED, null)
+            .endGroup();
 
         assertThat(selector.strategy(), is(WHITE_LIST));
     }

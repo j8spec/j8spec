@@ -2,7 +2,7 @@ package j8spec;
 
 abstract class BlockDefinitionVisitor {
 
-    BlockDefinitionVisitor describe(String description, BlockExecutionFlag executionFlag) {
+    BlockDefinitionVisitor startGroup(String description, BlockExecutionFlag executionFlag) {
         return this;
     }
 
@@ -14,7 +14,7 @@ abstract class BlockDefinitionVisitor {
         return this;
     }
 
-    BlockDefinitionVisitor it(
+    BlockDefinitionVisitor example(
         String description,
         UnsafeBlock block,
         BlockExecutionFlag executionFlag,
@@ -23,7 +23,7 @@ abstract class BlockDefinitionVisitor {
         return this;
     }
 
-    BlockDefinitionVisitor describe() {
+    BlockDefinitionVisitor endGroup() {
         return this;
     }
 }

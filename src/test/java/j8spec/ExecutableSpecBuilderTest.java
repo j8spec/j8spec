@@ -63,15 +63,15 @@ public class ExecutableSpecBuilderTest {
 
         execute(
             new ExecutableSpecBuilder(BLACK_LIST)
-                .describe("SampleSpec", DEFAULT)
+                .startGroup("SampleSpec", DEFAULT)
                     .beforeAll(beforeAll)
-                    .it("block 1", NOOP, DEFAULT, null)
-                    .it("block 2", NOOP, DEFAULT, null)
-                    .describe("describe A", DEFAULT)
+                    .example("block 1", NOOP, DEFAULT, null)
+                    .example("block 2", NOOP, DEFAULT, null)
+                    .startGroup("describe A", DEFAULT)
                         .beforeAll(innerBeforeAll)
-                        .it("block A 1", NOOP, DEFAULT, null)
-                    .describe()
-                .describe()
+                        .example("block A 1", NOOP, DEFAULT, null)
+                    .endGroup()
+                .endGroup()
         );
 
         verify(beforeAll, times(1)).tryToExecute();
@@ -85,15 +85,15 @@ public class ExecutableSpecBuilderTest {
 
         execute(
             new ExecutableSpecBuilder(BLACK_LIST)
-                .describe("SampleSpec", DEFAULT)
+                .startGroup("SampleSpec", DEFAULT)
                     .beforeEach(beforeEach)
-                    .it("block 1", NOOP, DEFAULT, null)
-                    .it("block 2", NOOP, DEFAULT, null)
-                    .describe("describe A", DEFAULT)
+                    .example("block 1", NOOP, DEFAULT, null)
+                    .example("block 2", NOOP, DEFAULT, null)
+                    .startGroup("describe A", DEFAULT)
                         .beforeEach(innerBeforeEach)
-                        .it("block A 1", NOOP, DEFAULT, null)
-                    .describe()
-                .describe()
+                        .example("block A 1", NOOP, DEFAULT, null)
+                    .endGroup()
+                .endGroup()
         );
 
         verify(beforeEach, times(3)).tryToExecute();
@@ -106,9 +106,9 @@ public class ExecutableSpecBuilderTest {
 
         execute(
             new ExecutableSpecBuilder(BLACK_LIST)
-                .describe("SampleSpec", DEFAULT)
-                    .it("ignored block", ignoredBlock, IGNORED, null)
-                .describe()
+                .startGroup("SampleSpec", DEFAULT)
+                    .example("ignored block", ignoredBlock, IGNORED, null)
+                .endGroup()
         );
 
         verify(ignoredBlock, never()).tryToExecute();
@@ -156,19 +156,19 @@ public class ExecutableSpecBuilderTest {
         ExecutableSpecBuilder builder = new ExecutableSpecBuilder(BLACK_LIST);
 
         builder
-            .describe(SampleSpec.class.getName(), DEFAULT)
+            .startGroup(SampleSpec.class.getName(), DEFAULT)
                 .beforeAll(BEFORE_ALL_BLOCK)
                 .beforeEach(BEFORE_EACH_BLOCK)
-                .it("block 1", BLOCK_1, DEFAULT, null)
-                .it("block 2", BLOCK_2, DEFAULT, null)
+                .example("block 1", BLOCK_1, DEFAULT, null)
+                .example("block 2", BLOCK_2, DEFAULT, null)
 
-                .describe("describe A", DEFAULT)
+                .startGroup("describe A", DEFAULT)
                     .beforeAll(BEFORE_ALL_BLOCK_A)
                     .beforeEach(BEFORE_EACH_BLOCK_A)
-                    .it("block A1", BLOCK_A_1, DEFAULT, null)
-                    .it("block A2", BLOCK_A_2, DEFAULT, null)
-                .describe()
-            .describe();
+                    .example("block A1", BLOCK_A_1, DEFAULT, null)
+                    .example("block A2", BLOCK_A_2, DEFAULT, null)
+                .endGroup()
+            .endGroup();
 
         return builder.build();
     }
@@ -177,21 +177,21 @@ public class ExecutableSpecBuilderTest {
         ExecutableSpecBuilder builder = new ExecutableSpecBuilder(BLACK_LIST);
 
         builder
-            .describe(SampleSpec.class.getName(), DEFAULT)
+            .startGroup(SampleSpec.class.getName(), DEFAULT)
                 .beforeAll(BEFORE_ALL_BLOCK)
                 .beforeEach(BEFORE_EACH_BLOCK)
-                .it("block 1", BLOCK_1, DEFAULT, null)
+                .example("block 1", BLOCK_1, DEFAULT, null)
 
-                .describe("describe A", IGNORED)
+                .startGroup("describe A", IGNORED)
                     .beforeAll(BEFORE_ALL_BLOCK_A)
                     .beforeEach(BEFORE_EACH_BLOCK_A)
-                    .it("block A1", BLOCK_A_1, DEFAULT, null)
-                    .it("block A2", BLOCK_A_2, DEFAULT, null)
-                    .describe("describe AB", DEFAULT)
-                        .it("block AB1", BLOCK_A_B_1, DEFAULT, null)
-                    .describe()
-                .describe()
-            .describe();
+                    .example("block A1", BLOCK_A_1, DEFAULT, null)
+                    .example("block A2", BLOCK_A_2, DEFAULT, null)
+                    .startGroup("describe AB", DEFAULT)
+                        .example("block AB1", BLOCK_A_B_1, DEFAULT, null)
+                    .endGroup()
+                .endGroup()
+            .endGroup();
 
         return builder.build();
     }
@@ -200,19 +200,19 @@ public class ExecutableSpecBuilderTest {
         ExecutableSpecBuilder builder = new ExecutableSpecBuilder(WHITE_LIST);
 
         builder
-            .describe(SampleSpec.class.getName(), DEFAULT)
+            .startGroup(SampleSpec.class.getName(), DEFAULT)
                 .beforeAll(BEFORE_ALL_BLOCK)
                 .beforeEach(BEFORE_EACH_BLOCK)
-                .it("block 1", BLOCK_1, DEFAULT, null)
-                .it("block 2", BLOCK_1, DEFAULT, null)
+                .example("block 1", BLOCK_1, DEFAULT, null)
+                .example("block 2", BLOCK_1, DEFAULT, null)
 
-                .describe("describe A", IGNORED)
+                .startGroup("describe A", IGNORED)
                     .beforeAll(BEFORE_ALL_BLOCK_A)
                     .beforeEach(BEFORE_EACH_BLOCK_A)
-                    .it("block A1", BLOCK_A_1, FOCUSED, null)
-                    .it("block A2", BLOCK_A_2, DEFAULT, null)
-                .describe()
-            .describe();
+                    .example("block A1", BLOCK_A_1, FOCUSED, null)
+                    .example("block A2", BLOCK_A_2, DEFAULT, null)
+                .endGroup()
+            .endGroup();
 
         return builder.build();
    }
@@ -221,17 +221,17 @@ public class ExecutableSpecBuilderTest {
         ExecutableSpecBuilder builder = new ExecutableSpecBuilder(WHITE_LIST);
 
         builder
-            .describe(SampleSpec.class.getName(), DEFAULT)
-                .it("block 1", BLOCK_1, DEFAULT, null)
-                .describe("describe A", FOCUSED)
-                    .it("block A1", BLOCK_A_1, DEFAULT, null)
-                    .it("block A2", BLOCK_A_2, DEFAULT, null)
-                    .describe("describe A A", DEFAULT)
-                        .it("block A1", BLOCK_A_A_1, DEFAULT, null)
-                        .it("block A2", BLOCK_A_A_2, DEFAULT, null)
-                    .describe()
-                .describe()
-            .describe();
+            .startGroup(SampleSpec.class.getName(), DEFAULT)
+                .example("block 1", BLOCK_1, DEFAULT, null)
+                .startGroup("describe A", FOCUSED)
+                    .example("block A1", BLOCK_A_1, DEFAULT, null)
+                    .example("block A2", BLOCK_A_2, DEFAULT, null)
+                    .startGroup("describe A A", DEFAULT)
+                        .example("block A1", BLOCK_A_A_1, DEFAULT, null)
+                        .example("block A2", BLOCK_A_A_2, DEFAULT, null)
+                    .endGroup()
+                .endGroup()
+            .endGroup();
 
         return builder.build();
     }
@@ -240,9 +240,9 @@ public class ExecutableSpecBuilderTest {
         ExecutableSpecBuilder builder = new ExecutableSpecBuilder(BLACK_LIST);
 
         builder
-            .describe(SampleSpec.class.getName(), DEFAULT)
-                .it("block 1", BLOCK_1, DEFAULT, Exception.class)
-            .describe();
+            .startGroup(SampleSpec.class.getName(), DEFAULT)
+                .example("block 1", BLOCK_1, DEFAULT, Exception.class)
+            .endGroup();
 
         return builder.build();
     }

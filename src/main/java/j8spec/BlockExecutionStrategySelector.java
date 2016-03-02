@@ -13,13 +13,13 @@ final class BlockExecutionStrategySelector extends BlockDefinitionVisitor {
     }
 
     @Override
-    BlockDefinitionVisitor describe(String description, BlockExecutionFlag executionFlag) {
+    BlockDefinitionVisitor startGroup(String description, BlockExecutionFlag executionFlag) {
         selectStrategy(executionFlag);
         return this;
     }
 
     @Override
-    BlockDefinitionVisitor it(
+    BlockDefinitionVisitor example(
         String description,
         UnsafeBlock block,
         BlockExecutionFlag executionFlag,

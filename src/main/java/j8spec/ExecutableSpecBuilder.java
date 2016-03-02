@@ -25,7 +25,7 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
     }
 
     @Override
-    BlockDefinitionVisitor describe(String description, BlockExecutionFlag executionFlag) {
+    BlockDefinitionVisitor startGroup(String description, BlockExecutionFlag executionFlag) {
         descriptions.addLast(description);
 
         if (executionFlags.isEmpty() || executionFlags.peekLast().equals(DEFAULT)) {
@@ -53,7 +53,7 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
     }
 
     @Override
-    BlockDefinitionVisitor it(
+    BlockDefinitionVisitor example(
         String description,
         UnsafeBlock block,
         BlockExecutionFlag executionFlag,
@@ -82,7 +82,7 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
     }
 
     @Override
-    BlockDefinitionVisitor describe() {
+    BlockDefinitionVisitor endGroup() {
         descriptions.removeLast();
         executionFlags.removeLast();
         beforeAllBlocks.removeLast();
