@@ -40,7 +40,7 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
         beforeAllBlocks.addLast(new LinkedList<>());
         beforeEachBlocks.addLast(new LinkedList<>());
 
-        rankGenerator.pushLevel();
+        rankGenerator.pushLevel(RankGenerator.Incremental.INSTANCE);
 
         return this;
     }

@@ -6,28 +6,32 @@ import java.util.LinkedList;
 
 final class RankGenerator {
 
-    private interface Strategy {
-        Strategy DEFINED = new Strategy() {
-            @Override
-            public Integer initialValue() {
-                return 0;
-            }
-
-            @Override
-            public Integer nextValue(Integer currentValue) {
-                return currentValue + 1;
-            }
-        };
-
+    interface Strategy {
         Integer initialValue();
         Integer nextValue(Integer currentValue);
+    }
+
+    static final class Incremental implements Strategy {
+        static final Incremental INSTANCE = new Incremental();
+
+        private Incremental() {}
+
+        @Override
+        public Integer initialValue() {
+            return 0;
+        }
+
+        @Override
+        public Integer nextValue(Integer currentValue) {
+            return currentValue + 1;
+        }
     }
 
     private final Deque<Strategy> strategies = new LinkedList<>();
     private final Deque<Integer> ranks = new LinkedList<>();
 
-    void pushLevel() {
-        strategies.push(Strategy.DEFINED);
+    void pushLevel(Strategy strategy) {
+        strategies.push(strategy);
         ranks.push(strategies.peek().initialValue());
     }
 
