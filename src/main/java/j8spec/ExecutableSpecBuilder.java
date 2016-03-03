@@ -3,6 +3,8 @@ package j8spec;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static j8spec.BeforeBlock.newBeforeAllBlock;
 import static j8spec.BeforeBlock.newBeforeEachBlock;
@@ -17,8 +19,9 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
     private final Deque<BlockExecutionFlag> executionFlags = new LinkedList<>();
     private final Deque<List<BeforeBlock>> beforeAllBlocks = new LinkedList<>();
     private final Deque<List<BeforeBlock>> beforeEachBlocks = new LinkedList<>();
+    private final RankGenerator rankGenerator = new RankGenerator();
 
-    private final List<ItBlock> itBlocks = new LinkedList<>();
+    private final SortedSet<ItBlock> examples = new TreeSet<>();
 
     ExecutableSpecBuilder(BlockExecutionStrategy executionStrategy) {
         this.executionStrategy = executionStrategy;
@@ -36,6 +39,8 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
 
         beforeAllBlocks.addLast(new LinkedList<>());
         beforeEachBlocks.addLast(new LinkedList<>());
+
+        rankGenerator.pushLevel();
 
         return this;
     }
@@ -64,19 +69,23 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
         beforeEachBlocks.forEach(beforeBlocks::addAll);
 
         if (executionStrategy.shouldBeIgnored(executionFlag, executionFlags.peekLast())) {
-            itBlocks.add(newIgnoredItBlock(
+            examples.add(newIgnoredItBlock(
                 new LinkedList<>(descriptions),
-                description
+                description,
+                rankGenerator.generate()
             ));
         } else {
-            itBlocks.add(newItBlock(
+            examples.add(newItBlock(
                 new LinkedList<>(descriptions),
                 description,
                 beforeBlocks,
                 block,
-                expectedException
+                expectedException,
+                rankGenerator.generate()
             ));
         }
+
+        rankGenerator.next();
 
         return this;
     }
@@ -87,10 +96,11 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
         executionFlags.removeLast();
         beforeAllBlocks.removeLast();
         beforeEachBlocks.removeLast();
+        rankGenerator.popLevel();
         return this;
     }
 
     List<ItBlock> build() {
-        return itBlocks;
+        return new LinkedList<>(examples);
     }
 }

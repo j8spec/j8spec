@@ -9,21 +9,23 @@ import static java.util.Collections.unmodifiableList;
  * Representation of a "it" block ready to be executed.
  * @since 1.0.0
  */
-public final class ItBlock implements UnsafeBlock {
+public final class ItBlock implements UnsafeBlock, Comparable<ItBlock> {
 
     private final List<String> containerDescriptions;
     private final String description;
     private final List<BeforeBlock> beforeBlocks;
     private final UnsafeBlock block;
     private final Class<? extends Throwable> expectedException;
+    private final Rank rank;
 
     static ItBlock newItBlock(
         List<String> containerDescriptions,
         String description,
         List<BeforeBlock> beforeBlocks,
-        UnsafeBlock block
+        UnsafeBlock block,
+        Rank rank
     ) {
-        return new ItBlock(containerDescriptions, description, beforeBlocks, block, null);
+        return new ItBlock(containerDescriptions, description, beforeBlocks, block, null, rank);
     }
 
     static ItBlock newItBlock(
@@ -31,13 +33,14 @@ public final class ItBlock implements UnsafeBlock {
         String description,
         List<BeforeBlock> beforeBlocks,
         UnsafeBlock block,
-        Class<? extends Throwable> expectedException
+        Class<? extends Throwable> expectedException,
+        Rank rank
     ) {
-        return new ItBlock(containerDescriptions, description, beforeBlocks, block, expectedException);
+        return new ItBlock(containerDescriptions, description, beforeBlocks, block, expectedException, rank);
     }
 
-    static ItBlock newIgnoredItBlock(List<String> containerDescriptions, String description) {
-        return new ItBlock(containerDescriptions, description, emptyList(), NOOP, null);
+    static ItBlock newIgnoredItBlock(List<String> containerDescriptions, String description, Rank rank) {
+        return newItBlock(containerDescriptions, description, emptyList(), NOOP, rank);
     }
 
     private ItBlock(
@@ -45,13 +48,32 @@ public final class ItBlock implements UnsafeBlock {
         String description,
         List<BeforeBlock> beforeBlocks,
         UnsafeBlock block,
-        Class<? extends Throwable> expectedException
+        Class<? extends Throwable> expectedException,
+        Rank rank
     ) {
         this.containerDescriptions = unmodifiableList(containerDescriptions);
         this.description = description;
         this.beforeBlocks = unmodifiableList(beforeBlocks);
         this.block = block;
         this.expectedException = expectedException;
+        this.rank = rank;
+    }
+
+    @Override
+    public int compareTo(ItBlock block) {
+        return rank.compareTo(block.rank);
+    }
+
+    /**
+     * Runs this block and associated setup code.
+     * @since 2.0.0
+     */
+    @Override
+    public void tryToExecute() throws Throwable {
+        for (BeforeBlock beforeBlock : beforeBlocks) {
+            beforeBlock.tryToExecute();
+        }
+        block.tryToExecute();
     }
 
     /**
@@ -68,18 +90,6 @@ public final class ItBlock implements UnsafeBlock {
      */
     public List<String> containerDescriptions() {
         return containerDescriptions;
-    }
-
-    /**
-     * Runs this block and associated setup code.
-     * @since 2.0.0
-     */
-    @Override
-    public void tryToExecute() throws Throwable {
-        for (BeforeBlock beforeBlock : beforeBlocks) {
-            beforeBlock.tryToExecute();
-        }
-        block.tryToExecute();
     }
 
     /**
