@@ -9,8 +9,8 @@ import static j8spec.ItBlockDefinition.newItBlockDefinition;
 
 final class DescribeBlockDefinition implements BlockDefinition {
 
-    private final String description;
-    private final BlockExecutionFlag executionFlag;
+    private final ExampleGroupConfiguration config;
+
     private final Context<DescribeBlockDefinition> context;
     private final List<BlockDefinition> blockDefinitions = new LinkedList<>();
     private final List<BlockDefinition> hooks = new LinkedList<>();
@@ -19,8 +19,12 @@ final class DescribeBlockDefinition implements BlockDefinition {
         Class<?> specClass,
         Context<DescribeBlockDefinition> context
     ) {
-        DescribeBlockDefinition block = new DescribeBlockDefinition(specClass.getName(), DEFAULT, context);
-        context.switchTo(block);
+        ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
+            .description(specClass.getName())
+            .executionFlag(DEFAULT)
+            .build();
+        DescribeBlockDefinition group = new DescribeBlockDefinition(config, context);
+        context.switchTo(group);
 
         try {
             specClass.newInstance();
@@ -30,25 +34,16 @@ final class DescribeBlockDefinition implements BlockDefinition {
             throw new SpecInitializationException("Failed to create instance of " + specClass + ".", e);
         }
 
-        return block;
+        return group;
     }
 
-    private DescribeBlockDefinition(
-        String description,
-        BlockExecutionFlag executionFlag,
-        Context<DescribeBlockDefinition> context
-    ) {
-        this.description = description;
-        this.executionFlag = executionFlag;
+    private DescribeBlockDefinition(ExampleGroupConfiguration config, Context<DescribeBlockDefinition> context) {
+        this.config = config;
         this.context = context;
     }
 
-    void addDescribe(String description, SafeBlock block, BlockExecutionFlag executionFlag) {
-        DescribeBlockDefinition describeBlockDefinition = new DescribeBlockDefinition(
-            description,
-            executionFlag,
-            context
-        );
+    void addGroup(ExampleGroupConfiguration config, SafeBlock block) {
+        DescribeBlockDefinition describeBlockDefinition = new DescribeBlockDefinition(config, context);
 
         blockDefinitions.add(describeBlockDefinition);
 
@@ -65,7 +60,7 @@ final class DescribeBlockDefinition implements BlockDefinition {
         hooks.add(new BeforeEachBlockDefinition(beforeEachBlock));
     }
 
-    void addIt(ItBlockConfiguration itBlockConfig) {
+    void addExample(ItBlockConfiguration itBlockConfig) {
         ItBlockDefinition itBlockDefinition = newItBlockDefinition(
             itBlockConfig.description(),
             itBlockConfig.block(),
@@ -78,7 +73,7 @@ final class DescribeBlockDefinition implements BlockDefinition {
 
     @Override
     public void accept(BlockDefinitionVisitor visitor) {
-        visitor.startGroup(description, executionFlag, DEFINED);
+        visitor.startGroup(config.description(), config.executionFlag(), DEFINED);
 
         for (BlockDefinition blockDefinition : hooks) {
             blockDefinition.accept(visitor);

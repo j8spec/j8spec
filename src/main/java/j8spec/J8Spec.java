@@ -36,7 +36,11 @@ public final class J8Spec {
      */
     public static synchronized void describe(String description, SafeBlock block) {
         isValidContext("describe");
-        contexts.get().current().addDescribe(description, block, DEFAULT);
+        ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
+            .description(description)
+            .executionFlag(DEFAULT)
+            .build();
+        contexts.get().current().addGroup(config, block);
     }
 
     /**
@@ -52,7 +56,11 @@ public final class J8Spec {
      */
     public static synchronized void context(String description, SafeBlock block) {
         isValidContext("context");
-        contexts.get().current().addDescribe(description, block, DEFAULT);
+        ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
+            .description(description)
+            .executionFlag(DEFAULT)
+            .build();
+        contexts.get().current().addGroup(config, block);
     }
 
     /**
@@ -70,7 +78,11 @@ public final class J8Spec {
     public static synchronized void xdescribe(String description, SafeBlock block) {
         notAllowedWhenCIModeEnabled("xdescribe");
         isValidContext("xdescribe");
-        contexts.get().current().addDescribe(description, block, IGNORED);
+        ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
+            .description(description)
+            .executionFlag(IGNORED)
+            .build();
+        contexts.get().current().addGroup(config, block);
     }
 
     /**
@@ -88,7 +100,11 @@ public final class J8Spec {
     public static synchronized void xcontext(String description, SafeBlock block) {
         notAllowedWhenCIModeEnabled("xcontext");
         isValidContext("xcontext");
-        contexts.get().current().addDescribe(description, block, IGNORED);
+        ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
+            .description(description)
+            .executionFlag(IGNORED)
+            .build();
+        contexts.get().current().addGroup(config, block);
     }
 
     /**
@@ -106,7 +122,11 @@ public final class J8Spec {
     public static synchronized void fdescribe(String description, SafeBlock block) {
         notAllowedWhenCIModeEnabled("fdescribe");
         isValidContext("fdescribe");
-        contexts.get().current().addDescribe(description, block, FOCUSED);
+        ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
+            .description(description)
+            .executionFlag(FOCUSED)
+            .build();
+        contexts.get().current().addGroup(config, block);
     }
 
     /**
@@ -124,7 +144,11 @@ public final class J8Spec {
     public static synchronized void fcontext(String description, SafeBlock block) {
         notAllowedWhenCIModeEnabled("fcontext");
         isValidContext("fcontext");
-        contexts.get().current().addDescribe(description, block, FOCUSED);
+        ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
+            .description(description)
+            .executionFlag(FOCUSED)
+            .build();
+        contexts.get().current().addGroup(config, block);
     }
 
     /**
@@ -186,7 +210,7 @@ public final class J8Spec {
             .description(description)
             .block(block)
             .executionFlag(DEFAULT);
-        contexts.get().current().addIt(configuration);
+        contexts.get().current().addExample(configuration);
     }
 
     /**
@@ -227,7 +251,7 @@ public final class J8Spec {
             .description(description)
             .block(block)
             .executionFlag(IGNORED);
-        contexts.get().current().addIt(configuration);
+        contexts.get().current().addExample(configuration);
     }
 
     /**
@@ -268,7 +292,7 @@ public final class J8Spec {
             .description(description)
             .block(block)
             .executionFlag(FOCUSED);
-        contexts.get().current().addIt(configuration);
+        contexts.get().current().addExample(configuration);
     }
 
     private static void notAllowedWhenCIModeEnabled(final String methodName) {
