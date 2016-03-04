@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import static j8spec.BlockExecutionFlag.DEFAULT;
 import static j8spec.BlockExecutionFlag.FOCUSED;
+import static j8spec.BlockExecutionOrder.DEFINED;
 import static j8spec.BlockExecutionStrategy.WHITE_LIST;
 import static j8spec.UnsafeBlock.NOOP;
 import static org.hamcrest.CoreMatchers.is;
@@ -16,7 +17,7 @@ public class BlockExecutionStrategySelectorTest {
         BlockExecutionStrategySelector selector = new BlockExecutionStrategySelector();
 
         selector
-            .startGroup("group 1", DEFAULT)
+            .startGroup("group 1", DEFAULT, DEFINED)
                 .example("example 1", NOOP, DEFAULT, null)
             .endGroup();
 
@@ -28,7 +29,7 @@ public class BlockExecutionStrategySelectorTest {
         BlockExecutionStrategySelector selector = new BlockExecutionStrategySelector();
 
         selector
-            .startGroup("group 1", FOCUSED)
+            .startGroup("group 1", FOCUSED, DEFINED)
                 .example("example 1", NOOP, DEFAULT, null)
             .endGroup();
 
@@ -40,7 +41,7 @@ public class BlockExecutionStrategySelectorTest {
         BlockExecutionStrategySelector selector = new BlockExecutionStrategySelector();
 
         selector
-            .startGroup("group 1", DEFAULT)
+            .startGroup("group 1", DEFAULT, DEFINED)
                 .example("example 1", NOOP, FOCUSED, null)
             .endGroup();
 

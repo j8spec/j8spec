@@ -7,6 +7,7 @@ import java.util.List;
 import static j8spec.BlockExecutionFlag.DEFAULT;
 import static j8spec.BlockExecutionFlag.FOCUSED;
 import static j8spec.BlockExecutionFlag.IGNORED;
+import static j8spec.BlockExecutionOrder.DEFINED;
 import static j8spec.BlockExecutionStrategy.BLACK_LIST;
 import static j8spec.BlockExecutionStrategy.WHITE_LIST;
 import static j8spec.UnsafeBlock.NOOP;
@@ -22,38 +23,44 @@ import static org.mockito.Mockito.verify;
 
 public class ExecutableSpecBuilderTest {
 
-    private static final UnsafeBlock BEFORE_ALL_BLOCK = () -> {};
-    private static final UnsafeBlock BEFORE_EACH_BLOCK = () -> {};
-    private static final UnsafeBlock BLOCK_1 = () -> {};
-    private static final UnsafeBlock BLOCK_2 = () -> {};
-    private static final UnsafeBlock BEFORE_ALL_BLOCK_A = () -> {};
-    private static final UnsafeBlock BEFORE_EACH_BLOCK_A = () -> {};
-    private static final UnsafeBlock BLOCK_A_1 = () -> {};
-    private static final UnsafeBlock BLOCK_A_2 = () -> {};
-    private static final UnsafeBlock BLOCK_A_A_1 = () -> {};
-    private static final UnsafeBlock BLOCK_A_A_2 = () -> {};
-    private static final UnsafeBlock BLOCK_A_B_1 = () -> {};
-
-    static class SampleSpec {}
-
     @Test
-    public void builds_it_blocks_with_given_description() {
-        List<ItBlock> itBlocks = aSpecWithInnerDescribeBlocks();
+    public void builds_examples_with_given_description() {
+        ExecutableSpecBuilder builder = new ExecutableSpecBuilder(BLACK_LIST);
+        builder
+            .startGroup("SampleSpec", DEFAULT, DEFINED)
+                .example("block 1", NOOP, DEFAULT, null)
+                .example("block 2", NOOP, DEFAULT, null)
+                .startGroup("describe A", DEFAULT, DEFINED)
+                    .example("block A1", NOOP, DEFAULT, null)
+                    .example("block A2", NOOP, DEFAULT, null)
+                .endGroup()
+            .endGroup();
+        List<ItBlock> examples = builder.build();
 
-        assertThat(itBlocks.get(0).description(), is("block 1"));
-        assertThat(itBlocks.get(1).description(), is("block 2"));
-        assertThat(itBlocks.get(2).description(), is("block A1"));
-        assertThat(itBlocks.get(3).description(), is("block A2"));
+        assertThat(examples.get(0).description(), is("block 1"));
+        assertThat(examples.get(1).description(), is("block 2"));
+        assertThat(examples.get(2).description(), is("block A1"));
+        assertThat(examples.get(3).description(), is("block A2"));
     }
 
     @Test
-    public void builds_it_blocks_with_given_container_descriptions() {
-        List<ItBlock> itBlocks = aSpecWithInnerDescribeBlocks();
+    public void builds_examples_with_given_container_descriptions() {
+        ExecutableSpecBuilder builder = new ExecutableSpecBuilder(BLACK_LIST);
+        builder
+            .startGroup("SampleSpec", DEFAULT, DEFINED)
+                .example("block 1", NOOP, DEFAULT, null)
+                .example("block 2", NOOP, DEFAULT, null)
+                .startGroup("describe A", DEFAULT, DEFINED)
+                    .example("block A1", NOOP, DEFAULT, null)
+                    .example("block A2", NOOP, DEFAULT, null)
+                .endGroup()
+            .endGroup();
+        List<ItBlock> examples = builder.build();
 
-        assertThat(itBlocks.get(0).containerDescriptions(), is(singletonList("j8spec.ExecutableSpecBuilderTest$SampleSpec")));
-        assertThat(itBlocks.get(1).containerDescriptions(), is(singletonList("j8spec.ExecutableSpecBuilderTest$SampleSpec")));
-        assertThat(itBlocks.get(2).containerDescriptions(), is(asList("j8spec.ExecutableSpecBuilderTest$SampleSpec", "describe A")));
-        assertThat(itBlocks.get(3).containerDescriptions(), is(asList("j8spec.ExecutableSpecBuilderTest$SampleSpec", "describe A")));
+        assertThat(examples.get(0).containerDescriptions(), is(singletonList("SampleSpec")));
+        assertThat(examples.get(1).containerDescriptions(), is(singletonList("SampleSpec")));
+        assertThat(examples.get(2).containerDescriptions(), is(asList("SampleSpec", "describe A")));
+        assertThat(examples.get(3).containerDescriptions(), is(asList("SampleSpec", "describe A")));
     }
 
     @Test
@@ -63,11 +70,11 @@ public class ExecutableSpecBuilderTest {
 
         execute(
             new ExecutableSpecBuilder(BLACK_LIST)
-                .startGroup("SampleSpec", DEFAULT)
+                .startGroup("SampleSpec", DEFAULT, DEFINED)
                     .beforeAll(beforeAll)
                     .example("block 1", NOOP, DEFAULT, null)
                     .example("block 2", NOOP, DEFAULT, null)
-                    .startGroup("describe A", DEFAULT)
+                    .startGroup("describe A", DEFAULT, DEFINED)
                         .beforeAll(innerBeforeAll)
                         .example("block A 1", NOOP, DEFAULT, null)
                     .endGroup()
@@ -79,17 +86,17 @@ public class ExecutableSpecBuilderTest {
     }
 
     @Test
-    public void builds_before_each_hooks_to_execute_after_each_it_block() throws Throwable {
+    public void builds_before_each_hooks_to_execute_after_each_example() throws Throwable {
         UnsafeBlock beforeEach = mock(UnsafeBlock.class);
         UnsafeBlock innerBeforeEach = mock(UnsafeBlock.class);
 
         execute(
             new ExecutableSpecBuilder(BLACK_LIST)
-                .startGroup("SampleSpec", DEFAULT)
+                .startGroup("SampleSpec", DEFAULT, DEFINED)
                     .beforeEach(beforeEach)
                     .example("block 1", NOOP, DEFAULT, null)
                     .example("block 2", NOOP, DEFAULT, null)
-                    .startGroup("describe A", DEFAULT)
+                    .startGroup("describe A", DEFAULT, DEFINED)
                         .beforeEach(innerBeforeEach)
                         .example("block A 1", NOOP, DEFAULT, null)
                     .endGroup()
@@ -101,150 +108,98 @@ public class ExecutableSpecBuilderTest {
     }
 
     @Test
-    public void builds_it_blocks_marked_to_be_ignored() throws Throwable {
-        UnsafeBlock ignoredBlock = mock(UnsafeBlock.class);
+    public void builds_examples_marked_to_be_ignored() throws Throwable {
+        UnsafeBlock ignored = mock(UnsafeBlock.class);
 
         execute(
             new ExecutableSpecBuilder(BLACK_LIST)
-                .startGroup("SampleSpec", DEFAULT)
-                    .example("ignored block", ignoredBlock, IGNORED, null)
+                .startGroup("SampleSpec", DEFAULT, DEFINED)
+                    .example("ignored block", ignored, IGNORED, null)
                 .endGroup()
         );
 
-        verify(ignoredBlock, never()).tryToExecute();
+        verify(ignored, never()).tryToExecute();
     }
 
     @Test
-    public void builds_it_blocks_marked_to_be_ignored_when_the_describe_block_is_ignored() {
-        List<ItBlock> itBlocks = aSpecWithIgnoredDescribeBlocks();
+    public void builds_examples_marked_to_be_ignored_when_the_group_is_ignored() throws Throwable {
+        UnsafeBlock focused = mock(UnsafeBlock.class);
+        UnsafeBlock ignored = mock(UnsafeBlock.class);
 
-        assertThat(itBlocks.get(0).shouldBeIgnored(), is(false));
-        assertThat(itBlocks.get(1).shouldBeIgnored(), is(true));
-        assertThat(itBlocks.get(2).shouldBeIgnored(), is(true));
-        assertThat(itBlocks.get(3).shouldBeIgnored(), is(true));
-    }
-
-    @Test
-    public void builds_it_blocks_marked_to_be_ignored_when_there_is_it_blocks_focused() {
-        List<ItBlock> itBlocks = aSpecWithFocusedItBlocks();
-
-        assertThat(itBlocks.get(0).shouldBeIgnored(), is(true));
-        assertThat(itBlocks.get(1).shouldBeIgnored(), is(true));
-        assertThat(itBlocks.get(2).shouldBeIgnored(), is(false));
-        assertThat(itBlocks.get(3).shouldBeIgnored(), is(true));
-    }
-
-    @Test
-    public void builds_it_blocks_marked_to_be_ignored_when_there_is_describe_blocks_focused() {
-        List<ItBlock> itBlocks = aSpecWithFocusedDescribeBlocks();
-
-        assertThat(itBlocks.get(0).shouldBeIgnored(), is(true));
-        assertThat(itBlocks.get(1).shouldBeIgnored(), is(false));
-        assertThat(itBlocks.get(2).shouldBeIgnored(), is(false));
-        assertThat(itBlocks.get(3).shouldBeIgnored(), is(false));
-        assertThat(itBlocks.get(4).shouldBeIgnored(), is(false));
-    }
-
-    @Test
-    public void builds_it_blocks_with_excepted_exception() {
-        List<ItBlock> itBlocks = aSpecWithExpectedException();
-
-        assertThat(itBlocks.get(0).expected(), is(equalTo(Exception.class)));
-    }
-
-    private List<ItBlock> aSpecWithInnerDescribeBlocks() {
-        ExecutableSpecBuilder builder = new ExecutableSpecBuilder(BLACK_LIST);
-
-        builder
-            .startGroup(SampleSpec.class.getName(), DEFAULT)
-                .beforeAll(BEFORE_ALL_BLOCK)
-                .beforeEach(BEFORE_EACH_BLOCK)
-                .example("block 1", BLOCK_1, DEFAULT, null)
-                .example("block 2", BLOCK_2, DEFAULT, null)
-
-                .startGroup("describe A", DEFAULT)
-                    .beforeAll(BEFORE_ALL_BLOCK_A)
-                    .beforeEach(BEFORE_EACH_BLOCK_A)
-                    .example("block A1", BLOCK_A_1, DEFAULT, null)
-                    .example("block A2", BLOCK_A_2, DEFAULT, null)
-                .endGroup()
-            .endGroup();
-
-        return builder.build();
-    }
-
-    private List<ItBlock> aSpecWithIgnoredDescribeBlocks() {
-        ExecutableSpecBuilder builder = new ExecutableSpecBuilder(BLACK_LIST);
-
-        builder
-            .startGroup(SampleSpec.class.getName(), DEFAULT)
-                .beforeAll(BEFORE_ALL_BLOCK)
-                .beforeEach(BEFORE_EACH_BLOCK)
-                .example("block 1", BLOCK_1, DEFAULT, null)
-
-                .startGroup("describe A", IGNORED)
-                    .beforeAll(BEFORE_ALL_BLOCK_A)
-                    .beforeEach(BEFORE_EACH_BLOCK_A)
-                    .example("block A1", BLOCK_A_1, DEFAULT, null)
-                    .example("block A2", BLOCK_A_2, DEFAULT, null)
-                    .startGroup("describe AB", DEFAULT)
-                        .example("block AB1", BLOCK_A_B_1, DEFAULT, null)
+        execute(
+            new ExecutableSpecBuilder(BLACK_LIST)
+                .startGroup("SampleSpec", DEFAULT, DEFINED)
+                    .example("block 1", focused, DEFAULT, null)
+                    .startGroup("describe A", IGNORED, DEFINED)
+                        .example("block A1", ignored, DEFAULT, null)
+                        .example("block A2", ignored, DEFAULT, null)
+                        .startGroup("describe AB", DEFAULT, DEFINED)
+                            .example("block AB1", ignored, DEFAULT, null)
+                        .endGroup()
                     .endGroup()
                 .endGroup()
-            .endGroup();
+        );
 
-        return builder.build();
+        verify(focused, times(1)).tryToExecute();
+        verify(ignored, never()).tryToExecute();
     }
 
-    private List<ItBlock> aSpecWithFocusedItBlocks() {
-        ExecutableSpecBuilder builder = new ExecutableSpecBuilder(WHITE_LIST);
+    @Test
+    public void builds_examples_marked_to_be_ignored_when_there_is_examples_focused() throws Throwable {
+        UnsafeBlock focused = mock(UnsafeBlock.class);
+        UnsafeBlock ignored = mock(UnsafeBlock.class);
 
-        builder
-            .startGroup(SampleSpec.class.getName(), DEFAULT)
-                .beforeAll(BEFORE_ALL_BLOCK)
-                .beforeEach(BEFORE_EACH_BLOCK)
-                .example("block 1", BLOCK_1, DEFAULT, null)
-                .example("block 2", BLOCK_1, DEFAULT, null)
+        execute(
+            new ExecutableSpecBuilder(WHITE_LIST)
+                .startGroup("SampleSpec", DEFAULT, DEFINED)
+                    .example("block 1", ignored, DEFAULT, null)
+                    .example("block 2", ignored, DEFAULT, null)
 
-                .startGroup("describe A", IGNORED)
-                    .beforeAll(BEFORE_ALL_BLOCK_A)
-                    .beforeEach(BEFORE_EACH_BLOCK_A)
-                    .example("block A1", BLOCK_A_1, FOCUSED, null)
-                    .example("block A2", BLOCK_A_2, DEFAULT, null)
-                .endGroup()
-            .endGroup();
-
-        return builder.build();
-   }
-
-    private List<ItBlock> aSpecWithFocusedDescribeBlocks() {
-        ExecutableSpecBuilder builder = new ExecutableSpecBuilder(WHITE_LIST);
-
-        builder
-            .startGroup(SampleSpec.class.getName(), DEFAULT)
-                .example("block 1", BLOCK_1, DEFAULT, null)
-                .startGroup("describe A", FOCUSED)
-                    .example("block A1", BLOCK_A_1, DEFAULT, null)
-                    .example("block A2", BLOCK_A_2, DEFAULT, null)
-                    .startGroup("describe A A", DEFAULT)
-                        .example("block A1", BLOCK_A_A_1, DEFAULT, null)
-                        .example("block A2", BLOCK_A_A_2, DEFAULT, null)
+                    .startGroup("describe A", IGNORED, DEFINED)
+                        .example("block A1", focused, FOCUSED, null)
+                        .example("block A2", ignored, DEFAULT, null)
                     .endGroup()
                 .endGroup()
-            .endGroup();
+        );
 
-        return builder.build();
+        verify(focused, times(1)).tryToExecute();
+        verify(ignored, never()).tryToExecute();
     }
 
-    private List<ItBlock> aSpecWithExpectedException() {
+    @Test
+    public void builds_examples_marked_to_be_ignored_when_there_are_focused_groups() throws Throwable {
+        UnsafeBlock focused = mock(UnsafeBlock.class);
+        UnsafeBlock ignored = mock(UnsafeBlock.class);
+
+        execute(
+            new ExecutableSpecBuilder(WHITE_LIST)
+                .startGroup("SampleSpec", DEFAULT, DEFINED)
+                    .example("block 1", ignored, DEFAULT, null)
+                    .startGroup("describe A", FOCUSED, DEFINED)
+                        .example("block A1", focused, DEFAULT, null)
+                        .example("block A2", focused, DEFAULT, null)
+                        .startGroup("describe A A", DEFAULT, DEFINED)
+                            .example("block A1", focused, DEFAULT, null)
+                            .example("block A2", focused, DEFAULT, null)
+                        .endGroup()
+                    .endGroup()
+                .endGroup()
+        );
+
+        verify(focused, times(4)).tryToExecute();
+        verify(ignored, never()).tryToExecute();
+    }
+
+    @Test
+    public void builds_examples_with_excepted_exception() {
         ExecutableSpecBuilder builder = new ExecutableSpecBuilder(BLACK_LIST);
-
         builder
-            .startGroup(SampleSpec.class.getName(), DEFAULT)
-                .example("block 1", BLOCK_1, DEFAULT, Exception.class)
+            .startGroup("SampleSpec", DEFAULT, DEFINED)
+                .example("block 1", NOOP, DEFAULT, Exception.class)
             .endGroup();
+        List<ItBlock> examples = builder.build();
 
-        return builder.build();
+        assertThat(examples.get(0).expected(), is(equalTo(Exception.class)));
     }
 
     private void execute(BlockDefinitionVisitor visitor) throws Throwable {

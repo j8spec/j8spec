@@ -2,7 +2,11 @@ package j8spec;
 
 abstract class BlockDefinitionVisitor {
 
-    BlockDefinitionVisitor startGroup(String description, BlockExecutionFlag executionFlag) {
+    BlockDefinitionVisitor startGroup(
+        String description,
+        BlockExecutionFlag executionFlag,
+        BlockExecutionOrder order
+    ) {
         return this;
     }
 

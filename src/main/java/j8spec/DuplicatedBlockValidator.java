@@ -11,7 +11,11 @@ final class DuplicatedBlockValidator extends BlockDefinitionVisitor {
     private final Deque<Set<String>> exampleDescriptions = new LinkedList<>();
 
     @Override
-    BlockDefinitionVisitor startGroup(String description, BlockExecutionFlag executionFlag) {
+    BlockDefinitionVisitor startGroup(
+        String description,
+        BlockExecutionFlag executionFlag,
+        BlockExecutionOrder order
+    ) {
         if (!groupDescriptions.isEmpty()) {
             if (groupDescriptions.peekLast().contains(description)) {
                 throw new BlockAlreadyDefinedException(description + " block already defined");

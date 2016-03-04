@@ -28,7 +28,11 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
     }
 
     @Override
-    BlockDefinitionVisitor startGroup(String description, BlockExecutionFlag executionFlag) {
+    BlockDefinitionVisitor startGroup(
+        String description,
+        BlockExecutionFlag executionFlag,
+        BlockExecutionOrder order
+    ) {
         descriptions.addLast(description);
 
         if (executionFlags.isEmpty() || executionFlags.peekLast().equals(DEFAULT)) {
