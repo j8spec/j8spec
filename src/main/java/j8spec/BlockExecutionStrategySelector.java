@@ -13,23 +13,14 @@ final class BlockExecutionStrategySelector extends BlockDefinitionVisitor {
     }
 
     @Override
-    BlockDefinitionVisitor startGroup(
-        String description,
-        BlockExecutionFlag executionFlag,
-        BlockExecutionOrder order
-    ) {
-        selectStrategy(executionFlag);
+    BlockDefinitionVisitor startGroup(ExampleGroupConfiguration config) {
+        selectStrategy(config.executionFlag());
         return this;
     }
 
     @Override
-    BlockDefinitionVisitor example(
-        String description,
-        UnsafeBlock block,
-        BlockExecutionFlag executionFlag,
-        Class<? extends Throwable> expectedException
-    ) {
-        selectStrategy(executionFlag);
+    BlockDefinitionVisitor example(ExampleConfiguration config, UnsafeBlock block) {
+        selectStrategy(config.executionFlag());
         return this;
     }
 

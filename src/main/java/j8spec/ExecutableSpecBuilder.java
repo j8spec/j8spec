@@ -28,15 +28,11 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
     }
 
     @Override
-    BlockDefinitionVisitor startGroup(
-        String description,
-        BlockExecutionFlag executionFlag,
-        BlockExecutionOrder order
-    ) {
-        descriptions.addLast(description);
+    BlockDefinitionVisitor startGroup(ExampleGroupConfiguration config) {
+        descriptions.addLast(config.description());
 
         if (executionFlags.isEmpty() || executionFlags.peekLast().equals(DEFAULT)) {
-            executionFlags.addLast(executionFlag);
+            executionFlags.addLast(config.executionFlag());
         } else {
             executionFlags.addLast(executionFlags.peekLast());
         }
@@ -62,29 +58,24 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
     }
 
     @Override
-    BlockDefinitionVisitor example(
-        String description,
-        UnsafeBlock block,
-        BlockExecutionFlag executionFlag,
-        Class<? extends Throwable> expectedException
-    ) {
+    BlockDefinitionVisitor example(ExampleConfiguration config, UnsafeBlock block) {
         List<BeforeBlock> beforeBlocks = new LinkedList<>();
         beforeAllBlocks.forEach(beforeBlocks::addAll);
         beforeEachBlocks.forEach(beforeBlocks::addAll);
 
-        if (executionStrategy.shouldBeIgnored(executionFlag, executionFlags.peekLast())) {
+        if (executionStrategy.shouldBeIgnored(config.executionFlag(), executionFlags.peekLast())) {
             examples.add(newIgnoredItBlock(
                 new LinkedList<>(descriptions),
-                description,
+                config.description(),
                 rankGenerator.generate()
             ));
         } else {
             examples.add(newItBlock(
                 new LinkedList<>(descriptions),
-                description,
+                config.description(),
                 beforeBlocks,
                 block,
-                expectedException,
+                config.expectedException(),
                 rankGenerator.generate()
             ));
         }

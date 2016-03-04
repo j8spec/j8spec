@@ -1,5 +1,7 @@
 package j8spec;
 
+import static j8spec.BlockExecutionFlag.DEFAULT;
+
 /**
  * Represents an example block configuration.
  * @since 3.0.0
@@ -9,7 +11,7 @@ public final class ExampleConfiguration {
     public static final class Builder {
 
         private String description;
-        private BlockExecutionFlag executionFlag;
+        private BlockExecutionFlag executionFlag = DEFAULT;
         private Class<? extends Throwable> expectedException;
 
         Builder description(String description) {

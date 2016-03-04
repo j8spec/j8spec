@@ -20,6 +20,6 @@ final class ExampleDefinition implements BlockDefinition {
 
     @Override
     public void accept(BlockDefinitionVisitor visitor) {
-        visitor.example(config.description(), block, config.executionFlag(), config.expectedException());
+        visitor.example(config, block);
     }
 }

@@ -2,11 +2,7 @@ package j8spec;
 
 abstract class BlockDefinitionVisitor {
 
-    BlockDefinitionVisitor startGroup(
-        String description,
-        BlockExecutionFlag executionFlag,
-        BlockExecutionOrder order
-    ) {
+    BlockDefinitionVisitor startGroup(ExampleGroupConfiguration config) {
         return this;
     }
 
@@ -18,12 +14,7 @@ abstract class BlockDefinitionVisitor {
         return this;
     }
 
-    BlockDefinitionVisitor example(
-        String description,
-        UnsafeBlock block,
-        BlockExecutionFlag executionFlag,
-        Class<? extends Throwable> expectedException
-    ) {
+    BlockDefinitionVisitor example(ExampleConfiguration config, UnsafeBlock block) {
         return this;
     }
 

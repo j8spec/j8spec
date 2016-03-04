@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static j8spec.BlockExecutionFlag.DEFAULT;
-import static j8spec.BlockExecutionOrder.DEFINED;
 
 final class ExampleGroupDefinition implements BlockDefinition {
 
@@ -64,7 +63,7 @@ final class ExampleGroupDefinition implements BlockDefinition {
 
     @Override
     public void accept(BlockDefinitionVisitor visitor) {
-        visitor.startGroup(config.description(), config.executionFlag(), DEFINED);
+        visitor.startGroup(config);
 
         for (BlockDefinition blockDefinition : hooks) {
             blockDefinition.accept(visitor);

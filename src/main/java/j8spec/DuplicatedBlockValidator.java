@@ -11,16 +11,12 @@ final class DuplicatedBlockValidator extends BlockDefinitionVisitor {
     private final Deque<Set<String>> exampleDescriptions = new LinkedList<>();
 
     @Override
-    BlockDefinitionVisitor startGroup(
-        String description,
-        BlockExecutionFlag executionFlag,
-        BlockExecutionOrder order
-    ) {
+    BlockDefinitionVisitor startGroup(ExampleGroupConfiguration config) {
         if (!groupDescriptions.isEmpty()) {
-            if (groupDescriptions.peekLast().contains(description)) {
-                throw new BlockAlreadyDefinedException(description + " block already defined");
+            if (groupDescriptions.peekLast().contains(config.description())) {
+                throw new BlockAlreadyDefinedException(config.description() + " block already defined");
             }
-            groupDescriptions.peekLast().add(description);
+            groupDescriptions.peekLast().add(config.description());
         }
         groupDescriptions.addLast(new HashSet<>());
         exampleDescriptions.addLast(new HashSet<>());
@@ -28,16 +24,11 @@ final class DuplicatedBlockValidator extends BlockDefinitionVisitor {
     }
 
     @Override
-    BlockDefinitionVisitor example(
-        String description,
-        UnsafeBlock block,
-        BlockExecutionFlag executionFlag,
-        Class<? extends Throwable> expectedException
-    ) {
-        if (exampleDescriptions.peekLast().contains(description)) {
-            throw new BlockAlreadyDefinedException(description + " block already defined");
+    BlockDefinitionVisitor example(ExampleConfiguration config, UnsafeBlock block) {
+        if (exampleDescriptions.peekLast().contains(config.description())) {
+            throw new BlockAlreadyDefinedException(config.description() + " block already defined");
         }
-        exampleDescriptions.peekLast().add(description);
+        exampleDescriptions.peekLast().add(config.description());
         return this;
     }
 

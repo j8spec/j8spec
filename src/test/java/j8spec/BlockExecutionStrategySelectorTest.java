@@ -2,9 +2,7 @@ package j8spec;
 
 import org.junit.Test;
 
-import static j8spec.BlockExecutionFlag.DEFAULT;
 import static j8spec.BlockExecutionFlag.FOCUSED;
-import static j8spec.BlockExecutionOrder.DEFINED;
 import static j8spec.BlockExecutionStrategy.WHITE_LIST;
 import static j8spec.UnsafeBlock.NOOP;
 import static org.hamcrest.CoreMatchers.is;
@@ -17,8 +15,8 @@ public class BlockExecutionStrategySelectorTest {
         BlockExecutionStrategySelector selector = new BlockExecutionStrategySelector();
 
         selector
-            .startGroup("group 1", DEFAULT, DEFINED)
-                .example("example 1", NOOP, DEFAULT, null)
+            .startGroup(groupConfig().description("group 1").build())
+                .example(exampleConfig().description("example 1").build(), NOOP)
             .endGroup();
 
         assertThat(selector.strategy(), is(BlockExecutionStrategy.BLACK_LIST));
@@ -29,8 +27,8 @@ public class BlockExecutionStrategySelectorTest {
         BlockExecutionStrategySelector selector = new BlockExecutionStrategySelector();
 
         selector
-            .startGroup("group 1", FOCUSED, DEFINED)
-                .example("example 1", NOOP, DEFAULT, null)
+            .startGroup(groupConfig().description("group 1").executionFlag(FOCUSED).build())
+                .example(exampleConfig().description("example 1").build(), NOOP)
             .endGroup();
 
         assertThat(selector.strategy(), is(WHITE_LIST));
@@ -41,11 +39,18 @@ public class BlockExecutionStrategySelectorTest {
         BlockExecutionStrategySelector selector = new BlockExecutionStrategySelector();
 
         selector
-            .startGroup("group 1", DEFAULT, DEFINED)
-                .example("example 1", NOOP, FOCUSED, null)
+            .startGroup(groupConfig().description("group 1").build())
+                .example(exampleConfig().description("example 1").executionFlag(FOCUSED).build(), NOOP)
             .endGroup();
 
         assertThat(selector.strategy(), is(WHITE_LIST));
     }
 
+    private ExampleConfiguration.Builder exampleConfig() {
+        return new ExampleConfiguration.Builder();
+    }
+
+    private ExampleGroupConfiguration.Builder groupConfig() {
+        return new ExampleGroupConfiguration.Builder();
+    }
 }
