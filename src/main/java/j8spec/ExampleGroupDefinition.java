@@ -6,23 +6,22 @@ import java.util.List;
 import static j8spec.BlockExecutionFlag.DEFAULT;
 import static j8spec.BlockExecutionOrder.DEFINED;
 
-final class DescribeBlockDefinition implements BlockDefinition {
+final class ExampleGroupDefinition implements BlockDefinition {
 
     private final ExampleGroupConfiguration config;
-
-    private final Context<DescribeBlockDefinition> context;
+    private final Context<ExampleGroupDefinition> context;
     private final List<BlockDefinition> blockDefinitions = new LinkedList<>();
     private final List<BlockDefinition> hooks = new LinkedList<>();
 
-    static DescribeBlockDefinition newDescribeBlockDefinition(
+    static ExampleGroupDefinition newExampleGroupDefinition(
         Class<?> specClass,
-        Context<DescribeBlockDefinition> context
+        Context<ExampleGroupDefinition> context
     ) {
         ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
             .description(specClass.getName())
             .executionFlag(DEFAULT)
             .build();
-        DescribeBlockDefinition group = new DescribeBlockDefinition(config, context);
+        ExampleGroupDefinition group = new ExampleGroupDefinition(config, context);
         context.switchTo(group);
 
         try {
@@ -36,17 +35,17 @@ final class DescribeBlockDefinition implements BlockDefinition {
         return group;
     }
 
-    private DescribeBlockDefinition(ExampleGroupConfiguration config, Context<DescribeBlockDefinition> context) {
+    private ExampleGroupDefinition(ExampleGroupConfiguration config, Context<ExampleGroupDefinition> context) {
         this.config = config;
         this.context = context;
     }
 
     void addGroup(ExampleGroupConfiguration config, SafeBlock block) {
-        DescribeBlockDefinition describeBlockDefinition = new DescribeBlockDefinition(config, context);
+        ExampleGroupDefinition exampleGroupDefinition = new ExampleGroupDefinition(config, context);
 
-        blockDefinitions.add(describeBlockDefinition);
+        blockDefinitions.add(exampleGroupDefinition);
 
-        context.switchTo(describeBlockDefinition);
+        context.switchTo(exampleGroupDefinition);
         block.execute();
         context.restore();
     }
@@ -59,8 +58,8 @@ final class DescribeBlockDefinition implements BlockDefinition {
         hooks.add(new BeforeEachBlockDefinition(beforeEachBlock));
     }
 
-    void addExample(ItBlockConfiguration itBlockConfig, UnsafeBlock block) {
-        blockDefinitions.add(new ItBlockDefinition(itBlockConfig, block));
+    void addExample(ExampleConfiguration itBlockConfig, UnsafeBlock block) {
+        blockDefinitions.add(new ExampleDefinition(itBlockConfig, block));
     }
 
     @Override

@@ -1,10 +1,10 @@
 package j8spec;
 
 /**
- * Represents a "it" block configuration.
- * @since 2.0.0
+ * Represents an example block configuration.
+ * @since 3.0.0
  */
-public final class ItBlockConfiguration {
+public final class ExampleConfiguration {
 
     public static final class Builder {
 
@@ -18,11 +18,11 @@ public final class ItBlockConfiguration {
         }
 
         /**
-         * Defines the exception class the new "it" block is expected to throw.
+         * Defines the exception class the new example is expected to throw.
          *
          * @param expectedException exception class
          * @return this
-         * @since 2.0.0
+         * @since 3.0.0
          */
         public Builder expected(Class<? extends Throwable> expectedException) {
             this.expectedException = expectedException;
@@ -34,8 +34,8 @@ public final class ItBlockConfiguration {
             return this;
         }
 
-        ItBlockConfiguration build() {
-            return new ItBlockConfiguration(
+        ExampleConfiguration build() {
+            return new ExampleConfiguration(
                 description,
                 executionFlag,
                 expectedException
@@ -47,7 +47,7 @@ public final class ItBlockConfiguration {
     private final BlockExecutionFlag executionFlag;
     private final Class<? extends Throwable> expectedException;
 
-    private ItBlockConfiguration(
+    private ExampleConfiguration(
         String description,
         BlockExecutionFlag executionFlag,
         Class<? extends Throwable> expectedException

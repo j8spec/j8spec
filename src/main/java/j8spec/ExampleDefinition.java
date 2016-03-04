@@ -1,11 +1,11 @@
 package j8spec;
 
-final class ItBlockDefinition implements BlockDefinition {
+final class ExampleDefinition implements BlockDefinition {
 
-    private final ItBlockConfiguration config;
+    private final ExampleConfiguration config;
     private final UnsafeBlock block;
 
-    ItBlockDefinition(ItBlockConfiguration config, UnsafeBlock block) {
+    ExampleDefinition(ExampleConfiguration config, UnsafeBlock block) {
         this.config = config;
         this.block = block;
     }
