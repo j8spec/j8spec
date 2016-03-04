@@ -5,7 +5,6 @@ import java.util.List;
 
 import static j8spec.BlockExecutionFlag.DEFAULT;
 import static j8spec.BlockExecutionOrder.DEFINED;
-import static j8spec.ItBlockDefinition.newItBlockDefinition;
 
 final class DescribeBlockDefinition implements BlockDefinition {
 
@@ -60,15 +59,8 @@ final class DescribeBlockDefinition implements BlockDefinition {
         hooks.add(new BeforeEachBlockDefinition(beforeEachBlock));
     }
 
-    void addExample(ItBlockConfiguration itBlockConfig) {
-        ItBlockDefinition itBlockDefinition = newItBlockDefinition(
-            itBlockConfig.description(),
-            itBlockConfig.block(),
-            itBlockConfig.executionFlag(),
-            itBlockConfig.expected()
-        );
-
-        blockDefinitions.add(itBlockDefinition);
+    void addExample(ItBlockConfiguration itBlockConfig, UnsafeBlock block) {
+        blockDefinitions.add(new ItBlockDefinition(itBlockConfig, block));
     }
 
     @Override

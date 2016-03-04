@@ -7,7 +7,6 @@ import static j8spec.BlockExecutionFlag.DEFAULT;
 import static j8spec.BlockExecutionFlag.FOCUSED;
 import static j8spec.BlockExecutionFlag.IGNORED;
 import static j8spec.DescribeBlockDefinition.newDescribeBlockDefinition;
-import static j8spec.ItBlockConfiguration.newItBlockConfiguration;
 import static java.util.function.Function.identity;
 
 /**
@@ -202,15 +201,15 @@ public final class J8Spec {
      */
     public static synchronized void it(
         String description,
-        Function<ItBlockConfiguration, ItBlockConfiguration> collector,
+        Function<ItBlockConfiguration.Builder, ItBlockConfiguration.Builder> collector,
         UnsafeBlock block
     ) {
         isValidContext("it");
-        ItBlockConfiguration configuration = collector.apply(newItBlockConfiguration())
+        ItBlockConfiguration config = collector.apply(new ItBlockConfiguration.Builder())
             .description(description)
-            .block(block)
-            .executionFlag(DEFAULT);
-        contexts.get().current().addExample(configuration);
+            .executionFlag(DEFAULT)
+            .build();
+        contexts.get().current().addExample(config, block);
     }
 
     /**
@@ -242,16 +241,16 @@ public final class J8Spec {
      */
     public static synchronized void xit(
         String description,
-        Function<ItBlockConfiguration, ItBlockConfiguration> collector,
+        Function<ItBlockConfiguration.Builder, ItBlockConfiguration.Builder> collector,
         UnsafeBlock block
     ) {
         notAllowedWhenCIModeEnabled("xit");
         isValidContext("xit");
-        ItBlockConfiguration configuration = collector.apply(newItBlockConfiguration())
+        ItBlockConfiguration config = collector.apply(new ItBlockConfiguration.Builder())
             .description(description)
-            .block(block)
-            .executionFlag(IGNORED);
-        contexts.get().current().addExample(configuration);
+            .executionFlag(IGNORED)
+            .build();
+        contexts.get().current().addExample(config, block);
     }
 
     /**
@@ -283,16 +282,16 @@ public final class J8Spec {
      */
     public static synchronized void fit(
         String description,
-        Function<ItBlockConfiguration, ItBlockConfiguration> collector,
+        Function<ItBlockConfiguration.Builder, ItBlockConfiguration.Builder> collector,
         UnsafeBlock block
     ) {
         notAllowedWhenCIModeEnabled("fit");
         isValidContext("fit");
-        ItBlockConfiguration configuration = collector.apply(newItBlockConfiguration())
+        ItBlockConfiguration config = collector.apply(new ItBlockConfiguration.Builder())
             .description(description)
-            .block(block)
-            .executionFlag(FOCUSED);
-        contexts.get().current().addExample(configuration);
+            .executionFlag(FOCUSED)
+            .build();
+        contexts.get().current().addExample(config, block);
     }
 
     private static void notAllowedWhenCIModeEnabled(final String methodName) {

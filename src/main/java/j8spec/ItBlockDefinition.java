@@ -2,42 +2,16 @@ package j8spec;
 
 final class ItBlockDefinition implements BlockDefinition {
 
-    private final String description;
+    private final ItBlockConfiguration config;
     private final UnsafeBlock block;
-    private final BlockExecutionFlag executionFlag;
-    private final Class<? extends Throwable> expectedException;
 
-    static ItBlockDefinition newItBlockDefinition(
-        String description,
-        UnsafeBlock block,
-        BlockExecutionFlag executionFlag,
-        Class<? extends Throwable> expectedException
-    ) {
-        return new ItBlockDefinition(description, block, executionFlag, expectedException);
-    }
-
-    static ItBlockDefinition newItBlockDefinition(
-        String description,
-        UnsafeBlock block,
-        BlockExecutionFlag executionFlag
-    ) {
-        return newItBlockDefinition(description, block, executionFlag, null);
-    }
-
-    private ItBlockDefinition(
-        String description,
-        UnsafeBlock block,
-        BlockExecutionFlag executionFlag,
-        Class<? extends Throwable> expectedException
-    ) {
-        this.description = description;
+    ItBlockDefinition(ItBlockConfiguration config, UnsafeBlock block) {
+        this.config = config;
         this.block = block;
-        this.executionFlag = executionFlag;
-        this.expectedException = expectedException;
     }
 
     String description() {
-        return description;
+        return config.description();
     }
 
     UnsafeBlock block() {
@@ -46,6 +20,6 @@ final class ItBlockDefinition implements BlockDefinition {
 
     @Override
     public void accept(BlockDefinitionVisitor visitor) {
-        visitor.example(description, block, executionFlag, expectedException);
+        visitor.example(config.description(), block, config.executionFlag(), config.expectedException());
     }
 }
