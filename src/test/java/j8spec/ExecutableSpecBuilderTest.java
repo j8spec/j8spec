@@ -25,7 +25,7 @@ public class ExecutableSpecBuilderTest {
     public void builds_examples_with_given_description() {
         ExecutableSpecBuilder builder = new ExecutableSpecBuilder(BLACK_LIST);
         builder
-            .startGroup(groupConfig().description("SampleSpec").build())
+            .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                 .example(exampleConfig().description("block 1").build(), NOOP)
                 .example(exampleConfig().description("block 2").build(), NOOP)
                 .startGroup(groupConfig().description("describe A").build())
@@ -45,7 +45,7 @@ public class ExecutableSpecBuilderTest {
     public void builds_examples_with_given_container_descriptions() {
         ExecutableSpecBuilder builder = new ExecutableSpecBuilder(BLACK_LIST);
         builder
-            .startGroup(groupConfig().description("SampleSpec").build())
+            .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                 .example(exampleConfig().description("block 1").build(), NOOP)
                 .example(exampleConfig().description("block 2").build(), NOOP)
                 .startGroup(groupConfig().description("describe A").build())
@@ -68,7 +68,7 @@ public class ExecutableSpecBuilderTest {
 
         execute(
             new ExecutableSpecBuilder(BLACK_LIST)
-                .startGroup(groupConfig().description("SampleSpec").build())
+                .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                     .beforeAll(beforeAll)
                     .example(exampleConfig().description("block 1").build(), NOOP)
                     .example(exampleConfig().description("block 2").build(), NOOP)
@@ -90,7 +90,7 @@ public class ExecutableSpecBuilderTest {
 
         execute(
             new ExecutableSpecBuilder(BLACK_LIST)
-                .startGroup(groupConfig().description("SampleSpec").build())
+                .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                     .beforeEach(beforeEach)
                     .example(exampleConfig().description("block 1").build(), NOOP)
                     .example(exampleConfig().description("block 2").build(), NOOP)
@@ -111,7 +111,7 @@ public class ExecutableSpecBuilderTest {
 
         execute(
             new ExecutableSpecBuilder(BLACK_LIST)
-                .startGroup(groupConfig().description("SampleSpec").build())
+                .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                     .example(exampleConfig().description("ignored block").executionFlag(IGNORED).build(), ignored)
                 .endGroup()
         );
@@ -126,7 +126,7 @@ public class ExecutableSpecBuilderTest {
 
         execute(
             new ExecutableSpecBuilder(BLACK_LIST)
-                .startGroup(groupConfig().description("SampleSpec").build())
+                .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                     .example(exampleConfig().description("block 1").build(), executed)
                     .startGroup(groupConfig().description("describe A").executionFlag(IGNORED).build())
                         .example(exampleConfig().description("block A1").build(), ignored)
@@ -149,7 +149,7 @@ public class ExecutableSpecBuilderTest {
 
         execute(
             new ExecutableSpecBuilder(WHITE_LIST)
-                .startGroup(groupConfig().description("SampleSpec").build())
+                .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                     .example(exampleConfig().description("block 1").build(), ignored)
                     .example(exampleConfig().description("block 2").build(), ignored)
                     .startGroup(groupConfig().description("describe A").build())
@@ -170,7 +170,7 @@ public class ExecutableSpecBuilderTest {
 
         execute(
             new ExecutableSpecBuilder(WHITE_LIST)
-                .startGroup(groupConfig().description("SampleSpec").build())
+                .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                     .example(exampleConfig().description("block 1").build(), ignored)
                     .startGroup(groupConfig().description("describe A").executionFlag(FOCUSED).build())
                         .example(exampleConfig().description("block A1").build(), executed)
@@ -191,7 +191,7 @@ public class ExecutableSpecBuilderTest {
     public void builds_examples_with_excepted_exception() {
         ExecutableSpecBuilder builder = new ExecutableSpecBuilder(BLACK_LIST);
         builder
-            .startGroup(groupConfig().description("SampleSpec").build())
+            .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                 .example(exampleConfig().description("block 1").expected(Exception.class).build(), NOOP)
             .endGroup();
         List<ItBlock> examples = builder.build();
@@ -207,11 +207,11 @@ public class ExecutableSpecBuilderTest {
         }
     }
 
-    private ExampleConfiguration.Builder exampleConfig() {
-        return new ExampleConfiguration.Builder();
-    }
-
     private ExampleGroupConfiguration.Builder groupConfig() {
         return new ExampleGroupConfiguration.Builder();
+    }
+
+    private ExampleConfiguration.Builder exampleConfig() {
+        return new ExampleConfiguration.Builder();
     }
 }

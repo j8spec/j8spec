@@ -19,6 +19,7 @@ final class ExampleGroupDefinition implements BlockDefinition {
         ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
             .description(specClass.getName())
             .executionFlag(DEFAULT)
+            .definedOrder()
             .build();
         ExampleGroupDefinition group = new ExampleGroupDefinition(config, context);
         context.switchTo(group);

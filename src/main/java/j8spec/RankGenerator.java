@@ -6,12 +6,12 @@ import java.util.LinkedList;
 
 final class RankGenerator {
 
-    interface Strategy {
+    private interface Strategy {
         Integer initialValue();
         Integer nextValue(Integer currentValue);
     }
 
-    static final class Incremental implements Strategy {
+    private static final class Incremental implements Strategy {
         static final Incremental INSTANCE = new Incremental();
 
         private Incremental() {}
@@ -27,12 +27,52 @@ final class RankGenerator {
         }
     }
 
+    private static class Random implements Strategy {
+        private final java.util.Random random;
+
+        Random(long seed) {
+            this.random = new java.util.Random(seed);
+        }
+
+        @Override
+        public Integer initialValue() {
+            return random.nextInt();
+        }
+
+        @Override
+        public Integer nextValue(Integer currentValue) {
+            return random.nextInt();
+        }
+    }
+
     private final Deque<Strategy> strategies = new LinkedList<>();
     private final Deque<Integer> ranks = new LinkedList<>();
 
-    void pushLevel(Strategy strategy) {
+    void pushLevel(ExampleGroupConfiguration config) {
+        switch (config.executionOrder()) {
+            case DEFINED:
+                pushLevel(Incremental.INSTANCE);
+                break;
+            case RANDOM:
+                pushLevel(new Random(config.seed()));
+                break;
+            case DEFAULT:
+                if (strategies.isEmpty()) {
+                    throw new IllegalStateException();
+                }
+
+                pushLevel();
+                break;
+        }
+    }
+
+    private void pushLevel(Strategy strategy) {
         strategies.push(strategy);
         ranks.push(strategies.peek().initialValue());
+    }
+
+    private void pushLevel() {
+        pushLevel(strategies.peek());
     }
 
     void next() {
