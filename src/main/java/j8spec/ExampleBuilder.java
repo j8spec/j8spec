@@ -12,7 +12,7 @@ import static j8spec.BlockExecutionFlag.DEFAULT;
 import static j8spec.Example.newExample;
 import static j8spec.Example.newIgnoredExample;
 
-final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
+final class ExampleBuilder extends BlockDefinitionVisitor {
 
     private final BlockExecutionStrategy executionStrategy;
     private final Deque<String> descriptions = new LinkedList<>();
@@ -23,7 +23,7 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
 
     private final SortedSet<Example> examples = new TreeSet<>();
 
-    ExecutableSpecBuilder(BlockExecutionStrategy executionStrategy) {
+    ExampleBuilder(BlockExecutionStrategy executionStrategy) {
         this.executionStrategy = executionStrategy;
     }
 

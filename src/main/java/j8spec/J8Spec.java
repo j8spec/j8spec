@@ -326,10 +326,10 @@ public final class J8Spec {
             BlockExecutionStrategySelector strategySelector = new BlockExecutionStrategySelector();
             exampleGroupDefinition.accept(strategySelector);
 
-            ExecutableSpecBuilder specBuilder = new ExecutableSpecBuilder(strategySelector.strategy());
-            exampleGroupDefinition.accept(specBuilder);
+            ExampleBuilder exampleBuilder = new ExampleBuilder(strategySelector.strategy());
+            exampleGroupDefinition.accept(exampleBuilder);
 
-            return specBuilder.build();
+            return exampleBuilder.build();
         } finally {
             contexts.set(null);
         }

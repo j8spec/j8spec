@@ -19,11 +19,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class ExecutableSpecBuilderTest {
+public class ExampleBuilderTest {
 
     @Test
     public void builds_examples_with_given_description() {
-        ExecutableSpecBuilder builder = new ExecutableSpecBuilder(BLACK_LIST);
+        ExampleBuilder builder = new ExampleBuilder(BLACK_LIST);
         builder
             .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                 .example(exampleConfig().description("block 1").build(), NOOP)
@@ -43,7 +43,7 @@ public class ExecutableSpecBuilderTest {
 
     @Test
     public void builds_examples_with_given_container_descriptions() {
-        ExecutableSpecBuilder builder = new ExecutableSpecBuilder(BLACK_LIST);
+        ExampleBuilder builder = new ExampleBuilder(BLACK_LIST);
         builder
             .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                 .example(exampleConfig().description("block 1").build(), NOOP)
@@ -67,7 +67,7 @@ public class ExecutableSpecBuilderTest {
         UnsafeBlock innerBeforeAll = mock(UnsafeBlock.class);
 
         execute(
-            new ExecutableSpecBuilder(BLACK_LIST)
+            new ExampleBuilder(BLACK_LIST)
                 .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                     .beforeAll(beforeAll)
                     .example(exampleConfig().description("block 1").build(), NOOP)
@@ -89,7 +89,7 @@ public class ExecutableSpecBuilderTest {
         UnsafeBlock innerBeforeEach = mock(UnsafeBlock.class);
 
         execute(
-            new ExecutableSpecBuilder(BLACK_LIST)
+            new ExampleBuilder(BLACK_LIST)
                 .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                     .beforeEach(beforeEach)
                     .example(exampleConfig().description("block 1").build(), NOOP)
@@ -110,7 +110,7 @@ public class ExecutableSpecBuilderTest {
         UnsafeBlock ignored = mock(UnsafeBlock.class);
 
         execute(
-            new ExecutableSpecBuilder(BLACK_LIST)
+            new ExampleBuilder(BLACK_LIST)
                 .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                     .example(exampleConfig().description("ignored block").executionFlag(IGNORED).build(), ignored)
                 .endGroup()
@@ -125,7 +125,7 @@ public class ExecutableSpecBuilderTest {
         UnsafeBlock ignored = mock(UnsafeBlock.class);
 
         execute(
-            new ExecutableSpecBuilder(BLACK_LIST)
+            new ExampleBuilder(BLACK_LIST)
                 .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                     .example(exampleConfig().description("block 1").build(), executed)
                     .startGroup(groupConfig().description("describe A").executionFlag(IGNORED).build())
@@ -148,7 +148,7 @@ public class ExecutableSpecBuilderTest {
         UnsafeBlock ignored = mock(UnsafeBlock.class);
 
         execute(
-            new ExecutableSpecBuilder(WHITE_LIST)
+            new ExampleBuilder(WHITE_LIST)
                 .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                     .example(exampleConfig().description("block 1").build(), ignored)
                     .example(exampleConfig().description("block 2").build(), ignored)
@@ -169,7 +169,7 @@ public class ExecutableSpecBuilderTest {
         UnsafeBlock ignored = mock(UnsafeBlock.class);
 
         execute(
-            new ExecutableSpecBuilder(WHITE_LIST)
+            new ExampleBuilder(WHITE_LIST)
                 .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                     .example(exampleConfig().description("block 1").build(), ignored)
                     .startGroup(groupConfig().description("describe A").executionFlag(FOCUSED).build())
@@ -189,7 +189,7 @@ public class ExecutableSpecBuilderTest {
 
     @Test
     public void builds_examples_with_excepted_exception() {
-        ExecutableSpecBuilder builder = new ExecutableSpecBuilder(BLACK_LIST);
+        ExampleBuilder builder = new ExampleBuilder(BLACK_LIST);
         builder
             .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                 .example(exampleConfig().description("block 1").expected(Exception.class).build(), NOOP)
@@ -200,7 +200,7 @@ public class ExecutableSpecBuilderTest {
     }
 
     private void execute(BlockDefinitionVisitor visitor) throws Throwable {
-        ExecutableSpecBuilder builder = (ExecutableSpecBuilder) visitor;
+        ExampleBuilder builder = (ExampleBuilder) visitor;
 
         for (Example block : builder.build()) {
             block.tryToExecute();
