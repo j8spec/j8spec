@@ -32,7 +32,7 @@ public class J8SpecTest {
         it("some text", UnsafeBlock.NOOP);
     }}
 
-    static class DescribeBlockOverwrittenSpec {{
+    static class ExampleGroupOverwrittenSpec {{
         describe("some text", SafeBlock.NOOP);
         describe("some text", SafeBlock.NOOP);
     }}
@@ -115,8 +115,8 @@ public class J8SpecTest {
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
-    public void does_not_allow_describe_block_to_be_replaced() {
-        read(DescribeBlockOverwrittenSpec.class);
+    public void does_not_allow_an_example_group_to_be_replaced() {
+        read(ExampleGroupOverwrittenSpec.class);
     }
 
     @Test(expected = IllegalContextException.class)
@@ -176,7 +176,7 @@ public class J8SpecTest {
     }
 
     @Test()
-    public void allows_multiple_threads_to_build_describe_blocks() throws InterruptedException {
+    public void allows_multiple_threads_to_build_examples() throws InterruptedException {
         final Var<List<Example>> sleepExamples = var();
 
         Thread anotherSpecThread = new Thread(() -> {

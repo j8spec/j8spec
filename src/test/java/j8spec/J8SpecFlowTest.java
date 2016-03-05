@@ -55,7 +55,7 @@ public class J8SpecFlowTest {
         beforeEach(() -> log.add("before each 1"));
     }}
 
-    static class FdescribeSpec {{
+    static class FocusedExampleGroupSpec {{
         it("block 1", () -> log.add("block 1"));
         it("block 2", () -> log.add("block 2"));
 
@@ -75,12 +75,12 @@ public class J8SpecFlowTest {
         });
     }}
 
-    static class FitSpec {{
+    static class FocusedExampleSpec {{
         it("block 1", () -> log.add("block 1"));
         fit("block 2", () -> log.add("block 2"));
     }}
 
-    static class XdescribeSpec {{
+    static class IgnoredExampleGroupSpec {{
         it("block 1", () -> log.add("block 1"));
         it("block 2", () -> log.add("block 2"));
 
@@ -100,7 +100,7 @@ public class J8SpecFlowTest {
         });
     }}
 
-    static class XitSpec {{
+    static class IgnoredExampleSpec {{
         xit("block 1", () -> log.add("block 1"));
         it("block 2", () -> log.add("block 2"));
     }}
@@ -123,7 +123,7 @@ public class J8SpecFlowTest {
 
     @Test
     public void focused_describe_spec_flow() throws Throwable {
-        executeSpec(FdescribeSpec.class);
+        executeSpec(FocusedExampleGroupSpec.class);
 
         assertThat(log, is(asList(
             "block A.1",
@@ -143,7 +143,7 @@ public class J8SpecFlowTest {
 
     @Test
     public void focused_it_spec_flow() throws Throwable {
-        executeSpec(FitSpec.class);
+        executeSpec(FocusedExampleSpec.class);
 
         assertThat(log, is(asList(
             "block 2"
@@ -153,7 +153,7 @@ public class J8SpecFlowTest {
 
     @Test
     public void ignored_describe_spec_flow() throws Throwable {
-        executeSpec(XdescribeSpec.class);
+        executeSpec(IgnoredExampleGroupSpec.class);
 
         assertThat(log, is(asList(
             "block 1",
@@ -173,7 +173,7 @@ public class J8SpecFlowTest {
 
     @Test
     public void ignored_it_spec_flow() throws Throwable {
-        executeSpec(XitSpec.class);
+        executeSpec(IgnoredExampleSpec.class);
 
         assertThat(log, is(asList(
             "block 2"

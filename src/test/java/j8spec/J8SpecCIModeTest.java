@@ -57,7 +57,7 @@ public class J8SpecCIModeTest {
     }
 
     @Test(expected = CIModeEnabledException.class)
-    public void does_not_allow_fdescribe_blocks_when_ci_mode_enabled() {
+    public void does_not_allow_focused_example_group_when_ci_mode_enabled() {
         read(FdescribeSpec.class);
     }
 
@@ -72,7 +72,7 @@ public class J8SpecCIModeTest {
     }
 
     @Test(expected = CIModeEnabledException.class)
-    public void does_not_allow_xdescribe_blocks_when_ci_mode_enabled() {
+    public void does_not_allow_ignored_example_group_when_ci_mode_enabled() {
         read(XdescribeSpec.class);
     }
 
