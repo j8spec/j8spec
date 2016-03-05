@@ -1,9 +1,9 @@
 package j8spec;
 
-final class BeforeEachBlockDefinition implements BlockDefinition {
+final class BeforeEachDefinition implements BlockDefinition {
     private final UnsafeBlock block;
 
-    BeforeEachBlockDefinition(UnsafeBlock block) {
+    BeforeEachDefinition(UnsafeBlock block) {
         this.block = block;
     }
 

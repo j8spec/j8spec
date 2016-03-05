@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static j8spec.BeforeBlock.newBeforeEachBlock;
+import static j8spec.BeforeHook.newBeforeEachBlock;
 import static j8spec.Example.newIgnoredExample;
 import static j8spec.UnsafeBlock.NOOP;
 import static java.util.Arrays.asList;

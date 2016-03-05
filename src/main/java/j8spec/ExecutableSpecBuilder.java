@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import static j8spec.BeforeBlock.newBeforeAllBlock;
-import static j8spec.BeforeBlock.newBeforeEachBlock;
+import static j8spec.BeforeHook.newBeforeAllBlock;
+import static j8spec.BeforeHook.newBeforeEachBlock;
 import static j8spec.BlockExecutionFlag.DEFAULT;
 import static j8spec.Example.newExample;
 import static j8spec.Example.newIgnoredExample;
@@ -17,8 +17,8 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
     private final BlockExecutionStrategy executionStrategy;
     private final Deque<String> descriptions = new LinkedList<>();
     private final Deque<BlockExecutionFlag> executionFlags = new LinkedList<>();
-    private final Deque<List<BeforeBlock>> beforeAllBlocks = new LinkedList<>();
-    private final Deque<List<BeforeBlock>> beforeEachBlocks = new LinkedList<>();
+    private final Deque<List<BeforeHook>> beforeAllBlocks = new LinkedList<>();
+    private final Deque<List<BeforeHook>> beforeEachBlocks = new LinkedList<>();
     private final RankGenerator rankGenerator = new RankGenerator();
 
     private final SortedSet<Example> examples = new TreeSet<>();
@@ -59,9 +59,9 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
 
     @Override
     BlockDefinitionVisitor example(ExampleConfiguration config, UnsafeBlock block) {
-        List<BeforeBlock> beforeBlocks = new LinkedList<>();
-        beforeAllBlocks.forEach(beforeBlocks::addAll);
-        beforeEachBlocks.forEach(beforeBlocks::addAll);
+        List<BeforeHook> beforeHooks = new LinkedList<>();
+        beforeAllBlocks.forEach(beforeHooks::addAll);
+        beforeEachBlocks.forEach(beforeHooks::addAll);
 
         if (executionStrategy.shouldBeIgnored(config.executionFlag(), executionFlags.peekLast())) {
             examples.add(newIgnoredExample(
@@ -73,7 +73,7 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
             examples.add(newExample(
                 new LinkedList<>(descriptions),
                 config.description(),
-                beforeBlocks,
+                beforeHooks,
                 block,
                 config.expectedException(),
                 rankGenerator.generate()

@@ -51,11 +51,11 @@ final class ExampleGroupDefinition implements BlockDefinition {
     }
 
     void addBeforeAll(UnsafeBlock beforeAllBlock) {
-        hooks.add(new BeforeAllBlockDefinition(beforeAllBlock));
+        hooks.add(new BeforeAllDefinition(beforeAllBlock));
     }
 
     void addBeforeEach(UnsafeBlock beforeEachBlock) {
-        hooks.add(new BeforeEachBlockDefinition(beforeEachBlock));
+        hooks.add(new BeforeEachDefinition(beforeEachBlock));
     }
 
     void addExample(ExampleConfiguration itBlockConfig, UnsafeBlock block) {
