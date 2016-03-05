@@ -9,12 +9,12 @@ import static j8spec.J8Spec.xit;
 
 public class J8SpecIgnoreTest {
 
-    static class XitBlockOverwrittenSpec {{
+    static class IgnoredExampleOverwrittenSpec {{
         xit("some text", UnsafeBlock.NOOP);
         xit("some text", UnsafeBlock.NOOP);
     }}
 
-    static class XitBlockWithCollectorOverwrittenSpec {{
+    static class IgnoredExampleWithCollectorOverwrittenSpec {{
         xit("some text", c -> c, UnsafeBlock.NOOP);
         xit("some text", UnsafeBlock.NOOP);
     }}
@@ -40,12 +40,12 @@ public class J8SpecIgnoreTest {
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
-    public void does_not_allow_xit_block_to_be_replaced() {
-        read(XitBlockOverwrittenSpec.class);
+    public void does_not_allow_ignored_example_to_be_replaced() {
+        read(IgnoredExampleOverwrittenSpec.class);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
-    public void does_not_allow_xit_block_with_collector_to_be_replaced() {
-        read(XitBlockWithCollectorOverwrittenSpec.class);
+    public void does_not_allow_ignored_example_with_collector_to_be_replaced() {
+        read(IgnoredExampleWithCollectorOverwrittenSpec.class);
     }
 }

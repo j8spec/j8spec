@@ -23,7 +23,7 @@ import static org.junit.Assert.assertThat;
 
 public class J8SpecFlowTest {
 
-    static class SingleItBlockSpec {{
+    static class SingleExampleSpec {{
         it("block 1", () -> log.add("block 1"));
     }}
 
@@ -113,8 +113,8 @@ public class J8SpecFlowTest {
     }
 
     @Test
-    public void single_it_block_spec_flow() throws Throwable {
-        executeSpec(SingleItBlockSpec.class);
+    public void single_example_spec_flow() throws Throwable {
+        executeSpec(SingleExampleSpec.class);
 
         assertThat(log, is(asList(
             "block 1"

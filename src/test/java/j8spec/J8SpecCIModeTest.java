@@ -9,7 +9,7 @@ import static j8spec.UnsafeBlock.NOOP;
 
 public class J8SpecCIModeTest {
 
-    static class FitSpec {{
+    static class FocusedExampleSpec {{
         fit("block 1", NOOP);
     }}
 
@@ -25,7 +25,7 @@ public class J8SpecCIModeTest {
         });
     }}
 
-    static class XitSpec {{
+    static class IgnoredExampleSpec {{
         xit("block 1", NOOP);
     }}
 
@@ -52,8 +52,8 @@ public class J8SpecCIModeTest {
     }
 
     @Test(expected = CIModeEnabledException.class)
-    public void does_not_allow_fit_blocks_when_ci_mode_enabled() {
-        read(FitSpec.class);
+    public void does_not_allow_focused_examples_when_ci_mode_enabled() {
+        read(FocusedExampleSpec.class);
     }
 
     @Test(expected = CIModeEnabledException.class)
@@ -67,8 +67,8 @@ public class J8SpecCIModeTest {
     }
 
     @Test(expected = CIModeEnabledException.class)
-    public void does_not_allow_xit_blocks_when_ci_mode_enabled() {
-        read(XitSpec.class);
+    public void does_not_allow_ignored_examples_when_ci_mode_enabled() {
+        read(IgnoredExampleSpec.class);
     }
 
     @Test(expected = CIModeEnabledException.class)

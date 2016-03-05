@@ -27,7 +27,7 @@ public class J8SpecTest {
         private BadSpec() {}
     }
 
-    static class ItBlockOverwrittenSpec {{
+    static class ExampleOverwrittenSpec {{
         it("some text", UnsafeBlock.NOOP);
         it("some text", UnsafeBlock.NOOP);
     }}
@@ -42,7 +42,7 @@ public class J8SpecTest {
         context("some text", SafeBlock.NOOP);
     }}
 
-    static class ItBlockWithCollectorOverwrittenSpec {{
+    static class ExampleWithCollectorOverwrittenSpec {{
         it("some text", c -> c, UnsafeBlock.NOOP);
         it("some text", UnsafeBlock.NOOP);
     }}
@@ -88,7 +88,7 @@ public class J8SpecTest {
     }
 
     @Test
-    public void composes_the_description_of_it_blocks_using_their_containers() {
+    public void composes_the_example_description_using_their_containers() {
         List<Example> examples = read(SampleSpec.class);
 
         assertThat(examples.get(0).containerDescriptions(), hasItems("j8spec.J8SpecTest$SampleSpec"));
@@ -98,7 +98,7 @@ public class J8SpecTest {
     }
 
     @Test
-    public void builds_a_it_block_using_excepted_exception_from_the_spec_definition() {
+    public void builds_an_example_using_excepted_exception_from_the_spec_definition() {
         List<Example> examples = read(ExpectedExceptionSpec.class);
 
         assertThat(examples.get(0).expected(), is(equalTo(Exception.class)));
@@ -150,13 +150,13 @@ public class J8SpecTest {
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
-    public void does_not_allow_it_block_to_be_replaced() {
-        read(ItBlockOverwrittenSpec.class);
+    public void does_not_allow_an_example_to_be_replaced() {
+        read(ExampleOverwrittenSpec.class);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
-    public void does_not_allow_it_block_with_collector_to_be_replaced() {
-        read(ItBlockWithCollectorOverwrittenSpec.class);
+    public void does_not_allow_an_example_with_collector_to_be_replaced() {
+        read(ExampleWithCollectorOverwrittenSpec.class);
     }
 
     @Test(expected = IllegalContextException.class)
@@ -168,7 +168,7 @@ public class J8SpecTest {
     @Test(expected = IllegalContextException.class)
     public void forgets_last_spec_after_the_last_spec_evaluation_fails() {
         try {
-            read(ItBlockOverwrittenSpec.class);
+            read(ExampleOverwrittenSpec.class);
         } catch (BlockAlreadyDefinedException e) {
         }
 
@@ -177,10 +177,10 @@ public class J8SpecTest {
 
     @Test()
     public void allows_multiple_threads_to_build_describe_blocks() throws InterruptedException {
-        final Var<List<Example>> sleepItBlocks = var();
+        final Var<List<Example>> sleepExamples = var();
 
         Thread anotherSpecThread = new Thread(() -> {
-            var(sleepItBlocks, read(ThreadThatSleeps2sSpec.class));
+            var(sleepExamples, read(ThreadThatSleeps2sSpec.class));
         });
         anotherSpecThread.start();
 
@@ -192,7 +192,7 @@ public class J8SpecTest {
 
         assertThat(emptyExampleList, is(Collections.<Example>emptyList()));
 
-        assertThat(var(sleepItBlocks).size(), is(1));
-        assertThat(var(sleepItBlocks).get(0).description(), is("block"));
+        assertThat(var(sleepExamples).size(), is(1));
+        assertThat(var(sleepExamples).get(0).description(), is("block"));
     }
 }

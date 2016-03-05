@@ -110,7 +110,7 @@ public class J8SpecRunnerTest {
     }
 
     @Test
-    public void runs_the_given_it_block() throws Throwable {
+    public void runs_the_given_example() throws Throwable {
         J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
         List<Example> examples = runner.getChildren();
 
