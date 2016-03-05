@@ -1,5 +1,6 @@
 package j8spec;
 
+import j8spec.annotation.DefinedOrder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,12 +22,14 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class J8SpecFlowTest {
+public class J8SpecFlowDefinedOrderTest {
 
+    @DefinedOrder
     static class SingleExampleSpec {{
         it("block 1", () -> log.add("block 1"));
     }}
 
+    @DefinedOrder
     static class SampleSpec {{
         beforeAll(() -> log.add("before all 1"));
         beforeAll(() -> log.add("before all 2"));
@@ -49,12 +52,14 @@ public class J8SpecFlowTest {
         it("block 3", () -> log.add("block 3"));
     }}
 
+    @DefinedOrder
     static class OddHookOrderSpec {{
         it("block 1", () -> log.add("block 1"));
         beforeAll(() -> log.add("before all 1"));
         beforeEach(() -> log.add("before each 1"));
     }}
 
+    @DefinedOrder
     static class FocusedExampleGroupSpec {{
         it("block 1", () -> log.add("block 1"));
         it("block 2", () -> log.add("block 2"));
@@ -65,6 +70,7 @@ public class J8SpecFlowTest {
         });
     }}
 
+    @DefinedOrder
     static class FcontextSpec {{
         it("block 1", () -> log.add("block 1"));
         it("block 2", () -> log.add("block 2"));
@@ -75,11 +81,13 @@ public class J8SpecFlowTest {
         });
     }}
 
+    @DefinedOrder
     static class FocusedExampleSpec {{
         it("block 1", () -> log.add("block 1"));
         fit("block 2", () -> log.add("block 2"));
     }}
 
+    @DefinedOrder
     static class IgnoredExampleGroupSpec {{
         it("block 1", () -> log.add("block 1"));
         it("block 2", () -> log.add("block 2"));
@@ -90,6 +98,7 @@ public class J8SpecFlowTest {
         });
     }}
 
+    @DefinedOrder
     static class XcontextSpec {{
         it("block 1", () -> log.add("block 1"));
         it("block 2", () -> log.add("block 2"));
@@ -100,9 +109,19 @@ public class J8SpecFlowTest {
         });
     }}
 
+    @DefinedOrder
     static class IgnoredExampleSpec {{
         xit("block 1", () -> log.add("block 1"));
         it("block 2", () -> log.add("block 2"));
+    }}
+
+    @DefinedOrder
+    static class SuperSpec {}
+
+    static class SubSpec extends SuperSpec {{
+        it("block 1", () -> log.add("block 1"));
+        it("block 2", () -> log.add("block 2"));
+        it("block 3", () -> log.add("block 3"));
     }}
 
     private static List<String> log;
@@ -224,6 +243,17 @@ public class J8SpecFlowTest {
 
             "before each 1",
             "before each 2",
+            "block 3"
+        )));
+    }
+
+    @Test
+    public void inherits_order_from_super_spec() throws Throwable {
+        executeSpec(SubSpec.class);
+
+        assertThat(log, is(asList(
+            "block 1",
+            "block 2",
             "block 3"
         )));
     }

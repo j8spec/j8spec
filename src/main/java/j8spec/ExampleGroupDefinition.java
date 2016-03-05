@@ -1,5 +1,8 @@
 package j8spec;
 
+import j8spec.annotation.DefinedOrder;
+import j8spec.annotation.RandomOrder;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,12 +19,13 @@ final class ExampleGroupDefinition implements BlockDefinition {
         Class<?> specClass,
         Context<ExampleGroupDefinition> context
     ) {
-        ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
+        ExampleGroupConfiguration.Builder configBuilder = new ExampleGroupConfiguration.Builder()
             .description(specClass.getName())
-            .executionFlag(DEFAULT)
-            .definedOrder()
-            .build();
-        ExampleGroupDefinition group = new ExampleGroupDefinition(config, context);
+            .executionFlag(DEFAULT);
+
+        configureExecutionOrder(specClass, configBuilder);
+
+        ExampleGroupDefinition group = new ExampleGroupDefinition(configBuilder.build(), context);
         context.switchTo(group);
 
         try {
@@ -33,6 +37,17 @@ final class ExampleGroupDefinition implements BlockDefinition {
         }
 
         return group;
+    }
+
+    private static void configureExecutionOrder(Class<?> specClass, ExampleGroupConfiguration.Builder configBuilder) {
+        if (specClass.isAnnotationPresent(DefinedOrder.class)) {
+            configBuilder.definedOrder();
+        } else {
+            configBuilder.randomOrder();
+            if (specClass.isAnnotationPresent(RandomOrder.class)) {
+                configBuilder.seed(specClass.getAnnotation(RandomOrder.class).seed());
+            }
+        }
     }
 
     private ExampleGroupDefinition(ExampleGroupConfiguration config, Context<ExampleGroupDefinition> context) {

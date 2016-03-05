@@ -1,5 +1,6 @@
 package j8spec.junit;
 
+import j8spec.annotation.DefinedOrder;
 import j8spec.Example;
 import j8spec.UnsafeBlock;
 import org.junit.Before;
@@ -29,6 +30,7 @@ public class J8SpecRunnerTest {
 
     public static class CustomException extends Exception {}
 
+    @DefinedOrder
     public static class SampleSpec {{
         it(BLOCK_1, newBlock(BLOCK_1));
         it(BLOCK_2, () -> {});

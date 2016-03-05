@@ -1,5 +1,6 @@
 package j8spec;
 
+import j8spec.annotation.DefinedOrder;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -63,6 +64,7 @@ public class J8SpecTest {
         it("block 1", c -> c.expected(Exception.class), UnsafeBlock.NOOP);
     }}
 
+    @DefinedOrder
     static class SampleSpec {{
         it("block 1", UnsafeBlock.NOOP);
         it("block 2", UnsafeBlock.NOOP);

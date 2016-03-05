@@ -34,8 +34,27 @@ public final class J8Spec {
      * @since 1.0.0
      */
     public static synchronized void describe(String description, SafeBlock block) {
+        describe(description, identity(), block);
+    }
+
+    /**
+     * Defines a new "describe" block.
+     *
+     * @param description textual description of the new block
+     * @param collector
+     * @param block code that defines inner blocks, like "describe", "it", etc - this code is executed
+     *             immediately
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * defined already
+     * @since 3.0.0
+     */
+    public static synchronized void describe(
+        String description,
+        Function<ExampleGroupConfiguration.Builder, ExampleGroupConfiguration.Builder> collector,
+        SafeBlock block) {
         isValidContext("describe");
-        ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
+        ExampleGroupConfiguration config = collector.apply(new ExampleGroupConfiguration.Builder())
             .description(description)
             .executionFlag(DEFAULT)
             .build();
