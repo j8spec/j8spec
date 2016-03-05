@@ -9,8 +9,8 @@ import java.util.TreeSet;
 import static j8spec.BeforeBlock.newBeforeAllBlock;
 import static j8spec.BeforeBlock.newBeforeEachBlock;
 import static j8spec.BlockExecutionFlag.DEFAULT;
-import static j8spec.ItBlock.newIgnoredItBlock;
-import static j8spec.ItBlock.newItBlock;
+import static j8spec.Example.newExample;
+import static j8spec.Example.newIgnoredExample;
 
 final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
 
@@ -21,7 +21,7 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
     private final Deque<List<BeforeBlock>> beforeEachBlocks = new LinkedList<>();
     private final RankGenerator rankGenerator = new RankGenerator();
 
-    private final SortedSet<ItBlock> examples = new TreeSet<>();
+    private final SortedSet<Example> examples = new TreeSet<>();
 
     ExecutableSpecBuilder(BlockExecutionStrategy executionStrategy) {
         this.executionStrategy = executionStrategy;
@@ -64,13 +64,13 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
         beforeEachBlocks.forEach(beforeBlocks::addAll);
 
         if (executionStrategy.shouldBeIgnored(config.executionFlag(), executionFlags.peekLast())) {
-            examples.add(newIgnoredItBlock(
+            examples.add(newIgnoredExample(
                 new LinkedList<>(descriptions),
                 config.description(),
                 rankGenerator.generate()
             ));
         } else {
-            examples.add(newItBlock(
+            examples.add(newExample(
                 new LinkedList<>(descriptions),
                 config.description(),
                 beforeBlocks,
@@ -95,7 +95,7 @@ final class ExecutableSpecBuilder extends BlockDefinitionVisitor {
         return this;
     }
 
-    List<ItBlock> build() {
+    List<Example> build() {
         return new LinkedList<>(examples);
     }
 }

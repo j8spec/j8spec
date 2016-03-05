@@ -229,8 +229,8 @@ public class J8SpecFlowTest {
     }
 
     private void executeSpec(Class<?> specClass) throws Throwable {
-        for (ItBlock itBlock : read(specClass)) {
-            itBlock.tryToExecute();
+        for (Example example : read(specClass)) {
+            example.tryToExecute();
         }
     }
 }

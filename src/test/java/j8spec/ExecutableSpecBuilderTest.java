@@ -33,7 +33,7 @@ public class ExecutableSpecBuilderTest {
                     .example(exampleConfig().description("block A2").build(), NOOP)
                 .endGroup()
             .endGroup();
-        List<ItBlock> examples = builder.build();
+        List<Example> examples = builder.build();
 
         assertThat(examples.get(0).description(), is("block 1"));
         assertThat(examples.get(1).description(), is("block 2"));
@@ -53,7 +53,7 @@ public class ExecutableSpecBuilderTest {
                     .example(exampleConfig().description("block A1").build(), NOOP)
                 .endGroup()
             .endGroup();
-        List<ItBlock> examples = builder.build();
+        List<Example> examples = builder.build();
 
         assertThat(examples.get(0).containerDescriptions(), is(singletonList("SampleSpec")));
         assertThat(examples.get(1).containerDescriptions(), is(singletonList("SampleSpec")));
@@ -194,7 +194,7 @@ public class ExecutableSpecBuilderTest {
             .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
                 .example(exampleConfig().description("block 1").expected(Exception.class).build(), NOOP)
             .endGroup();
-        List<ItBlock> examples = builder.build();
+        List<Example> examples = builder.build();
 
         assertThat(examples.get(0).expected(), is(equalTo(Exception.class)));
     }
@@ -202,7 +202,7 @@ public class ExecutableSpecBuilderTest {
     private void execute(BlockDefinitionVisitor visitor) throws Throwable {
         ExecutableSpecBuilder builder = (ExecutableSpecBuilder) visitor;
 
-        for (ItBlock block : builder.build()) {
+        for (Example block : builder.build()) {
             block.tryToExecute();
         }
     }

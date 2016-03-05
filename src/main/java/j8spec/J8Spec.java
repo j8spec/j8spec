@@ -309,14 +309,14 @@ public final class J8Spec {
     }
 
     /**
-     * Uses the given spec class to build and populate a {@link ItBlock} objects.
+     * Uses the given spec class to build and populate a {@link Example} objects.
      *
      * @param specClass class with a public default constructor that contains the spec definition
-     * @return {@link ItBlock} objects that represent the spec definition
+     * @return {@link Example} objects that represent the spec definition
      * @throws SpecInitializationException if it is not possible to create an instance of <code>specClass</code>
      * @since 2.0.0
      */
-    public static synchronized List<ItBlock> read(Class<?> specClass) {
+    public static synchronized List<Example> read(Class<?> specClass) {
         contexts.set(new Context<>());
         try {
             ExampleGroupDefinition exampleGroupDefinition = newExampleGroupDefinition(specClass, contexts.get());

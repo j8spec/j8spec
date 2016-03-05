@@ -1,6 +1,6 @@
 package j8spec.junit;
 
-import j8spec.ItBlock;
+import j8spec.Example;
 import j8spec.J8Spec;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
@@ -12,49 +12,49 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static j8spec.junit.ItBlockStatement.newStatement;
+import static j8spec.junit.ExampleStatement.newStatement;
 import static org.junit.runner.Description.createTestDescription;
 
 /**
  * JUnit runner for J8Spec specs.
  * @since 1.0.0
  */
-public final class J8SpecRunner extends ParentRunner<ItBlock> {
+public final class J8SpecRunner extends ParentRunner<Example> {
 
     private final String specName;
-    private final Map<ItBlock, Description> descriptions = new HashMap<>();
-    private final List<ItBlock> itBlocks;
+    private final Map<Example, Description> descriptions = new HashMap<>();
+    private final List<Example> examples;
 
     public J8SpecRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
         try {
             specName = testClass.getName();
-            itBlocks = J8Spec.read(testClass);
+            examples = J8Spec.read(testClass);
         } catch (Exception e) {
             throw new InitializationError(e);
         }
     }
 
     @Override
-    protected List<ItBlock> getChildren() {
-        return itBlocks;
+    protected List<Example> getChildren() {
+        return examples;
     }
 
     @Override
-    protected Description describeChild(ItBlock itBlock) {
-        if (!descriptions.containsKey(itBlock)) {
+    protected Description describeChild(Example example) {
+        if (!descriptions.containsKey(example)) {
             descriptions.put(
-                itBlock,
-                createTestDescription(specName, buildChildName(itBlock))
+                example,
+                createTestDescription(specName, buildChildName(example))
             );
         }
-        return descriptions.get(itBlock);
+        return descriptions.get(example);
     }
 
-    private String buildChildName(ItBlock itBlock) {
+    private String buildChildName(Example example) {
         List<String> name = new LinkedList<>();
-        List<String> containerDescriptions = itBlock.containerDescriptions();
-        name.add(itBlock.description());
+        List<String> containerDescriptions = example.containerDescriptions();
+        name.add(example.description());
         for (int i = 1; i < containerDescriptions.size(); i++) {
             name.add(containerDescriptions.get(i));
         }
@@ -62,19 +62,19 @@ public final class J8SpecRunner extends ParentRunner<ItBlock> {
     }
 
     @Override
-    protected boolean isIgnored(ItBlock itBlock) {
-        return itBlock.shouldBeIgnored();
+    protected boolean isIgnored(Example example) {
+        return example.shouldBeIgnored();
     }
 
     @Override
-    protected void runChild(ItBlock itBlock, RunNotifier notifier) {
-        Description description = describeChild(itBlock);
+    protected void runChild(Example example, RunNotifier notifier) {
+        Description description = describeChild(example);
 
-        if (isIgnored(itBlock)) {
+        if (isIgnored(example)) {
             notifier.fireTestIgnored(description);
             return;
         }
 
-        runLeaf(newStatement(itBlock), description, notifier);
+        runLeaf(newStatement(example), description, notifier);
     }
 }

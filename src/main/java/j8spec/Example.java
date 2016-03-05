@@ -6,10 +6,10 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 /**
- * Representation of a "it" block ready to be executed.
- * @since 1.0.0
+ * Example ready to be executed.
+ * @since 3.0.0
  */
-public final class ItBlock implements UnsafeBlock, Comparable<ItBlock> {
+public final class Example implements UnsafeBlock, Comparable<Example> {
 
     private final List<String> containerDescriptions;
     private final String description;
@@ -18,17 +18,17 @@ public final class ItBlock implements UnsafeBlock, Comparable<ItBlock> {
     private final Class<? extends Throwable> expectedException;
     private final Rank rank;
 
-    static ItBlock newItBlock(
+    static Example newExample(
         List<String> containerDescriptions,
         String description,
         List<BeforeBlock> beforeBlocks,
         UnsafeBlock block,
         Rank rank
     ) {
-        return new ItBlock(containerDescriptions, description, beforeBlocks, block, null, rank);
+        return new Example(containerDescriptions, description, beforeBlocks, block, null, rank);
     }
 
-    static ItBlock newItBlock(
+    static Example newExample(
         List<String> containerDescriptions,
         String description,
         List<BeforeBlock> beforeBlocks,
@@ -36,14 +36,14 @@ public final class ItBlock implements UnsafeBlock, Comparable<ItBlock> {
         Class<? extends Throwable> expectedException,
         Rank rank
     ) {
-        return new ItBlock(containerDescriptions, description, beforeBlocks, block, expectedException, rank);
+        return new Example(containerDescriptions, description, beforeBlocks, block, expectedException, rank);
     }
 
-    static ItBlock newIgnoredItBlock(List<String> containerDescriptions, String description, Rank rank) {
-        return newItBlock(containerDescriptions, description, emptyList(), NOOP, rank);
+    static Example newIgnoredExample(List<String> containerDescriptions, String description, Rank rank) {
+        return newExample(containerDescriptions, description, emptyList(), NOOP, rank);
     }
 
-    private ItBlock(
+    private Example(
         List<String> containerDescriptions,
         String description,
         List<BeforeBlock> beforeBlocks,
@@ -60,7 +60,7 @@ public final class ItBlock implements UnsafeBlock, Comparable<ItBlock> {
     }
 
     @Override
-    public int compareTo(ItBlock block) {
+    public int compareTo(Example block) {
         return rank.compareTo(block.rank);
     }
 

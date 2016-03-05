@@ -89,19 +89,19 @@ public class J8SpecTest {
 
     @Test
     public void composes_the_description_of_it_blocks_using_their_containers() {
-        List<ItBlock> itBlocks = read(SampleSpec.class);
+        List<Example> examples = read(SampleSpec.class);
 
-        assertThat(itBlocks.get(0).containerDescriptions(), hasItems("j8spec.J8SpecTest$SampleSpec"));
-        assertThat(itBlocks.get(2).containerDescriptions(), hasItems("j8spec.J8SpecTest$SampleSpec", "describe A"));
-        assertThat(itBlocks.get(4).containerDescriptions(), hasItems("j8spec.J8SpecTest$SampleSpec", "describe A", "describe A.A"));
-        assertThat(itBlocks.get(6).containerDescriptions(), hasItems("j8spec.J8SpecTest$SampleSpec", "context B"));
+        assertThat(examples.get(0).containerDescriptions(), hasItems("j8spec.J8SpecTest$SampleSpec"));
+        assertThat(examples.get(2).containerDescriptions(), hasItems("j8spec.J8SpecTest$SampleSpec", "describe A"));
+        assertThat(examples.get(4).containerDescriptions(), hasItems("j8spec.J8SpecTest$SampleSpec", "describe A", "describe A.A"));
+        assertThat(examples.get(6).containerDescriptions(), hasItems("j8spec.J8SpecTest$SampleSpec", "context B"));
     }
 
     @Test
     public void builds_a_it_block_using_excepted_exception_from_the_spec_definition() {
-        List<ItBlock> itBlocks = read(ExpectedExceptionSpec.class);
+        List<Example> examples = read(ExpectedExceptionSpec.class);
 
-        assertThat(itBlocks.get(0).expected(), is(equalTo(Exception.class)));
+        assertThat(examples.get(0).expected(), is(equalTo(Exception.class)));
     }
 
     @Test(expected = SpecInitializationException.class)
@@ -177,7 +177,7 @@ public class J8SpecTest {
 
     @Test()
     public void allows_multiple_threads_to_build_describe_blocks() throws InterruptedException {
-        final Var<List<ItBlock>> sleepItBlocks = var();
+        final Var<List<Example>> sleepItBlocks = var();
 
         Thread anotherSpecThread = new Thread(() -> {
             var(sleepItBlocks, read(ThreadThatSleeps2sSpec.class));
@@ -186,11 +186,11 @@ public class J8SpecTest {
 
         Thread.sleep(1000);
 
-        List<ItBlock> emptyItBlockList = read(EmptySpec.class);
+        List<Example> emptyExampleList = read(EmptySpec.class);
 
         anotherSpecThread.join();
 
-        assertThat(emptyItBlockList, is(Collections.<ItBlock>emptyList()));
+        assertThat(emptyExampleList, is(Collections.<Example>emptyList()));
 
         assertThat(var(sleepItBlocks).size(), is(1));
         assertThat(var(sleepItBlocks).get(0).description(), is("block"));
