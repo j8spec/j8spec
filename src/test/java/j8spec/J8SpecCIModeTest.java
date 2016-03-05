@@ -1,5 +1,6 @@
 package j8spec;
 
+import j8spec.annotation.RandomOrder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +38,17 @@ public class J8SpecCIModeTest {
 
     static class XcontextSpec {{
         xcontext("describe 1", () -> {
+            it("block 1", NOOP);
+        });
+    }}
+
+    @RandomOrder(seed = 0)
+    static class HardCodedSeedSpec {{
+        it("block 1", NOOP);
+    }}
+
+    static class InnerExampleGroupWithHardCodedSeedSpec {{
+        describe("describe A", c -> c.randomOrder().seed(0), () -> {
             it("block 1", NOOP);
         });
     }}
@@ -79,5 +91,15 @@ public class J8SpecCIModeTest {
     @Test(expected = CIModeEnabledException.class)
     public void does_not_allow_xcontext_blocks_when_ci_mode_enabled() {
         read(XcontextSpec.class);
+    }
+
+    @Test(expected = CIModeEnabledException.class)
+    public void does_not_allow_hard_coded_seed_when_ci_mode_enabled() {
+        read(HardCodedSeedSpec.class);
+    }
+
+    @Test(expected = CIModeEnabledException.class)
+    public void does_not_allow_inner_example_group_with_hard_coded_seed_when_ci_mode_enabled() {
+        read(InnerExampleGroupWithHardCodedSeedSpec.class);
     }
 }
