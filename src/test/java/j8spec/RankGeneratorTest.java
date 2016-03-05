@@ -47,14 +47,14 @@ public class RankGeneratorTest {
 
     @Test
     public void initialize_new_level_with_rank_zero_when_using_random_strategy() {
-        generator.pushLevel(groupConfig().randomOrder().seed(0).build());
+        generator.pushLevel(groupConfig().randomOrder().seed(0L).build());
 
         assertThat(generator.generate(), is(new Rank(-1155484576)));
     }
 
     @Test
     public void calculates_next_value_for_current_rank_level_when_using_random_strategy() {
-        generator.pushLevel(groupConfig().randomOrder().seed(0).build());
+        generator.pushLevel(groupConfig().randomOrder().seed(0L).build());
         generator.next();
 
         assertThat(generator.generate(), is(new Rank(-723955400)));
@@ -62,7 +62,7 @@ public class RankGeneratorTest {
 
     @Test
     public void adds_new_rank_level_when_using_random_strategy() {
-        generator.pushLevel(groupConfig().randomOrder().seed(0).build());
+        generator.pushLevel(groupConfig().randomOrder().seed(0L).build());
         generator.pushLevel(groupConfig().build());
 
         assertThat(generator.generate(), is(new Rank(-1155484576, -723955400)));
@@ -70,7 +70,7 @@ public class RankGeneratorTest {
 
     @Test
     public void calculates_next_value_for_rank_after_dropping_level_when_using_random_strategy() {
-        generator.pushLevel(groupConfig().randomOrder().seed(0).build());
+        generator.pushLevel(groupConfig().randomOrder().seed(0L).build());
         generator.pushLevel(groupConfig().build());
         generator.popLevel();
 

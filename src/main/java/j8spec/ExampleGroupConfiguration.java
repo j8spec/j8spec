@@ -13,7 +13,7 @@ public final class ExampleGroupConfiguration {
         private String description;
         private BlockExecutionFlag executionFlag = BlockExecutionFlag.DEFAULT;
         private BlockExecutionOrder executionOrder = BlockExecutionOrder.DEFAULT;
-        private long seed;
+        private Long seed;
 
         Builder description(String description) {
             this.description = description;
@@ -35,7 +35,7 @@ public final class ExampleGroupConfiguration {
             return this;
         }
 
-        public Builder seed(long seed) {
+        public Builder seed(Long seed) {
             if (Boolean.valueOf(System.getProperty("j8spec.ci.mode", "false"))) {
                 throw new CIModeEnabledException("hard-coded seed not allowed when j8spec.ci.mode enabled");
             }
@@ -57,13 +57,13 @@ public final class ExampleGroupConfiguration {
     private final String description;
     private final BlockExecutionFlag executionFlag;
     private final BlockExecutionOrder executionOrder;
-    private final long seed;
+    private final Long seed;
 
     private ExampleGroupConfiguration(
         String description,
         BlockExecutionFlag executionFlag,
         BlockExecutionOrder executionOrder,
-        long seed
+        Long seed
     ) {
         this.description = description;
         this.executionFlag = executionFlag;
@@ -83,7 +83,7 @@ public final class ExampleGroupConfiguration {
         return executionOrder;
     }
 
-    long seed() {
+    Long seed() {
         return seed;
     }
 }

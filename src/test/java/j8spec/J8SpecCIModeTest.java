@@ -48,7 +48,7 @@ public class J8SpecCIModeTest {
     }}
 
     static class InnerExampleGroupWithHardCodedSeedSpec {{
-        describe("describe A", c -> c.randomOrder().seed(0), () -> {
+        describe("describe A", c -> c.randomOrder().seed(0L), () -> {
             it("block 1", NOOP);
         });
     }}

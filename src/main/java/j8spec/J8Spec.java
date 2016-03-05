@@ -41,12 +41,12 @@ public final class J8Spec {
      * Defines a new "describe" block.
      *
      * @param description textual description of the new block
-     * @param collector
-     * @param block code that defines inner blocks, like "describe", "it", etc - this code is executed
-     *             immediately
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @param collector   block configuration collector
+     * @param block       code that defines inner blocks, like "describe", "it", etc - this code is executed
+     *                    immediately
+     * @throws IllegalContextException      if called outside the context of the {@link #read(Class)} method
      * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
-     * defined already
+     *                                      defined already
      * @since 3.0.0
      */
     public static synchronized void describe(

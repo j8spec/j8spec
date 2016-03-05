@@ -2,7 +2,6 @@ package j8spec;
 
 import j8spec.annotation.DefinedOrder;
 import j8spec.annotation.RandomOrder;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -14,6 +13,7 @@ import static j8spec.J8Spec.describe;
 import static j8spec.J8Spec.it;
 import static j8spec.J8Spec.read;
 import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
@@ -24,6 +24,12 @@ public class J8SpecFlowRandomOrderTest {
         it("block 1", () -> log.add("block 1"));
         it("block 2", () -> log.add("block 2"));
         it("block 3", () -> log.add("block 3"));
+        it("block 4", () -> log.add("block 4"));
+        it("block 5", () -> log.add("block 5"));
+        it("block 6", () -> log.add("block 6"));
+        it("block 7", () -> log.add("block 7"));
+        it("block 8", () -> log.add("block 8"));
+        it("block 9", () -> log.add("block 9"));
     }}
 
     @RandomOrder(seed = 0)
@@ -46,7 +52,7 @@ public class J8SpecFlowRandomOrderTest {
         it("block 1", () -> log.add("block 1"));
         it("block 2", () -> log.add("block 2"));
 
-        describe("describe A", c -> c.randomOrder().seed(0), () -> {
+        describe("describe A", c -> c.randomOrder().seed(0L), () -> {
             beforeAll(() -> log.add("before all A1"));
             beforeEach(() -> log.add("before each A1"));
 
@@ -89,20 +95,20 @@ public class J8SpecFlowRandomOrderTest {
 
     private static List<String> log;
 
-    @Before
-    public void resetLog() throws Throwable {
+    private List<String> executeSpec(Class<?> specClass) throws Throwable {
         log = new ArrayList<>();
+        for (Example example : read(specClass)) {
+            example.tryToExecute();
+        }
+        return unmodifiableList(log);
     }
 
     @Test
-    public void random_as_default_order_spec() throws Throwable {
-        executeSpec(RandomAsDefaultOrderSpec.class);
+    public void uses_a_different_seed_each_execution() throws Throwable {
+        List<String> firstExecution = executeSpec(RandomAsDefaultOrderSpec.class);
+        List<String> secondExecution = executeSpec(RandomAsDefaultOrderSpec.class);
 
-        assertThat(log, is(not(asList(
-            "block 1",
-            "block 2",
-            "block 3"
-        ))));
+        assertThat(firstExecution, is(not(secondExecution)));
     }
 
     @Test
@@ -202,11 +208,5 @@ public class J8SpecFlowRandomOrderTest {
             "block 1",
             "block 2"
         )));
-    }
-
-    private void executeSpec(Class<?> specClass) throws Throwable {
-        for (Example example : read(specClass)) {
-            example.tryToExecute();
-        }
     }
 }

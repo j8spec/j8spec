@@ -30,8 +30,12 @@ final class RankGenerator {
     private static class Random implements Strategy {
         private final java.util.Random random;
 
-        Random(long seed) {
-            this.random = new java.util.Random(seed);
+        Random(Long seed) {
+            if (seed == null) {
+                this.random = new java.util.Random();
+            } else {
+                this.random = new java.util.Random(seed);
+            }
         }
 
         @Override
