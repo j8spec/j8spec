@@ -1,9 +1,12 @@
 package j8spec;
 
+import java.util.List;
 import java.util.function.Function;
 
-import static j8spec.DescribeBlockDefinition.newDescribeBlockDefinition;
-import static j8spec.ItBlockConfiguration.newItBlockConfiguration;
+import static j8spec.BlockExecutionFlag.DEFAULT;
+import static j8spec.BlockExecutionFlag.FOCUSED;
+import static j8spec.BlockExecutionFlag.IGNORED;
+import static j8spec.ExampleGroupDefinition.newExampleGroupDefinition;
 import static java.util.function.Function.identity;
 
 /**
@@ -17,7 +20,7 @@ import static java.util.function.Function.identity;
  */
 public final class J8Spec {
 
-    private static final ThreadLocal<Context<DescribeBlockDefinition>> contexts = new ThreadLocal<>();
+    private static final ThreadLocal<Context<ExampleGroupDefinition>> contexts = new ThreadLocal<>();
 
     /**
      * Defines a new "describe" block.
@@ -32,7 +35,11 @@ public final class J8Spec {
      */
     public static synchronized void describe(String description, SafeBlock block) {
         isValidContext("describe");
-        contexts.get().current().describe(description, block);
+        ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
+            .description(description)
+            .executionFlag(DEFAULT)
+            .build();
+        contexts.get().current().addGroup(config, block);
     }
 
     /**
@@ -48,7 +55,11 @@ public final class J8Spec {
      */
     public static synchronized void context(String description, SafeBlock block) {
         isValidContext("context");
-        contexts.get().current().describe(description, block);
+        ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
+            .description(description)
+            .executionFlag(DEFAULT)
+            .build();
+        contexts.get().current().addGroup(config, block);
     }
 
     /**
@@ -66,7 +77,11 @@ public final class J8Spec {
     public static synchronized void xdescribe(String description, SafeBlock block) {
         notAllowedWhenCIModeEnabled("xdescribe");
         isValidContext("xdescribe");
-        contexts.get().current().xdescribe(description, block);
+        ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
+            .description(description)
+            .executionFlag(IGNORED)
+            .build();
+        contexts.get().current().addGroup(config, block);
     }
 
     /**
@@ -84,7 +99,11 @@ public final class J8Spec {
     public static synchronized void xcontext(String description, SafeBlock block) {
         notAllowedWhenCIModeEnabled("xcontext");
         isValidContext("xcontext");
-        contexts.get().current().xdescribe(description, block);
+        ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
+            .description(description)
+            .executionFlag(IGNORED)
+            .build();
+        contexts.get().current().addGroup(config, block);
     }
 
     /**
@@ -102,7 +121,11 @@ public final class J8Spec {
     public static synchronized void fdescribe(String description, SafeBlock block) {
         notAllowedWhenCIModeEnabled("fdescribe");
         isValidContext("fdescribe");
-        contexts.get().current().fdescribe(description, block);
+        ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
+            .description(description)
+            .executionFlag(FOCUSED)
+            .build();
+        contexts.get().current().addGroup(config, block);
     }
 
     /**
@@ -120,7 +143,11 @@ public final class J8Spec {
     public static synchronized void fcontext(String description, SafeBlock block) {
         notAllowedWhenCIModeEnabled("fcontext");
         isValidContext("fcontext");
-        contexts.get().current().fdescribe(description, block);
+        ExampleGroupConfiguration config = new ExampleGroupConfiguration.Builder()
+            .description(description)
+            .executionFlag(FOCUSED)
+            .build();
+        contexts.get().current().addGroup(config, block);
     }
 
     /**
@@ -132,7 +159,7 @@ public final class J8Spec {
      */
     public static synchronized void beforeAll(UnsafeBlock block) {
         isValidContext("beforeAll");
-        contexts.get().current().beforeAll(block);
+        contexts.get().current().addBeforeAll(block);
     }
 
     /**
@@ -144,7 +171,7 @@ public final class J8Spec {
      */
     public static synchronized void beforeEach(UnsafeBlock block) {
         isValidContext("beforeEach");
-        contexts.get().current().beforeEach(block);
+        contexts.get().current().addBeforeEach(block);
     }
 
     /**
@@ -174,14 +201,15 @@ public final class J8Spec {
      */
     public static synchronized void it(
         String description,
-        Function<ItBlockConfiguration, ItBlockConfiguration> collector,
+        Function<ExampleConfiguration.Builder, ExampleConfiguration.Builder> collector,
         UnsafeBlock block
     ) {
         isValidContext("it");
-        ItBlockDefinition itBlockDefinition = collector.apply(newItBlockConfiguration())
-            .block(block)
-            .newItBlockDefinition();
-        contexts.get().current().it(description, itBlockDefinition);
+        ExampleConfiguration config = collector.apply(new ExampleConfiguration.Builder())
+            .description(description)
+            .executionFlag(DEFAULT)
+            .build();
+        contexts.get().current().addExample(config, block);
     }
 
     /**
@@ -213,15 +241,16 @@ public final class J8Spec {
      */
     public static synchronized void xit(
         String description,
-        Function<ItBlockConfiguration, ItBlockConfiguration> collector,
+        Function<ExampleConfiguration.Builder, ExampleConfiguration.Builder> collector,
         UnsafeBlock block
     ) {
         notAllowedWhenCIModeEnabled("xit");
         isValidContext("xit");
-        ItBlockDefinition itBlockDefinition = collector.apply(newItBlockConfiguration())
-            .block(block)
-            .newIgnoredItBlockDefinition();
-        contexts.get().current().it(description, itBlockDefinition);
+        ExampleConfiguration config = collector.apply(new ExampleConfiguration.Builder())
+            .description(description)
+            .executionFlag(IGNORED)
+            .build();
+        contexts.get().current().addExample(config, block);
     }
 
     /**
@@ -253,15 +282,16 @@ public final class J8Spec {
      */
     public static synchronized void fit(
         String description,
-        Function<ItBlockConfiguration, ItBlockConfiguration> collector,
+        Function<ExampleConfiguration.Builder, ExampleConfiguration.Builder> collector,
         UnsafeBlock block
     ) {
         notAllowedWhenCIModeEnabled("fit");
         isValidContext("fit");
-        ItBlockDefinition itBlockDefinition = collector.apply(newItBlockConfiguration())
-            .block(block)
-            .newFocusedItBlockDefinition();
-        contexts.get().current().it(description, itBlockDefinition);
+        ExampleConfiguration config = collector.apply(new ExampleConfiguration.Builder())
+            .description(description)
+            .executionFlag(FOCUSED)
+            .build();
+        contexts.get().current().addExample(config, block);
     }
 
     private static void notAllowedWhenCIModeEnabled(final String methodName) {
@@ -279,17 +309,27 @@ public final class J8Spec {
     }
 
     /**
-     * Uses the given spec class to build and populate a {@link DescribeBlock} object.
+     * Uses the given spec class to build and populate a {@link Example} objects.
      *
      * @param specClass class with a public default constructor that contains the spec definition
-     * @return {@link DescribeBlock} object that represents the spec definition
+     * @return {@link Example} objects that represent the spec definition
      * @throws SpecInitializationException if it is not possible to create an instance of <code>specClass</code>
      * @since 2.0.0
      */
-    public static synchronized DescribeBlock read(Class<?> specClass) {
+    public static synchronized List<Example> read(Class<?> specClass) {
         contexts.set(new Context<>());
         try {
-            return newDescribeBlockDefinition(specClass, contexts.get()).toDescribeBlock();
+            ExampleGroupDefinition exampleGroupDefinition = newExampleGroupDefinition(specClass, contexts.get());
+
+            exampleGroupDefinition.accept(new DuplicatedBlockValidator());
+
+            BlockExecutionStrategySelector strategySelector = new BlockExecutionStrategySelector();
+            exampleGroupDefinition.accept(strategySelector);
+
+            ExampleBuilder exampleBuilder = new ExampleBuilder(strategySelector.strategy());
+            exampleGroupDefinition.accept(exampleBuilder);
+
+            return exampleBuilder.build();
         } finally {
             contexts.set(null);
         }

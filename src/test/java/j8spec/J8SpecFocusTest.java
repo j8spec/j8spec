@@ -2,74 +2,22 @@ package j8spec;
 
 import org.junit.Test;
 
-import static j8spec.J8Spec.*;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static j8spec.J8Spec.fcontext;
+import static j8spec.J8Spec.fdescribe;
+import static j8spec.J8Spec.fit;
+import static j8spec.J8Spec.read;
 
 public class J8SpecFocusTest {
 
-    private static final UnsafeBlock IT_BLOCK_1 = () -> {};
-    private static final UnsafeBlock IT_BLOCK_2 = () -> {};
-
-    private static final UnsafeBlock IT_BLOCK_A1 = () -> {};
-    private static final UnsafeBlock IT_BLOCK_A2 = () -> {};
-
-    static class FitBlockOverwrittenSpec {{
+    static class FocusedExampleBlockOverwrittenSpec {{
         fit("some text", UnsafeBlock.NOOP);
         fit("some text", UnsafeBlock.NOOP);
     }}
 
-    static class FitBlockWithCollectorOverwrittenSpec {{
+    static class FocusedExampleWithCollectorOverwrittenSpec {{
         fit("some text", c -> c, UnsafeBlock.NOOP);
         fit("some text", UnsafeBlock.NOOP);
     }}
-
-    static class FdescribeSpec {{
-        it("block 1", IT_BLOCK_1);
-        it("block 2", IT_BLOCK_2);
-
-        fdescribe("describe A", () -> {
-            it("block A.1", IT_BLOCK_A1);
-            it("block A.2", IT_BLOCK_A2);
-        });
-    }}
-
-    static class FcontextSpec {{
-        it("block 1", IT_BLOCK_1);
-        it("block 2", IT_BLOCK_2);
-
-        J8Spec.fcontext("context A", () -> {
-            it("block A.1", IT_BLOCK_A1);
-            it("block A.2", IT_BLOCK_A2);
-        });
-    }}
-
-    static class FitSpec {{
-        fit("block 1", IT_BLOCK_1);
-    }}
-
-    @Test
-    public void builds_a_describe_block_marking_fdescribe_blocks_from_the_spec_definition_as_focused() {
-        DescribeBlock describeBlock = read(FdescribeSpec.class);
-
-        assertThat(describeBlock.focused(), is(false));
-        assertThat(describeBlock.describeBlocks().get(0).focused(), is(true));
-    }
-
-    @Test
-    public void builds_a_describe_block_marking_fcontext_blocks_from_the_spec_definition_as_focused() {
-        DescribeBlock describeBlock = read(FcontextSpec.class);
-
-        assertThat(describeBlock.focused(), is(false));
-        assertThat(describeBlock.describeBlocks().get(0).focused(), is(true));
-    }
-
-    @Test
-    public void builds_a_describe_block_marking_fit_blocks_from_the_spec_definition_as_focused() {
-        DescribeBlock describeBlock = read(FitSpec.class);
-
-        assertThat(describeBlock.itBlock("block 1").focused(), is(true));
-    }
 
     @Test(expected = IllegalContextException.class)
     public void does_not_allow_fdescribe_method_direct_invocation() {
@@ -92,12 +40,12 @@ public class J8SpecFocusTest {
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
-    public void does_not_allow_fit_block_to_be_replaced() {
-        read(FitBlockOverwrittenSpec.class);
+    public void does_not_allow_focused_example_to_be_replaced() {
+        read(FocusedExampleBlockOverwrittenSpec.class);
     }
 
     @Test(expected = BlockAlreadyDefinedException.class)
-    public void does_not_allow_fit_block_with_collector_to_be_replaced() {
-        read(FitBlockWithCollectorOverwrittenSpec.class);
+    public void does_not_allow_focused_example_with_collector_to_be_replaced() {
+        read(FocusedExampleWithCollectorOverwrittenSpec.class);
     }
 }

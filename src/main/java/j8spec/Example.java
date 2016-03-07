@@ -6,52 +6,74 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
 /**
- * Representation of a "it" block ready to be executed.
- * @since 1.0.0
+ * Example ready to be executed.
+ * @since 3.0.0
  */
-public final class ItBlock implements UnsafeBlock {
+public final class Example implements UnsafeBlock, Comparable<Example> {
 
     private final List<String> containerDescriptions;
     private final String description;
-    private final List<BeforeBlock> beforeBlocks;
+    private final List<BeforeHook> beforeHooks;
     private final UnsafeBlock block;
     private final Class<? extends Throwable> expectedException;
+    private final Rank rank;
 
-    static ItBlock newItBlock(
+    static Example newExample(
         List<String> containerDescriptions,
         String description,
-        List<BeforeBlock> beforeBlocks,
-        UnsafeBlock block
-    ) {
-        return new ItBlock(containerDescriptions, description, beforeBlocks, block, null);
-    }
-
-    static ItBlock newItBlock(
-        List<String> containerDescriptions,
-        String description,
-        List<BeforeBlock> beforeBlocks,
+        List<BeforeHook> beforeHooks,
         UnsafeBlock block,
-        Class<? extends Throwable> expectedException
+        Rank rank
     ) {
-        return new ItBlock(containerDescriptions, description, beforeBlocks, block, expectedException);
+        return new Example(containerDescriptions, description, beforeHooks, block, null, rank);
     }
 
-    static ItBlock newIgnoredItBlock(List<String> containerDescriptions, String description) {
-        return new ItBlock(containerDescriptions, description, emptyList(), NOOP, null);
-    }
-
-    private ItBlock(
+    static Example newExample(
         List<String> containerDescriptions,
         String description,
-        List<BeforeBlock> beforeBlocks,
+        List<BeforeHook> beforeHooks,
         UnsafeBlock block,
-        Class<? extends Throwable> expectedException
+        Class<? extends Throwable> expectedException,
+        Rank rank
+    ) {
+        return new Example(containerDescriptions, description, beforeHooks, block, expectedException, rank);
+    }
+
+    static Example newIgnoredExample(List<String> containerDescriptions, String description, Rank rank) {
+        return newExample(containerDescriptions, description, emptyList(), NOOP, rank);
+    }
+
+    private Example(
+        List<String> containerDescriptions,
+        String description,
+        List<BeforeHook> beforeHooks,
+        UnsafeBlock block,
+        Class<? extends Throwable> expectedException,
+        Rank rank
     ) {
         this.containerDescriptions = unmodifiableList(containerDescriptions);
         this.description = description;
-        this.beforeBlocks = unmodifiableList(beforeBlocks);
+        this.beforeHooks = unmodifiableList(beforeHooks);
         this.block = block;
         this.expectedException = expectedException;
+        this.rank = rank;
+    }
+
+    @Override
+    public int compareTo(Example block) {
+        return rank.compareTo(block.rank);
+    }
+
+    /**
+     * Runs this block and associated setup code.
+     * @since 2.0.0
+     */
+    @Override
+    public void tryToExecute() throws Throwable {
+        for (BeforeHook beforeHook : beforeHooks) {
+            beforeHook.tryToExecute();
+        }
+        block.tryToExecute();
     }
 
     /**
@@ -68,18 +90,6 @@ public final class ItBlock implements UnsafeBlock {
      */
     public List<String> containerDescriptions() {
         return containerDescriptions;
-    }
-
-    /**
-     * Runs this block and associated setup code.
-     * @since 2.0.0
-     */
-    @Override
-    public void tryToExecute() throws Throwable {
-        for (BeforeBlock beforeBlock : beforeBlocks) {
-            beforeBlock.tryToExecute();
-        }
-        block.tryToExecute();
     }
 
     /**
