@@ -47,12 +47,6 @@ public class J8SpecCIModeTest {
         it("block 1", NOOP);
     }}
 
-    static class InnerExampleGroupWithHardCodedSeedSpec {{
-        describe("describe A", c -> c.randomOrder().seed(0L), () -> {
-            it("block 1", NOOP);
-        });
-    }}
-
     @Before
     public void setCIModeOn() {
         System.setProperty("j8spec.ci.mode", "true");
@@ -96,10 +90,5 @@ public class J8SpecCIModeTest {
     @Test(expected = CIModeEnabledException.class)
     public void does_not_allow_hard_coded_seed_when_ci_mode_enabled() {
         read(HardCodedSeedSpec.class);
-    }
-
-    @Test(expected = CIModeEnabledException.class)
-    public void does_not_allow_inner_example_group_with_hard_coded_seed_when_ci_mode_enabled() {
-        read(InnerExampleGroupWithHardCodedSeedSpec.class);
     }
 }
