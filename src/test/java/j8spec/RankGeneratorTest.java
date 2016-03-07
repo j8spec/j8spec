@@ -17,7 +17,7 @@ public class RankGeneratorTest {
     }
 
     private ExampleGroupConfiguration.Builder groupConfig() {
-        return new ExampleGroupConfiguration.Builder();
+        return new ExampleGroupConfiguration.Builder().description("example group");
     }
 
     @Test

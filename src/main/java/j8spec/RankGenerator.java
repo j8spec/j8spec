@@ -3,18 +3,22 @@ package j8spec;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.Random;
+import java.util.logging.Logger;
 
 final class RankGenerator {
+
+    private static final Logger LOG = Logger.getLogger("j8spec.RankGenerator");
 
     private interface Strategy {
         Integer initialValue();
         Integer nextValue(Integer currentValue);
     }
 
-    private static final class Incremental implements Strategy {
-        static final Incremental INSTANCE = new Incremental();
+    private static final class IncrementalStrategy implements Strategy {
+        static final IncrementalStrategy INSTANCE = new IncrementalStrategy();
 
-        private Incremental() {}
+        private IncrementalStrategy() {}
 
         @Override
         public Integer initialValue() {
@@ -27,15 +31,11 @@ final class RankGenerator {
         }
     }
 
-    private static class Random implements Strategy {
-        private final java.util.Random random;
+    private static final class RandomStrategy implements Strategy {
+        private final Random random;
 
-        Random(Long seed) {
-            if (seed == null) {
-                this.random = new java.util.Random();
-            } else {
-                this.random = new java.util.Random(seed);
-            }
+        RandomStrategy(Long seed) {
+            this.random = new Random(seed);
         }
 
         @Override
@@ -55,10 +55,16 @@ final class RankGenerator {
     void pushLevel(ExampleGroupConfiguration config) {
         switch (config.executionOrder()) {
             case DEFINED:
-                pushLevel(Incremental.INSTANCE);
+                pushLevel(IncrementalStrategy.INSTANCE);
                 break;
             case RANDOM:
-                pushLevel(new Random(config.seed()));
+                Long seed = config.seed();
+                if (seed == null) {
+                    seed = RandomOrderSeedProvider.seed();
+                } else {
+                    LOG.info("overriding random order seed for '" + config.description() + "': " + seed);
+                }
+                pushLevel(new RandomStrategy(seed));
                 break;
             case DEFAULT:
                 if (strategies.isEmpty()) {

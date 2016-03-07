@@ -104,8 +104,9 @@ public class J8SpecFlowRandomOrderTest {
     }
 
     @Test
-    public void uses_a_different_seed_each_execution() throws Throwable {
+    public void uses_a_different_order_for_different_seeds() throws Throwable {
         List<String> firstExecution = executeSpec(RandomAsDefaultOrderSpec.class);
+        RandomOrderSeedProvider.reset();
         List<String> secondExecution = executeSpec(RandomAsDefaultOrderSpec.class);
 
         assertThat(firstExecution, is(not(secondExecution)));
