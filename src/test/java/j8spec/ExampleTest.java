@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static j8spec.BeforeHook.newBeforeEachBlock;
+import static j8spec.Hook.newHook;
 import static j8spec.Example.newIgnoredExample;
 import static j8spec.UnsafeBlock.NOOP;
 import static java.util.Arrays.asList;
@@ -25,8 +25,8 @@ public class ExampleTest {
             emptyList(),
             "it block",
             asList(
-                newBeforeEachBlock(() -> executionOrder.add("beforeEach1")),
-                newBeforeEachBlock(() -> executionOrder.add("beforeEach2"))
+                newHook(() -> executionOrder.add("beforeEach1")),
+                newHook(() -> executionOrder.add("beforeEach2"))
             ),
             () -> executionOrder.add("block"),
             new Rank(0)

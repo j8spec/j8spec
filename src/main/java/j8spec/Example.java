@@ -13,7 +13,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
 
     private final List<String> containerDescriptions;
     private final String description;
-    private final List<BeforeHook> beforeHooks;
+    private final List<Hook> beforeHooks;
     private final UnsafeBlock block;
     private final Class<? extends Throwable> expectedException;
     private final Rank rank;
@@ -21,7 +21,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     static Example newExample(
         List<String> containerDescriptions,
         String description,
-        List<BeforeHook> beforeHooks,
+        List<Hook> beforeHooks,
         UnsafeBlock block,
         Rank rank
     ) {
@@ -31,7 +31,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     static Example newExample(
         List<String> containerDescriptions,
         String description,
-        List<BeforeHook> beforeHooks,
+        List<Hook> beforeHooks,
         UnsafeBlock block,
         Class<? extends Throwable> expectedException,
         Rank rank
@@ -46,7 +46,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     private Example(
         List<String> containerDescriptions,
         String description,
-        List<BeforeHook> beforeHooks,
+        List<Hook> beforeHooks,
         UnsafeBlock block,
         Class<? extends Throwable> expectedException,
         Rank rank
@@ -70,7 +70,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
      */
     @Override
     public void tryToExecute() throws Throwable {
-        for (BeforeHook beforeHook : beforeHooks) {
+        for (Hook beforeHook : beforeHooks) {
             beforeHook.tryToExecute();
         }
         block.tryToExecute();
