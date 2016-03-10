@@ -6,6 +6,8 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.List;
 
+import static j8spec.J8Spec.afterAll;
+import static j8spec.J8Spec.afterEach;
 import static j8spec.J8Spec.beforeAll;
 import static j8spec.J8Spec.beforeEach;
 import static j8spec.J8Spec.context;
@@ -129,6 +131,16 @@ public class J8SpecTest {
     @Test(expected = IllegalContextException.class)
     public void does_not_allow_before_each_method_direct_invocation() {
         beforeEach(NOOP);
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void does_not_allow_after_all_method_direct_invocation() {
+        afterAll(NOOP);
+    }
+
+    @Test(expected = IllegalContextException.class)
+    public void does_not_allow_after_each_method_direct_invocation() {
+        afterEach(NOOP);
     }
 
     @Test(expected = IllegalContextException.class)

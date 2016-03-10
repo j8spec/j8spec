@@ -19,6 +19,8 @@ final class ExampleBuilder extends BlockDefinitionVisitor {
     private final Deque<BlockExecutionFlag> executionFlags = new LinkedList<>();
     private final Deque<List<Hook>> beforeAllBlocks = new LinkedList<>();
     private final Deque<List<Hook>> beforeEachBlocks = new LinkedList<>();
+    private final Deque<List<Hook>> afterEachBlocks = new LinkedList<>();
+    private final Deque<List<Hook>> afterAllBlocks = new LinkedList<>();
     private final RankGenerator rankGenerator = new RankGenerator();
 
     private final SortedSet<Example> examples = new TreeSet<>();
@@ -39,6 +41,8 @@ final class ExampleBuilder extends BlockDefinitionVisitor {
 
         beforeAllBlocks.addLast(new LinkedList<>());
         beforeEachBlocks.addLast(new LinkedList<>());
+        afterEachBlocks.addLast(new LinkedList<>());
+        afterAllBlocks.addLast(new LinkedList<>());
 
         rankGenerator.pushLevel(config);
 
@@ -58,10 +62,26 @@ final class ExampleBuilder extends BlockDefinitionVisitor {
     }
 
     @Override
+    BlockDefinitionVisitor afterEach(UnsafeBlock block) {
+        afterEachBlocks.peekLast().add(newHook(block));
+        return this;
+    }
+
+    @Override
+    BlockDefinitionVisitor afterAll(UnsafeBlock block) {
+        afterAllBlocks.peekLast().add(newOneTimeHook(block));
+        return this;
+    }
+
+    @Override
     BlockDefinitionVisitor example(ExampleConfiguration config, UnsafeBlock block) {
         List<Hook> beforeHooks = new LinkedList<>();
         beforeAllBlocks.forEach(beforeHooks::addAll);
         beforeEachBlocks.forEach(beforeHooks::addAll);
+
+        List<Hook> afterHooks = new LinkedList<>();
+        afterEachBlocks.forEach(afterHooks::addAll);
+        afterAllBlocks.forEach(afterHooks::addAll);
 
         if (executionStrategy.shouldBeIgnored(config.executionFlag(), executionFlags.peekLast())) {
             examples.add(newIgnoredExample(
@@ -74,6 +94,7 @@ final class ExampleBuilder extends BlockDefinitionVisitor {
                 new LinkedList<>(descriptions),
                 config.description(),
                 beforeHooks,
+                afterHooks,
                 block,
                 config.expectedException(),
                 rankGenerator.generate()
@@ -91,6 +112,8 @@ final class ExampleBuilder extends BlockDefinitionVisitor {
         executionFlags.removeLast();
         beforeAllBlocks.removeLast();
         beforeEachBlocks.removeLast();
+        afterEachBlocks.removeLast();
+        afterAllBlocks.removeLast();
         rankGenerator.popLevel();
         return this;
     }

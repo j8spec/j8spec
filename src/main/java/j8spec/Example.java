@@ -14,6 +14,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     private final List<String> containerDescriptions;
     private final String description;
     private final List<Hook> beforeHooks;
+    private final List<Hook> afterHooks;
     private final UnsafeBlock block;
     private final Class<? extends Throwable> expectedException;
     private final Rank rank;
@@ -22,31 +23,34 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         List<String> containerDescriptions,
         String description,
         List<Hook> beforeHooks,
+        List<Hook> afterHook,
         UnsafeBlock block,
         Rank rank
     ) {
-        return new Example(containerDescriptions, description, beforeHooks, block, null, rank);
+        return new Example(containerDescriptions, description, beforeHooks, afterHook, block, null, rank);
     }
 
     static Example newExample(
         List<String> containerDescriptions,
         String description,
         List<Hook> beforeHooks,
+        List<Hook> afterHooks,
         UnsafeBlock block,
         Class<? extends Throwable> expectedException,
         Rank rank
     ) {
-        return new Example(containerDescriptions, description, beforeHooks, block, expectedException, rank);
+        return new Example(containerDescriptions, description, beforeHooks, afterHooks, block, expectedException, rank);
     }
 
     static Example newIgnoredExample(List<String> containerDescriptions, String description, Rank rank) {
-        return newExample(containerDescriptions, description, emptyList(), NOOP, rank);
+        return newExample(containerDescriptions, description, emptyList(), emptyList(), NOOP, rank);
     }
 
     private Example(
         List<String> containerDescriptions,
         String description,
         List<Hook> beforeHooks,
+        List<Hook> afterHooks,
         UnsafeBlock block,
         Class<? extends Throwable> expectedException,
         Rank rank
@@ -54,6 +58,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         this.containerDescriptions = unmodifiableList(containerDescriptions);
         this.description = description;
         this.beforeHooks = unmodifiableList(beforeHooks);
+        this.afterHooks = unmodifiableList(afterHooks);
         this.block = block;
         this.expectedException = expectedException;
         this.rank = rank;
@@ -70,10 +75,15 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
      */
     @Override
     public void tryToExecute() throws Throwable {
-        for (Hook beforeHook : beforeHooks) {
-            beforeHook.tryToExecute();
+        for (Hook hook : beforeHooks) {
+            hook.tryToExecute();
         }
+
         block.tryToExecute();
+
+        for (Hook hook : afterHooks) {
+            hook.tryToExecute();
+        }
     }
 
     /**

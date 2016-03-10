@@ -84,7 +84,7 @@ public class ExampleBuilderTest {
     }
 
     @Test
-    public void builds_before_each_hooks_to_execute_after_each_example() throws Throwable {
+    public void builds_before_each_hooks_to_execute_before_each_example() throws Throwable {
         UnsafeBlock beforeEach = mock(UnsafeBlock.class);
         UnsafeBlock innerBeforeEach = mock(UnsafeBlock.class);
 
@@ -103,6 +103,50 @@ public class ExampleBuilderTest {
 
         verify(beforeEach, times(3)).tryToExecute();
         verify(innerBeforeEach, times(1)).tryToExecute();
+    }
+
+    @Test
+    public void builds_after_each_hooks_to_execute_after_each_example() throws Throwable {
+        UnsafeBlock afterEach = mock(UnsafeBlock.class);
+        UnsafeBlock innerAfterEach = mock(UnsafeBlock.class);
+
+        execute(
+            new ExampleBuilder(BLACK_LIST)
+                .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
+                    .afterEach(afterEach)
+                    .example(exampleConfig().description("block 1").build(), NOOP)
+                    .example(exampleConfig().description("block 2").build(), NOOP)
+                    .startGroup(groupConfig().description("describe A").build())
+                        .afterEach(innerAfterEach)
+                        .example(exampleConfig().description("block A 1").build(), NOOP)
+                    .endGroup()
+                .endGroup()
+        );
+
+        verify(afterEach, times(3)).tryToExecute();
+        verify(innerAfterEach, times(1)).tryToExecute();
+    }
+
+    @Test
+    public void builds_after_all_hooks_to_execute_just_once() throws Throwable {
+        UnsafeBlock afterAll = mock(UnsafeBlock.class);
+        UnsafeBlock innerAfterAll = mock(UnsafeBlock.class);
+
+        execute(
+            new ExampleBuilder(BLACK_LIST)
+                .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
+                    .afterAll(afterAll)
+                    .example(exampleConfig().description("block 1").build(), NOOP)
+                    .example(exampleConfig().description("block 2").build(), NOOP)
+                    .startGroup(groupConfig().description("describe A").build())
+                        .afterAll(innerAfterAll)
+                        .example(exampleConfig().description("block A 1").build(), NOOP)
+                    .endGroup()
+                .endGroup()
+        );
+
+        verify(afterAll, times(1)).tryToExecute();
+        verify(innerAfterAll, times(1)).tryToExecute();
     }
 
     @Test

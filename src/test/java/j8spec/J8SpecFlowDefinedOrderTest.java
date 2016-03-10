@@ -7,6 +7,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static j8spec.J8Spec.afterAll;
+import static j8spec.J8Spec.afterEach;
 import static j8spec.J8Spec.beforeAll;
 import static j8spec.J8Spec.beforeEach;
 import static j8spec.J8Spec.describe;
@@ -54,9 +56,11 @@ public class J8SpecFlowDefinedOrderTest {
 
     @DefinedOrder
     static class OddHookOrderSpec {{
+        afterAll(() -> log.add("after all 1"));
+        afterEach(() -> log.add("after each 1"));
         it("block 1", () -> log.add("block 1"));
-        beforeAll(() -> log.add("before all 1"));
         beforeEach(() -> log.add("before each 1"));
+        beforeAll(() -> log.add("before all 1"));
     }}
 
     @DefinedOrder
@@ -205,8 +209,12 @@ public class J8SpecFlowDefinedOrderTest {
 
         assertThat(log, is(asList(
             "before all 1",
+
             "before each 1",
-            "block 1"
+            "block 1",
+            "after each 1",
+
+            "after all 1"
         )));
     }
 

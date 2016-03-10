@@ -175,6 +175,30 @@ public final class J8Spec {
     }
 
     /**
+     * Defines a new hook to run after each example in the group.
+     *
+     * @param block code to be executed after each example
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @since 3.0.0
+     */
+    public static synchronized void afterEach(UnsafeBlock block) {
+        isValidContext("afterEach");
+        contexts.get().current().addAfterEach(block);
+    }
+
+    /**
+     * Defines a new hook to run once after all examples in the group.
+     *
+     * @param block code to be executed once after all examples
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @since 3.0.0
+     */
+    public static synchronized void afterAll(UnsafeBlock block) {
+        isValidContext("afterAll");
+        contexts.get().current().addAfterAll(block);
+    }
+
+    /**
      * Defines a new "it" block.
      *
      * @param description textual description of the new block

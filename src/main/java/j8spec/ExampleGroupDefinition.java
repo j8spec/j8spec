@@ -73,6 +73,14 @@ final class ExampleGroupDefinition implements BlockDefinition {
         hooks.add(new BeforeEachDefinition(beforeEachBlock));
     }
 
+    void addAfterEach(UnsafeBlock afterEachBlock) {
+        hooks.add(new AfterEachDefinition(afterEachBlock));
+    }
+
+    void addAfterAll(UnsafeBlock afterAllBlock) {
+        hooks.add(new AfterAllDefinition(afterAllBlock));
+    }
+
     void addExample(ExampleConfiguration exampleConfig, UnsafeBlock block) {
         blockDefinitions.add(new ExampleDefinition(exampleConfig, block));
     }
