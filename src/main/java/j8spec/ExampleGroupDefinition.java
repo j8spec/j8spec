@@ -66,23 +66,23 @@ final class ExampleGroupDefinition implements BlockDefinition {
     }
 
     void addBeforeAll(UnsafeBlock beforeAllBlock) {
-        hooks.add(new BeforeAllDefinition(beforeAllBlock));
+        hooks.add(new BlockDefinitions.BeforeAll(beforeAllBlock));
     }
 
     void addBeforeEach(UnsafeBlock beforeEachBlock) {
-        hooks.add(new BeforeEachDefinition(beforeEachBlock));
+        hooks.add(new BlockDefinitions.BeforeEach(beforeEachBlock));
     }
 
     void addAfterEach(UnsafeBlock afterEachBlock) {
-        hooks.add(new AfterEachDefinition(afterEachBlock));
+        hooks.add(new BlockDefinitions.AfterEach(afterEachBlock));
     }
 
     void addAfterAll(UnsafeBlock afterAllBlock) {
-        hooks.add(new AfterAllDefinition(afterAllBlock));
+        hooks.add(new BlockDefinitions.AfterAll(afterAllBlock));
     }
 
     void addExample(ExampleConfiguration exampleConfig, UnsafeBlock block) {
-        blockDefinitions.add(new ExampleDefinition(exampleConfig, block));
+        blockDefinitions.add(new BlockDefinitions.Example(exampleConfig, block));
     }
 
     @Override
