@@ -11,13 +11,13 @@ import static j8spec.BlockExecutionFlag.DEFAULT;
 final class ExampleGroupDefinition implements BlockDefinition {
 
     private final ExampleGroupConfiguration config;
-    private final Context<ExampleGroupDefinition> context;
+    private final ExampleGroupContext context;
     private final List<BlockDefinition> blockDefinitions = new LinkedList<>();
     private final List<BlockDefinition> hooks = new LinkedList<>();
 
     static ExampleGroupDefinition newExampleGroupDefinition(
         Class<?> specClass,
-        Context<ExampleGroupDefinition> context
+        ExampleGroupContext context
     ) {
         ExampleGroupConfiguration.Builder configBuilder = new ExampleGroupConfiguration.Builder()
             .description(specClass.getName())
@@ -50,7 +50,7 @@ final class ExampleGroupDefinition implements BlockDefinition {
         }
     }
 
-    private ExampleGroupDefinition(ExampleGroupConfiguration config, Context<ExampleGroupDefinition> context) {
+    private ExampleGroupDefinition(ExampleGroupConfiguration config, ExampleGroupContext context) {
         this.config = config;
         this.context = context;
     }

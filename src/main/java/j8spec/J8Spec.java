@@ -20,7 +20,7 @@ import static java.util.function.Function.identity;
  */
 public final class J8Spec {
 
-    private static final ThreadLocal<Context<ExampleGroupDefinition>> contexts = new ThreadLocal<>();
+    private static final ThreadLocal<ExampleGroupContext> contexts = new ThreadLocal<>();
 
     /**
      * Defines a new "describe" block.
@@ -341,7 +341,7 @@ public final class J8Spec {
      * @since 2.0.0
      */
     public static synchronized List<Example> read(Class<?> specClass) {
-        contexts.set(new Context<>());
+        contexts.set(new ExampleGroupContext());
         try {
             ExampleGroupDefinition exampleGroupDefinition = newExampleGroupDefinition(specClass, contexts.get());
 
