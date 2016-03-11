@@ -6,13 +6,17 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import static j8spec.Hook.newOneTimeHook;
-import static j8spec.Hook.newHook;
 import static j8spec.BlockExecutionFlag.DEFAULT;
-import static j8spec.Example.newExample;
-import static j8spec.Example.newIgnoredExample;
+import static j8spec.Hook.newHook;
+import static j8spec.Hook.newOneTimeHook;
 
 final class ExampleBuilder extends BlockDefinitionVisitor {
+
+    private static List<Hook> asHooks(Deque<List<Hook>> hookQueue) {
+        List<Hook> result = new LinkedList<>();
+        hookQueue.forEach(result::addAll);
+        return result;
+    }
 
     private final BlockExecutionStrategy executionStrategy;
     private final Deque<String> descriptions = new LinkedList<>();
@@ -41,8 +45,8 @@ final class ExampleBuilder extends BlockDefinitionVisitor {
 
         beforeAllBlocks.addLast(new LinkedList<>());
         beforeEachBlocks.addLast(new LinkedList<>());
-        afterEachBlocks.addLast(new LinkedList<>());
-        afterAllBlocks.addLast(new LinkedList<>());
+        afterEachBlocks.addFirst(new LinkedList<>());
+        afterAllBlocks.addFirst(new LinkedList<>());
 
         rankGenerator.pushLevel(config);
 
@@ -63,43 +67,36 @@ final class ExampleBuilder extends BlockDefinitionVisitor {
 
     @Override
     BlockDefinitionVisitor afterEach(UnsafeBlock block) {
-        afterEachBlocks.peekLast().add(newHook(block));
+        afterEachBlocks.peekFirst().add(newHook(block));
         return this;
     }
 
     @Override
     BlockDefinitionVisitor afterAll(UnsafeBlock block) {
-        afterAllBlocks.peekLast().add(newOneTimeHook(block));
+        afterAllBlocks.peekFirst().add(newOneTimeHook(block));
         return this;
     }
 
     @Override
     BlockDefinitionVisitor example(ExampleConfiguration config, UnsafeBlock block) {
-        List<Hook> beforeHooks = new LinkedList<>();
-        beforeAllBlocks.forEach(beforeHooks::addAll);
-        beforeEachBlocks.forEach(beforeHooks::addAll);
-
-        List<Hook> afterHooks = new LinkedList<>();
-        afterEachBlocks.forEach(afterHooks::addAll);
-        afterAllBlocks.forEach(afterHooks::addAll);
+        Example.Builder builder = new Example.Builder()
+            .containerDescriptions(new LinkedList<>(descriptions))
+            .description(config.description())
+            .rank(rankGenerator.generate());
 
         if (executionStrategy.shouldBeIgnored(config.executionFlag(), executionFlags.peekLast())) {
-            examples.add(newIgnoredExample(
-                new LinkedList<>(descriptions),
-                config.description(),
-                rankGenerator.generate()
-            ));
+            builder.ignored();
         } else {
-            examples.add(newExample(
-                new LinkedList<>(descriptions),
-                config.description(),
-                beforeHooks,
-                afterHooks,
-                block,
-                config.expectedException(),
-                rankGenerator.generate()
-            ));
+            builder
+                .beforeAllHooks(asHooks(beforeAllBlocks))
+                .beforeEachHooks(asHooks(beforeEachBlocks))
+                .afterEachHooks(asHooks(afterEachBlocks))
+                .afterAllHooks(asHooks(afterAllBlocks))
+                .block(block)
+                .expectedException(config.expectedException());
         }
+
+        examples.add(builder.build());
 
         rankGenerator.next();
 
@@ -112,8 +109,8 @@ final class ExampleBuilder extends BlockDefinitionVisitor {
         executionFlags.removeLast();
         beforeAllBlocks.removeLast();
         beforeEachBlocks.removeLast();
-        afterEachBlocks.removeLast();
-        afterAllBlocks.removeLast();
+        afterEachBlocks.removeFirst();
+        afterAllBlocks.removeFirst();
         rankGenerator.popLevel();
         return this;
     }
