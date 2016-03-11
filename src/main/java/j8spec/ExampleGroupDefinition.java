@@ -33,7 +33,7 @@ final class ExampleGroupDefinition implements BlockDefinition {
         } catch (Exceptions.Base e) {
             throw e;
         } catch (Exception e) {
-            throw new Exceptions.SpecInitializationFailed("Failed to create instance of " + specClass + ".", e);
+            throw new Exceptions.SpecInitializationFailed(specClass, e);
         }
 
         return group;

@@ -320,15 +320,13 @@ public final class J8Spec {
 
     private static void notAllowedWhenCIModeEnabled(final String methodName) {
         if (Boolean.valueOf(System.getProperty("j8spec.ci.mode", "false"))) {
-            throw new Exceptions.OperationNotAllowedInCIMode("'" + methodName + "' not allowed when j8spec.ci.mode enabled");
+            throw new Exceptions.OperationNotAllowedInCIMode(methodName);
         }
     }
 
     private static void isValidContext(final String methodName) {
         if (contexts.get() == null) {
-            throw new Exceptions.IllegalContext(
-                "'" + methodName + "' should not be invoked from outside a spec definition."
-            );
+            throw new Exceptions.IllegalContext(methodName);
         }
     }
 

@@ -26,8 +26,8 @@ public final class Exceptions {
      * @since 3.0.0
      */
     public static class BlockAlreadyDefined extends Base {
-        BlockAlreadyDefined(String message) {
-            super(message);
+        BlockAlreadyDefined(String blockDescription) {
+            super("'" + blockDescription + "' block already defined.");
         }
     }
 
@@ -38,8 +38,19 @@ public final class Exceptions {
      * @since 3.0.0
      */
     public static class OperationNotAllowedInCIMode extends Base {
-        OperationNotAllowedInCIMode(String message) {
-            super(message);
+        OperationNotAllowedInCIMode(String methodName) {
+            super("'" + methodName + "' not allowed when j8spec.ci.mode enabled.");
+        }
+    }
+
+    /**
+     * Thrown when a spec has the seed for the random order hard-coded while the system
+     * property <code>j8spec.ci.mode</code> is <code>true</code>.
+     * @since 3.0.0
+     */
+    public static class HardCodedSeedNotAllowedInCIMode extends Base {
+        HardCodedSeedNotAllowedInCIMode() {
+            super("Hard-coded seed not allowed when j8spec.ci.mode enabled.");
         }
     }
 
@@ -49,8 +60,8 @@ public final class Exceptions {
      * @since 3.0.0
      */
     public static class IllegalContext extends Base {
-        IllegalContext(String message) {
-            super(message);
+        IllegalContext(String methodName) {
+            super("'" + methodName + "' should not be invoked from outside a spec definition.");
         }
     }
 
@@ -59,8 +70,8 @@ public final class Exceptions {
      * @since 3.0.0
      */
     public static class SpecInitializationFailed extends Base {
-        SpecInitializationFailed(String message, Exception e) {
-            super(message, e);
+        SpecInitializationFailed(Class<?> specClass, Exception e) {
+            super("Failed to create instance of " + specClass + ".", e);
         }
     }
 
