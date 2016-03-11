@@ -1,0 +1,175 @@
+<html>
+<head>
+<link href="css/main.css" rel="stylesheet" type="text/css">
+<script src="js/jquery-2.1.4.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+
+<header>
+  <nav>
+    <h1>J8Spec</h1>
+    <ul>
+      <li><a href="#getting-started">Getting Started</a></li>
+      <li><a href="#java-quirks">Java Quirks</a></li>
+      <li><a href="#releases">Releases</a></li>
+      <li><a href="#contributing">Contributing</a></li>
+    </ul>
+  </nav>
+</header>
+
+<section>
+  <p>
+  J8Spec is a library that allows tests written in Java to follow the BDD style introduced by
+  <a href="http://rspec.info/" target="#">RSpec</a> and <a href="http://jasmine.github.io/" target="#">Jasmine</a>.
+  </p>
+
+  <p>
+  If you are not familiar with those tools, you should take some time
+  to try them out before reading on.
+  </p>
+
+  <p>
+  Here is an example:
+  </p>
+
+  <div class="code" data-src-file="samples/gradle/src/test/java/j8spec/examples/CalculatorTest.java">
+  </div>
+
+  <p>
+  Since J8Spec comes with a <a href="http://junit.org" target="#">JUnit</a> runner, it works out-of-the-box with IDEs
+  and build tools that support JUnit.
+  </p>
+
+  <div class="screenshots">
+    <div class="screenshot">
+      <a href="img/intellij.png" target="#"><img src="img/intellij.png"></img></a>
+    </div>
+  </div>
+
+</section>
+
+<section>
+  <h2><a name="getting-started"># getting started</a></h2>
+
+  <p>
+  J8Spec is available in the <a href="http://search.maven.org/#search|ga|1|g%3A%22io.github.j8spec%22" target="#">Maven</a> central
+  repository. Just add it as a test dependency and you are good to go.
+  </p>
+
+  <h3>Gradle projects</h3>
+
+  <p>
+  Here is a example of Gradle build file. You can find the entire sample project
+  <a href="https://github.com/j8spec/j8spec-sample-gradle" target="#">here</a>.
+  </p>
+
+  <div class="code" data-src-file="samples/gradle/build.gradle" data-file-type="groovy"></div>
+
+  <h3>Maven projects</h3>
+
+  <p>
+  Here is a example of Maven build file. You can find the entire sample project
+  <a href="https://github.com/j8spec/j8spec-sample-maven" target="#">here</a>.
+  </p>
+
+  <div class="code" data-src-file="samples/maven/pom.xml"></div>
+
+</section>
+
+<section>
+  <h2><a name="java-quirks"># Java quirks</a></h2>
+
+  <p>
+  J8Spec tries its best to be as similar as possible to RSpec and Jasmine, but
+  it is still bound to the restrictions imposed by Java.
+  </p>
+
+  <h3># accessing local variables of the enclosing scope</h3>
+
+  <p>
+  Where as in Ruby and JavaScript it is trivial to access a local variable
+  within a closure, in Java, the local variable must be effectively* final -
+  which means it cannot have its value changed.
+  </p>
+
+  <p class="side-note">
+  *Since Java 8, the compiler can figure out if the variable is effectively
+  final - no need for the <strong>final</strong> modifier.
+  See <a href="http://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html#accessing-local-variables" target="#">Lambda Expressions</a>.
+  </p>
+
+  <h4># instance attributes</h4>
+
+  <p>
+  One way to work around this is to use instance attributes.
+  </p>
+
+  <div class="code" data-src-file="samples/gradle/src/test/java/j8spec/examples/InstanceAttributesExampleTest.java">
+  </div>
+
+  <h4># var wrapper</h4>
+
+  <p>
+  Another way is using J8Spec's <strong>Var</strong> wrapper. It is a simple wrapper
+  around the test subject. It allows the local variable to be effectively
+  final whilst the internal reference can be modified.
+  </p>
+
+  <div class="code" data-src-file="samples/gradle/src/test/java/j8spec/examples/VarExampleTest.java">
+  </div>
+
+  <p>
+  Although it adds a little bit of noise to the code, it allows variables to
+  be defined close to the context where it's being used.
+  </p>
+
+</section>
+
+<section>
+  <h2><a name="releases"># releases</a></h2>
+
+  <h3>2.0.0</h3>
+
+  <a href="javadocs/2.0.0/index.html" target="#">API Javadoc</a>
+
+  <h4>Notes</h4>
+
+  <ul>
+    <li>one time setup, i.e. beforeAll</li>
+    <li>context alias for describe</li>
+    <li>ignore, i.e. xdescribe, xcontext, xit</li>
+    <li>focus, i.e. fdescribe, fcontext, fit</li>
+    <li>j8spec.ci.mode system property</li>
+    <li>multiple beforeEach blocks in the same context</li>
+    <li>expected exception</li>
+    <li>assumptions support</li>
+  </ul>
+
+  <h3>1.0.0</h3>
+
+  <a href="javadocs/1.0.0/index.html" target="#">API Javadoc</a>
+
+  <h4>Notes</h4>
+
+  <ul>
+    <li>beforeEach, describe, it</li>
+    <li>JUnit runner</li>
+  </ul>
+
+</section>
+
+<section>
+  <h2><a name="contributing"># contributing</a></h2>
+
+  <p>
+  Feedback is always welcome.
+  Feel free to file a pull request or issue with the Github <a href="https://github.com/j8spec/j8spec" target="#">repository</a>.
+  </p>
+
+</section>
+
+<script src="js/main.js" type="text/javascript" charset="utf-8"></script>
+
+</body>
+</html>
