@@ -37,7 +37,7 @@ public final class ExampleGroupConfiguration {
 
         public Builder seed(Long seed) {
             if (Boolean.valueOf(System.getProperty("j8spec.ci.mode", "false"))) {
-                throw new CIModeEnabledException("hard-coded seed not allowed when j8spec.ci.mode enabled");
+                throw new Exceptions.OperationNotAllowedInCIMode("hard-coded seed not allowed when j8spec.ci.mode enabled");
             }
 
             this.seed = seed;

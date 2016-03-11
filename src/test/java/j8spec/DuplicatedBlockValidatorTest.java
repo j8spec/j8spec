@@ -8,7 +8,7 @@ public class DuplicatedBlockValidatorTest {
 
     private final DuplicatedBlockValidator validator = new DuplicatedBlockValidator();
 
-    @Test(expected = BlockAlreadyDefinedException.class)
+    @Test(expected = Exceptions.BlockAlreadyDefined.class)
     public void indicates_if_an_example_has_been_defined_with_the_same_description() {
         validator
             .startGroup(groupConfig().description("spec").build())
@@ -17,7 +17,7 @@ public class DuplicatedBlockValidatorTest {
             .endGroup();
     }
 
-    @Test(expected = BlockAlreadyDefinedException.class)
+    @Test(expected = Exceptions.BlockAlreadyDefined.class)
     public void indicates_if_a_example_group_has_been_defined_with_the_same_description() {
         validator
             .startGroup(groupConfig().description("spec").build())

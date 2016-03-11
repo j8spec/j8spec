@@ -19,32 +19,32 @@ public class J8SpecFocusTest {
         fit("some text", UnsafeBlock.NOOP);
     }}
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void does_not_allow_fdescribe_method_direct_invocation() {
         fdescribe("some text", SafeBlock.NOOP);
     }
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void does_not_allow_fcontext_method_direct_invocation() {
         fcontext("some text", SafeBlock.NOOP);
     }
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void does_not_allow_fit_method_direct_invocation() {
         fit("some text", UnsafeBlock.NOOP);
     }
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void does_not_allow_fit_method_with_collector_direct_invocation() {
         fit("some text", c -> c, UnsafeBlock.NOOP);
     }
 
-    @Test(expected = BlockAlreadyDefinedException.class)
+    @Test(expected = Exceptions.BlockAlreadyDefined.class)
     public void does_not_allow_focused_example_to_be_replaced() {
         read(FocusedExampleBlockOverwrittenSpec.class);
     }
 
-    @Test(expected = BlockAlreadyDefinedException.class)
+    @Test(expected = Exceptions.BlockAlreadyDefined.class)
     public void does_not_allow_focused_example_with_collector_to_be_replaced() {
         read(FocusedExampleWithCollectorOverwrittenSpec.class);
     }

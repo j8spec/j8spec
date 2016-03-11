@@ -28,8 +28,8 @@ public final class J8Spec {
      * @param description textual description of the new block
      * @param block code that defines inner blocks, like "describe", "it", etc - this code is executed
      *             immediately
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
      * defined already
      * @since 1.0.0
      */
@@ -48,8 +48,8 @@ public final class J8Spec {
      * @param description textual description of the new block
      * @param block code that defines inner blocks, like "describe", "it", etc - this code is executed
      *             immediately
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
      * defined already
      * @since 2.0.0
      */
@@ -68,10 +68,10 @@ public final class J8Spec {
      * @param description textual description of the new block
      * @param block code that defines inner blocks, like "describe", "it", etc - this code is executed
      *             immediately
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
      * defined already
-     * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
+     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
     public static synchronized void xdescribe(String description, SafeBlock block) {
@@ -90,10 +90,10 @@ public final class J8Spec {
      * @param description textual description of the new block
      * @param block code that defines inner blocks, like "describe", "it", etc - this code is executed
      *             immediately
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
      * defined already
-     * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
+     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
     public static synchronized void xcontext(String description, SafeBlock block) {
@@ -112,10 +112,10 @@ public final class J8Spec {
      * @param description textual description of the new block
      * @param block code that defines inner blocks, like "describe", "it", etc - this code is executed
      *             immediately
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
      * defined already
-     * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
+     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
     public static synchronized void fdescribe(String description, SafeBlock block) {
@@ -134,10 +134,10 @@ public final class J8Spec {
      * @param description textual description of the new block
      * @param block code that defines inner blocks, like "describe", "it", etc - this code is executed
      *             immediately
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
      * defined already
-     * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
+     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
     public static synchronized void fcontext(String description, SafeBlock block) {
@@ -154,7 +154,7 @@ public final class J8Spec {
      * Defines a new "before all" block.
      *
      * @param block code to be executed before all "it" blocks
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
      * @since 2.0.0
      */
     public static synchronized void beforeAll(UnsafeBlock block) {
@@ -166,7 +166,7 @@ public final class J8Spec {
      * Defines a new "before each" block.
      *
      * @param block code to be executed before each "it" block
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
      * @since 1.0.0
      */
     public static synchronized void beforeEach(UnsafeBlock block) {
@@ -178,7 +178,7 @@ public final class J8Spec {
      * Defines a new hook to run after each example in the group.
      *
      * @param block code to be executed after each example
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
      * @since 3.0.0
      */
     public static synchronized void afterEach(UnsafeBlock block) {
@@ -190,7 +190,7 @@ public final class J8Spec {
      * Defines a new hook to run once after all examples in the group.
      *
      * @param block code to be executed once after all examples
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
      * @since 3.0.0
      */
     public static synchronized void afterAll(UnsafeBlock block) {
@@ -203,8 +203,8 @@ public final class J8Spec {
      *
      * @param description textual description of the new block
      * @param block code to be executed
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
      * defined already
      * @since 1.0.0
      */
@@ -218,8 +218,8 @@ public final class J8Spec {
      * @param description textual description of the new block
      * @param collector block configuration collector
      * @param block code to be executed
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
      * defined already
      * @since 2.0.0
      */
@@ -241,10 +241,10 @@ public final class J8Spec {
      *
      * @param description textual description of the new block
      * @param block code to be executed
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
      * defined already
-     * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
+     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
     public static synchronized void xit(String description, UnsafeBlock block) {
@@ -257,10 +257,10 @@ public final class J8Spec {
      * @param description textual description of the new block
      * @param collector block configuration collector
      * @param block code to be executed
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
      * defined already
-     * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
+     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
     public static synchronized void xit(
@@ -282,10 +282,10 @@ public final class J8Spec {
      *
      * @param description textual description of the new block
      * @param block code to be executed
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
      * defined already
-     * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
+     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
     public static synchronized void fit(String description, UnsafeBlock block) {
@@ -298,10 +298,10 @@ public final class J8Spec {
      * @param description textual description of the new block
      * @param collector block configuration collector
      * @param block code to be executed
-     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
-     * @throws BlockAlreadyDefinedException if another block with the same description in the same context has been
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
      * defined already
-     * @throws CIModeEnabledException if the system property <code>j8spec.ci.mode</code> is <code>true</code>
+     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
     public static synchronized void fit(
@@ -320,13 +320,13 @@ public final class J8Spec {
 
     private static void notAllowedWhenCIModeEnabled(final String methodName) {
         if (Boolean.valueOf(System.getProperty("j8spec.ci.mode", "false"))) {
-            throw new CIModeEnabledException("'" + methodName + "' not allowed when j8spec.ci.mode enabled");
+            throw new Exceptions.OperationNotAllowedInCIMode("'" + methodName + "' not allowed when j8spec.ci.mode enabled");
         }
     }
 
     private static void isValidContext(final String methodName) {
         if (contexts.get() == null) {
-            throw new IllegalContextException(
+            throw new Exceptions.IllegalContext(
                 "'" + methodName + "' should not be invoked from outside a spec definition."
             );
         }
@@ -337,7 +337,7 @@ public final class J8Spec {
      *
      * @param specClass class with a public default constructor that contains the spec definition
      * @return {@link Example} objects that represent the spec definition
-     * @throws SpecInitializationException if it is not possible to create an instance of <code>specClass</code>
+     * @throws Exceptions.SpecInitializationFailed if it is not possible to create an instance of <code>specClass</code>
      * @since 2.0.0
      */
     public static synchronized List<Example> read(Class<?> specClass) {

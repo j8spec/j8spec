@@ -57,37 +57,37 @@ public class J8SpecCIModeTest {
         System.setProperty("j8spec.ci.mode", "false");
     }
 
-    @Test(expected = CIModeEnabledException.class)
+    @Test(expected = Exceptions.OperationNotAllowedInCIMode.class)
     public void does_not_allow_focused_examples_when_ci_mode_enabled() {
         read(FocusedExampleSpec.class);
     }
 
-    @Test(expected = CIModeEnabledException.class)
+    @Test(expected = Exceptions.OperationNotAllowedInCIMode.class)
     public void does_not_allow_focused_example_group_when_ci_mode_enabled() {
         read(FdescribeSpec.class);
     }
 
-    @Test(expected = CIModeEnabledException.class)
+    @Test(expected = Exceptions.OperationNotAllowedInCIMode.class)
     public void does_not_allow_fcontext_blocks_when_ci_mode_enabled() {
         read(FcontextSpec.class);
     }
 
-    @Test(expected = CIModeEnabledException.class)
+    @Test(expected = Exceptions.OperationNotAllowedInCIMode.class)
     public void does_not_allow_ignored_examples_when_ci_mode_enabled() {
         read(IgnoredExampleSpec.class);
     }
 
-    @Test(expected = CIModeEnabledException.class)
+    @Test(expected = Exceptions.OperationNotAllowedInCIMode.class)
     public void does_not_allow_ignored_example_group_when_ci_mode_enabled() {
         read(XdescribeSpec.class);
     }
 
-    @Test(expected = CIModeEnabledException.class)
+    @Test(expected = Exceptions.OperationNotAllowedInCIMode.class)
     public void does_not_allow_xcontext_blocks_when_ci_mode_enabled() {
         read(XcontextSpec.class);
     }
 
-    @Test(expected = CIModeEnabledException.class)
+    @Test(expected = Exceptions.OperationNotAllowedInCIMode.class)
     public void does_not_allow_hard_coded_seed_when_ci_mode_enabled() {
         read(HardCodedSeedSpec.class);
     }

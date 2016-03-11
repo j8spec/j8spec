@@ -20,7 +20,7 @@ final class RandomOrderSeedProvider {
                     seed = new Long(seedFromProperty);
                     LOG.info("random order seed (from system property): " + seed);
                 } catch (NumberFormatException e) {
-                    throw new IllegalSeedPropertyException(e);
+                    throw new Exceptions.IllegalSeedProperty(e);
                 }
             }
         }

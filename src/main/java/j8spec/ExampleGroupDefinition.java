@@ -30,10 +30,10 @@ final class ExampleGroupDefinition implements BlockDefinition {
 
         try {
             specClass.newInstance();
-        } catch (J8SpecException e) {
+        } catch (Exceptions.Base e) {
             throw e;
         } catch (Exception e) {
-            throw new SpecInitializationException("Failed to create instance of " + specClass + ".", e);
+            throw new Exceptions.SpecInitializationFailed("Failed to create instance of " + specClass + ".", e);
         }
 
         return group;
