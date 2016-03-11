@@ -36,7 +36,7 @@ public class RandomOrderSeedProviderTest {
         assertThat(seed1, is(not(seed2)));
     }
 
-    @Test(expected = IllegalSeedPropertyException.class)
+    @Test(expected = Exceptions.IllegalSeedProperty.class)
     public void indicates_the_system_property_has_an_illegal_value() {
         System.setProperty("j8spec.seed", "illegal value");
 

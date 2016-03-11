@@ -14,7 +14,7 @@ final class DuplicatedBlockValidator extends BlockDefinitionVisitor {
     BlockDefinitionVisitor startGroup(ExampleGroupConfiguration config) {
         if (!groupDescriptions.isEmpty()) {
             if (groupDescriptions.peekLast().contains(config.description())) {
-                throw new BlockAlreadyDefinedException(config.description() + " block already defined");
+                throw new Exceptions.BlockAlreadyDefined(config.description());
             }
             groupDescriptions.peekLast().add(config.description());
         }
@@ -26,7 +26,7 @@ final class DuplicatedBlockValidator extends BlockDefinitionVisitor {
     @Override
     BlockDefinitionVisitor example(ExampleConfiguration config, UnsafeBlock block) {
         if (exampleDescriptions.peekLast().contains(config.description())) {
-            throw new BlockAlreadyDefinedException(config.description() + " block already defined");
+            throw new Exceptions.BlockAlreadyDefined(config.description());
         }
         exampleDescriptions.peekLast().add(config.description());
         return this;

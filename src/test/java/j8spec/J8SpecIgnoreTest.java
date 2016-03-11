@@ -19,32 +19,32 @@ public class J8SpecIgnoreTest {
         xit("some text", UnsafeBlock.NOOP);
     }}
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void does_not_allow_xdescribe_method_direct_invocation() {
         xdescribe("some text", SafeBlock.NOOP);
     }
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void does_not_allow_xcontext_method_direct_invocation() {
         xcontext("some text", SafeBlock.NOOP);
     }
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void does_not_allow_xit_method_direct_invocation() {
         xit("some text", UnsafeBlock.NOOP);
     }
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void does_not_allow_xit_method_direct_invocation_with_collector() {
         xit("some text", c -> c, UnsafeBlock.NOOP);
     }
 
-    @Test(expected = BlockAlreadyDefinedException.class)
+    @Test(expected = Exceptions.BlockAlreadyDefined.class)
     public void does_not_allow_ignored_example_to_be_replaced() {
         read(IgnoredExampleOverwrittenSpec.class);
     }
 
-    @Test(expected = BlockAlreadyDefinedException.class)
+    @Test(expected = Exceptions.BlockAlreadyDefined.class)
     public void does_not_allow_ignored_example_with_collector_to_be_replaced() {
         read(IgnoredExampleWithCollectorOverwrittenSpec.class);
     }

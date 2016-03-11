@@ -108,82 +108,82 @@ public class J8SpecTest {
         assertThat(examples.get(0).expected(), is(equalTo(Exception.class)));
     }
 
-    @Test(expected = SpecInitializationException.class)
+    @Test(expected = Exceptions.SpecInitializationFailed.class)
     public void throws_exception_when_fails_to_evaluate_spec() {
         read(BadSpec.class);
     }
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void does_not_allow_describe_method_direct_invocation() {
         describe("some text", SafeBlock.NOOP);
     }
 
-    @Test(expected = BlockAlreadyDefinedException.class)
+    @Test(expected = Exceptions.BlockAlreadyDefined.class)
     public void does_not_allow_an_example_group_to_be_replaced() {
         read(ExampleGroupOverwrittenSpec.class);
     }
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void does_not_allow_before_all_method_direct_invocation() {
         beforeAll(NOOP);
     }
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void does_not_allow_before_each_method_direct_invocation() {
         beforeEach(NOOP);
     }
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void does_not_allow_after_all_method_direct_invocation() {
         afterAll(NOOP);
     }
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void does_not_allow_after_each_method_direct_invocation() {
         afterEach(NOOP);
     }
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void does_not_allow_context_method_direct_invocation() {
         context("some text", SafeBlock.NOOP);
     }
 
-    @Test(expected = BlockAlreadyDefinedException.class)
+    @Test(expected = Exceptions.BlockAlreadyDefined.class)
     public void does_not_allow_context_block_to_be_replaced() {
         read(ContextBlockOverwrittenSpec.class);
     }
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void does_not_allow_it_method_direct_invocation() {
         it("some text", UnsafeBlock.NOOP);
     }
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void does_not_allow_it_method_direct_invocation_with_collector() {
         it("some text", c -> c, UnsafeBlock.NOOP);
     }
 
-    @Test(expected = BlockAlreadyDefinedException.class)
+    @Test(expected = Exceptions.BlockAlreadyDefined.class)
     public void does_not_allow_an_example_to_be_replaced() {
         read(ExampleOverwrittenSpec.class);
     }
 
-    @Test(expected = BlockAlreadyDefinedException.class)
+    @Test(expected = Exceptions.BlockAlreadyDefined.class)
     public void does_not_allow_an_example_with_collector_to_be_replaced() {
         read(ExampleWithCollectorOverwrittenSpec.class);
     }
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void forgets_last_spec() {
         read(SampleSpec.class);
         describe("some text", SafeBlock.NOOP);
     }
 
-    @Test(expected = IllegalContextException.class)
+    @Test(expected = Exceptions.IllegalContext.class)
     public void forgets_last_spec_after_the_last_spec_evaluation_fails() {
         try {
             read(ExampleOverwrittenSpec.class);
-        } catch (BlockAlreadyDefinedException e) {
+        } catch (Exceptions.BlockAlreadyDefined e) {
         }
 
         it("some text", UnsafeBlock.NOOP);
