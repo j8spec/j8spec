@@ -11,10 +11,10 @@ public class HookTest {
     @Test
     public void runs_given_block_only_once() throws Throwable {
         UnsafeBlock block = mock(UnsafeBlock.class);
-        Hook beforeHook = newOneTimeHook(block);
+        Hook hook = newOneTimeHook(block);
 
-        beforeHook.tryToExecute();
-        beforeHook.tryToExecute();
+        hook.tryToExecute();
+        hook.tryToExecute();
 
         verify(block, times(1)).tryToExecute();
     }
@@ -22,11 +22,23 @@ public class HookTest {
     @Test
     public void runs_given_block_on_each_call() throws Throwable {
         UnsafeBlock block = mock(UnsafeBlock.class);
-        Hook beforeHook = newHook(block);
+        Hook hook = newHook(block);
 
-        beforeHook.tryToExecute();
-        beforeHook.tryToExecute();
+        hook.tryToExecute();
+        hook.tryToExecute();
 
         verify(block, times(2)).tryToExecute();
+    }
+
+    @Test(expected = Exception.class)
+    public void tries_to_run_one_time_hook_again_if_it_fails_the_first_time() throws Throwable {
+        UnsafeBlock block = mock(UnsafeBlock.class);
+        Hook hook = newOneTimeHook(block);
+
+        doThrow(Exception.class).when(block).tryToExecute();
+
+        try { hook.tryToExecute(); } catch(Exception e) {}
+
+        hook.tryToExecute();
     }
 }

@@ -26,7 +26,7 @@ final class Hook implements UnsafeBlock {
             return;
         }
 
-        onceAlready = true;
         block.tryToExecute();
+        onceAlready = true;
     }
 }
