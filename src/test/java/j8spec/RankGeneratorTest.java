@@ -23,7 +23,7 @@ public class RankGeneratorTest {
     @Test
     public void calculates_next_value_for_current_rank_level_when_using_incremental_strategy() {
         generator.pushLevel(groupConfig().definedOrder().build());
-        generator.next();
+        generator.generate();
 
         assertThat(generator.generate(), is(new Rank(1)));
     }
@@ -55,7 +55,7 @@ public class RankGeneratorTest {
     @Test
     public void calculates_next_value_for_current_rank_level_when_using_random_strategy() {
         generator.pushLevel(groupConfig().randomOrder().seed(0L).build());
-        generator.next();
+        generator.generate();
 
         assertThat(generator.generate(), is(new Rank(-723955400)));
     }

@@ -85,7 +85,7 @@ final class RankGenerator {
         pushLevel(strategies.peek());
     }
 
-    void next() {
+    private void next() {
         ranks.push(strategies.peek().nextValue(ranks.pop()));
     }
 
@@ -101,6 +101,9 @@ final class RankGenerator {
     Rank generate() {
         LinkedList<Integer> values = new LinkedList<>(ranks);
         Collections.reverse(values);
+
+        next();
+
         return new Rank(values);
     }
 }

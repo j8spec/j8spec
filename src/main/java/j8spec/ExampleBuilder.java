@@ -98,8 +98,6 @@ final class ExampleBuilder extends BlockDefinitionVisitor {
 
         examples.add(builder.build());
 
-        rankGenerator.next();
-
         return this;
     }
 
