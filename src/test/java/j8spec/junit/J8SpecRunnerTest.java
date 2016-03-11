@@ -1,25 +1,32 @@
 package j8spec.junit;
 
-import j8spec.annotation.DefinedOrder;
 import j8spec.Example;
 import j8spec.UnsafeBlock;
+import j8spec.annotation.DefinedOrder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
+import org.junit.runners.model.TestTimedOutException;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static j8spec.J8Spec.*;
+import static j8spec.J8Spec.describe;
+import static j8spec.J8Spec.it;
+import static j8spec.J8Spec.xit;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 public class J8SpecRunnerTest {
 
@@ -38,6 +45,8 @@ public class J8SpecRunnerTest {
         it(BLOCK_4, c -> c.expected(CustomException.class), newBlock(BLOCK_4));
 
         describe("describe A", () -> it("block A.1", () -> {}));
+
+        it("block 5", c -> c.timeout(500, MILLISECONDS), () -> Thread.sleep(1000));
     }}
 
     private static Map<String, UnsafeBlock> blocks;
@@ -237,5 +246,20 @@ public class J8SpecRunnerTest {
 
         assertThat(listener.getDescription(), is(runner.describeChild(examples.get(3))));
         assertThat(listener.getException(), instanceOf(Exception.class));
+    }
+
+    @Test
+    public void notifies_failure_when_example_times_out() throws InitializationError {
+        J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
+        List<Example> examples = runner.getChildren();
+
+        RunNotifier runNotifier = new RunNotifier();
+        RunListenerHelper listener = new RunListenerHelper();
+        runNotifier.addListener(listener);
+
+        runner.runChild(examples.get(5), runNotifier);
+
+        assertThat(listener.getDescription(), is(runner.describeChild(examples.get(5))));
+        assertThat(listener.getException(), instanceOf(TestTimedOutException.class));
     }
 }

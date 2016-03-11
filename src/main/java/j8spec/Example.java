@@ -1,6 +1,7 @@
 package j8spec;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
@@ -21,6 +22,8 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         private List<Hook> afterAllHooks = emptyList();
         private UnsafeBlock block;
         private Class<? extends Throwable> expectedException;
+        private long timeout;
+        private TimeUnit timeoutUnit;
         private Rank rank;
 
         Builder containerDescriptions(List<String> containerDescriptions) {
@@ -73,6 +76,12 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
             return this;
         }
 
+        Builder timeout(long timeout, TimeUnit unit) {
+            this.timeout = timeout;
+            this.timeoutUnit = unit;
+            return this;
+        }
+
         Example build() {
             return new Example(
                 containerDescriptions,
@@ -83,6 +92,8 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
                 afterAllHooks,
                 block,
                 expectedException,
+                timeout,
+                timeoutUnit,
                 rank
             );
         }
@@ -102,6 +113,8 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     private final List<Hook> afterAllHooks;
     private final UnsafeBlock block;
     private final Class<? extends Throwable> expectedException;
+    private final long timeout;
+    private final TimeUnit timeoutUnit;
     private final Rank rank;
 
     private Example(
@@ -113,6 +126,8 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         List<Hook> afterAllHooks,
         UnsafeBlock block,
         Class<? extends Throwable> expectedException,
+        long timeout,
+        TimeUnit timeoutUnit,
         Rank rank
     ) {
         this.containerDescriptions = unmodifiableList(containerDescriptions);
@@ -123,6 +138,8 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         this.afterAllHooks = afterAllHooks;
         this.block = block;
         this.expectedException = expectedException;
+        this.timeout = timeout;
+        this.timeoutUnit = timeoutUnit;
         this.rank = rank;
     }
 
@@ -186,5 +203,17 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
      */
     public boolean isExpectedToThrowAnException() {
         return expectedException != null;
+    }
+
+    public boolean shouldFailOnTimeout() {
+        return timeout != 0;
+    }
+
+    public long timeout() {
+        return timeout;
+    }
+
+    public TimeUnit timeoutUnit() {
+        return timeoutUnit;
     }
 }
