@@ -1,0 +1,6 @@
+[submodule "samples/gradle"]
+	path = samples/gradle
+	url = https://github.com/j8spec/j8spec-sample-gradle.git
+[submodule "samples/maven"]
+	path = samples/maven
+	url = https://github.com/j8spec/j8spec-sample-maven.git
