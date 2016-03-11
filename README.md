@@ -4,7 +4,7 @@ J8Spec [![Build Status](https://travis-ci.org/tprado/j8spec.svg?branch=master)](
 J8Spec is a library that allows tests written in Java to follow the BDD style
 introduced by [RSpec] (http://rspec.info/) and [Jasmine](http://jasmine.github.io/).
 
-More details here: [j8spec.github.io](http://tprado.github.io/j8spec).
+More details here: [tprado.github.io/j8spec](http://tprado.github.io/j8spec).
 
 ## How to build it
 
