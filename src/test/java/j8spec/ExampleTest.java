@@ -7,11 +7,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static j8spec.BeforeHook.newBeforeEachBlock;
-import static j8spec.Example.newIgnoredExample;
-import static j8spec.UnsafeBlock.NOOP;
+import static j8spec.Hook.newHook;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -21,50 +19,83 @@ public class ExampleTest {
     public void runs_before_blocks_and_then_block() throws Throwable {
         final List<String> executionOrder = new ArrayList<>();
 
-        Example.newExample(
-            emptyList(),
-            "it block",
-            asList(
-                newBeforeEachBlock(() -> executionOrder.add("beforeEach1")),
-                newBeforeEachBlock(() -> executionOrder.add("beforeEach2"))
-            ),
-            () -> executionOrder.add("block"),
-            new Rank(0)
-        ).tryToExecute();
+        new Example.Builder()
+            .description("example")
+            .beforeEachHooks(singletonList(newHook(() -> executionOrder.add("beforeEach"))))
+            .beforeAllHooks(singletonList(newHook(() -> executionOrder.add("beforeAll"))))
+            .block(() -> executionOrder.add("block"))
+            .rank(new Rank(0))
+            .build()
+            .tryToExecute();
 
-        assertThat(executionOrder.get(0), is("beforeEach1"));
-        assertThat(executionOrder.get(1), is("beforeEach2"));
+        assertThat(executionOrder.get(0), is("beforeAll"));
+        assertThat(executionOrder.get(1), is("beforeEach"));
         assertThat(executionOrder.get(2), is("block"));
     }
 
     @Test
-    public void indicates_if_it_should_be_ignored() {
-        Example block = newIgnoredExample(emptyList(), "it block", new Rank(0));
+    public void runs_block_and_then_after_blocks() throws Throwable {
+        final List<String> executionOrder = new ArrayList<>();
 
-        assertThat(block.shouldBeIgnored(), is(true));
+        new Example.Builder()
+            .description("example")
+            .afterAllHooks(singletonList(newHook(() -> executionOrder.add("afterAll"))))
+            .afterEachHooks(singletonList(newHook(() -> executionOrder.add("afterEach"))))
+            .block(() -> executionOrder.add("block"))
+            .rank(new Rank(0))
+            .build()
+            .tryToExecute();
+
+        assertThat(executionOrder.get(0), is("block"));
+        assertThat(executionOrder.get(1), is("afterEach"));
+        assertThat(executionOrder.get(2), is("afterAll"));
     }
 
     @Test
-    public void indicates_if_it_should_not_be_ignored() {
-        Example block = Example.newExample(emptyList(), "it block", emptyList(), () -> {}, new Rank(0));
+    public void indicates_if_it_should_be_ignored() {
+        Example example = new Example.Builder()
+            .description("example")
+            .rank(new Rank(0))
+            .ignored()
+            .build();
 
-        assertThat(block.shouldBeIgnored(), is(false));
+        assertThat(example.shouldBeIgnored(), is(true));
+    }
+
+    @Test
+    public void indicates_if_example_should_not_be_ignored() {
+        Example example = new Example.Builder()
+            .description("example")
+            .block(() -> {})
+            .rank(new Rank(0))
+            .build();
+
+        assertThat(example.shouldBeIgnored(), is(false));
     }
 
     @Test
     public void is_sortable_by_rank() {
-        Example block1 = Example.newExample(emptyList(), "block 1", emptyList(), NOOP, new Rank(0));
-        Example block2 = Example.newExample(emptyList(), "block 2", emptyList(), NOOP, new Rank(1));
+        Example example1 = new Example.Builder()
+            .description("example 1")
+            .block(() -> {})
+            .rank(new Rank(0))
+            .build();
+
+        Example example2 = new Example.Builder()
+            .description("example 2")
+            .block(() -> {})
+            .rank(new Rank(1))
+            .build();
 
         LinkedList<Example> blocks = new LinkedList<>();
-        blocks.add(block2);
-        blocks.add(block1);
+        blocks.add(example2);
+        blocks.add(example1);
 
         Collections.sort(blocks);
 
         assertThat(blocks, is(asList(
-            block1,
-            block2
+            example1,
+            example2
         )));
     }
 }

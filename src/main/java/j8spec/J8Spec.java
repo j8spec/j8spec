@@ -20,7 +20,7 @@ import static java.util.function.Function.identity;
  */
 public final class J8Spec {
 
-    private static final ThreadLocal<Context<ExampleGroupDefinition>> contexts = new ThreadLocal<>();
+    private static final ThreadLocal<ExampleGroupContext> contexts = new ThreadLocal<>();
 
     /**
      * Defines a new "describe" block.
@@ -175,6 +175,30 @@ public final class J8Spec {
     }
 
     /**
+     * Defines a new hook to run after each example in the group.
+     *
+     * @param block code to be executed after each example
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @since 3.0.0
+     */
+    public static synchronized void afterEach(UnsafeBlock block) {
+        isValidContext("afterEach");
+        contexts.get().current().addAfterEach(block);
+    }
+
+    /**
+     * Defines a new hook to run once after all examples in the group.
+     *
+     * @param block code to be executed once after all examples
+     * @throws IllegalContextException if called outside the context of the {@link #read(Class)} method
+     * @since 3.0.0
+     */
+    public static synchronized void afterAll(UnsafeBlock block) {
+        isValidContext("afterAll");
+        contexts.get().current().addAfterAll(block);
+    }
+
+    /**
      * Defines a new "it" block.
      *
      * @param description textual description of the new block
@@ -317,7 +341,7 @@ public final class J8Spec {
      * @since 2.0.0
      */
     public static synchronized List<Example> read(Class<?> specClass) {
-        contexts.set(new Context<>());
+        contexts.set(new ExampleGroupContext());
         try {
             ExampleGroupDefinition exampleGroupDefinition = newExampleGroupDefinition(specClass, contexts.get());
 

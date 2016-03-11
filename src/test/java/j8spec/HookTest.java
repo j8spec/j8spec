@@ -2,14 +2,16 @@ package j8spec;
 
 import org.junit.Test;
 
+import static j8spec.Hook.newHook;
+import static j8spec.Hook.newOneTimeHook;
 import static org.mockito.Mockito.*;
 
-public class BeforeHookTest {
+public class HookTest {
 
     @Test
     public void runs_given_block_only_once() throws Throwable {
         UnsafeBlock block = mock(UnsafeBlock.class);
-        BeforeHook beforeHook = BeforeHook.newBeforeAllBlock(block);
+        Hook beforeHook = newOneTimeHook(block);
 
         beforeHook.tryToExecute();
         beforeHook.tryToExecute();
@@ -20,7 +22,7 @@ public class BeforeHookTest {
     @Test
     public void runs_given_block_on_each_call() throws Throwable {
         UnsafeBlock block = mock(UnsafeBlock.class);
-        BeforeHook beforeHook = BeforeHook.newBeforeEachBlock(block);
+        Hook beforeHook = newHook(block);
 
         beforeHook.tryToExecute();
         beforeHook.tryToExecute();

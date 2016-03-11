@@ -11,13 +11,13 @@ import static j8spec.BlockExecutionFlag.DEFAULT;
 final class ExampleGroupDefinition implements BlockDefinition {
 
     private final ExampleGroupConfiguration config;
-    private final Context<ExampleGroupDefinition> context;
+    private final ExampleGroupContext context;
     private final List<BlockDefinition> blockDefinitions = new LinkedList<>();
     private final List<BlockDefinition> hooks = new LinkedList<>();
 
     static ExampleGroupDefinition newExampleGroupDefinition(
         Class<?> specClass,
-        Context<ExampleGroupDefinition> context
+        ExampleGroupContext context
     ) {
         ExampleGroupConfiguration.Builder configBuilder = new ExampleGroupConfiguration.Builder()
             .description(specClass.getName())
@@ -50,7 +50,7 @@ final class ExampleGroupDefinition implements BlockDefinition {
         }
     }
 
-    private ExampleGroupDefinition(ExampleGroupConfiguration config, Context<ExampleGroupDefinition> context) {
+    private ExampleGroupDefinition(ExampleGroupConfiguration config, ExampleGroupContext context) {
         this.config = config;
         this.context = context;
     }
@@ -66,15 +66,23 @@ final class ExampleGroupDefinition implements BlockDefinition {
     }
 
     void addBeforeAll(UnsafeBlock beforeAllBlock) {
-        hooks.add(new BeforeAllDefinition(beforeAllBlock));
+        hooks.add(new BlockDefinitions.BeforeAll(beforeAllBlock));
     }
 
     void addBeforeEach(UnsafeBlock beforeEachBlock) {
-        hooks.add(new BeforeEachDefinition(beforeEachBlock));
+        hooks.add(new BlockDefinitions.BeforeEach(beforeEachBlock));
+    }
+
+    void addAfterEach(UnsafeBlock afterEachBlock) {
+        hooks.add(new BlockDefinitions.AfterEach(afterEachBlock));
+    }
+
+    void addAfterAll(UnsafeBlock afterAllBlock) {
+        hooks.add(new BlockDefinitions.AfterAll(afterAllBlock));
     }
 
     void addExample(ExampleConfiguration exampleConfig, UnsafeBlock block) {
-        blockDefinitions.add(new ExampleDefinition(exampleConfig, block));
+        blockDefinitions.add(new BlockDefinitions.Example(exampleConfig, block));
     }
 
     @Override

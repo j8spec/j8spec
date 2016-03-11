@@ -18,6 +18,14 @@ abstract class BlockDefinitionVisitor {
         return this;
     }
 
+    BlockDefinitionVisitor afterEach(UnsafeBlock block) {
+        return this;
+    }
+
+    BlockDefinitionVisitor afterAll(UnsafeBlock block) {
+        return this;
+    }
+
     BlockDefinitionVisitor endGroup() {
         return this;
     }

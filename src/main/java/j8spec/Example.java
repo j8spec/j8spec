@@ -11,49 +11,116 @@ import static java.util.Collections.unmodifiableList;
  */
 public final class Example implements UnsafeBlock, Comparable<Example> {
 
+    static final class Builder {
+
+        private List<String> containerDescriptions = emptyList();
+        private String description;
+        private List<Hook> beforeAllHooks = emptyList();
+        private List<Hook> beforeEachHooks = emptyList();
+        private List<Hook> afterEachHooks = emptyList();
+        private List<Hook> afterAllHooks = emptyList();
+        private UnsafeBlock block;
+        private Class<? extends Throwable> expectedException;
+        private Rank rank;
+
+        Builder containerDescriptions(List<String> containerDescriptions) {
+            this.containerDescriptions = containerDescriptions;
+            return this;
+        }
+
+        Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        Builder beforeAllHooks(List<Hook> beforeAllHooks) {
+            this.beforeAllHooks = beforeAllHooks;
+            return this;
+        }
+
+        Builder beforeEachHooks(List<Hook> beforeHooks) {
+            this.beforeEachHooks = beforeHooks;
+            return this;
+        }
+
+        Builder afterEachHooks(List<Hook> afterHooks) {
+            this.afterEachHooks = afterHooks;
+            return this;
+        }
+
+        Builder afterAllHooks(List<Hook> afterAllHooks) {
+            this.afterAllHooks = afterAllHooks;
+            return this;
+        }
+
+        Builder block(UnsafeBlock block) {
+            this.block = block;
+            return this;
+        }
+
+        Builder expectedException(Class<? extends Throwable> expectedException) {
+            this.expectedException = expectedException;
+            return this;
+        }
+
+        Builder rank(Rank rank) {
+            this.rank = rank;
+            return this;
+        }
+
+        Builder ignored() {
+            this.block = NOOP;
+            return this;
+        }
+
+        Example build() {
+            return new Example(
+                containerDescriptions,
+                description,
+                beforeAllHooks,
+                beforeEachHooks,
+                afterEachHooks,
+                afterAllHooks,
+                block,
+                expectedException,
+                rank
+            );
+        }
+    }
+
+    private static void tryToExecute(List<Hook> hooks) throws Throwable {
+        for (Hook hook : hooks) {
+            hook.tryToExecute();
+        }
+    }
+
     private final List<String> containerDescriptions;
     private final String description;
-    private final List<BeforeHook> beforeHooks;
+    private final List<Hook> beforeAllHooks;
+    private final List<Hook> beforeEachHooks;
+    private final List<Hook> afterEachHooks;
+    private final List<Hook> afterAllHooks;
     private final UnsafeBlock block;
     private final Class<? extends Throwable> expectedException;
     private final Rank rank;
 
-    static Example newExample(
-        List<String> containerDescriptions,
-        String description,
-        List<BeforeHook> beforeHooks,
-        UnsafeBlock block,
-        Rank rank
-    ) {
-        return new Example(containerDescriptions, description, beforeHooks, block, null, rank);
-    }
-
-    static Example newExample(
-        List<String> containerDescriptions,
-        String description,
-        List<BeforeHook> beforeHooks,
-        UnsafeBlock block,
-        Class<? extends Throwable> expectedException,
-        Rank rank
-    ) {
-        return new Example(containerDescriptions, description, beforeHooks, block, expectedException, rank);
-    }
-
-    static Example newIgnoredExample(List<String> containerDescriptions, String description, Rank rank) {
-        return newExample(containerDescriptions, description, emptyList(), NOOP, rank);
-    }
-
     private Example(
         List<String> containerDescriptions,
         String description,
-        List<BeforeHook> beforeHooks,
+        List<Hook> beforeAllHooks,
+        List<Hook> beforeEachHooks,
+        List<Hook> afterEachHooks,
+        List<Hook> afterAllHooks,
         UnsafeBlock block,
         Class<? extends Throwable> expectedException,
         Rank rank
     ) {
         this.containerDescriptions = unmodifiableList(containerDescriptions);
         this.description = description;
-        this.beforeHooks = unmodifiableList(beforeHooks);
+        this.beforeAllHooks = beforeAllHooks;
+        this.beforeEachHooks = unmodifiableList(beforeEachHooks);
+        this.afterEachHooks = unmodifiableList(afterEachHooks);
+        this.afterAllHooks = afterAllHooks;
         this.block = block;
         this.expectedException = expectedException;
         this.rank = rank;
@@ -70,10 +137,13 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
      */
     @Override
     public void tryToExecute() throws Throwable {
-        for (BeforeHook beforeHook : beforeHooks) {
-            beforeHook.tryToExecute();
-        }
+        tryToExecute(beforeAllHooks);
+        tryToExecute(beforeEachHooks);
+
         block.tryToExecute();
+
+        tryToExecute(afterEachHooks);
+        tryToExecute(afterAllHooks);
     }
 
     /**

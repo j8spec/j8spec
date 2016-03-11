@@ -1,20 +1,20 @@
 package j8spec;
 
-final class BeforeHook implements UnsafeBlock {
+final class Hook implements UnsafeBlock {
 
     private final UnsafeBlock block;
     private final boolean justOnce;
     private boolean onceAlready;
 
-    static BeforeHook newBeforeAllBlock(UnsafeBlock block) {
-        return new BeforeHook(block, true);
+    static Hook newOneTimeHook(UnsafeBlock block) {
+        return new Hook(block, true);
     }
 
-    static BeforeHook newBeforeEachBlock(UnsafeBlock block) {
-        return new BeforeHook(block, false);
+    static Hook newHook(UnsafeBlock block) {
+        return new Hook(block, false);
     }
 
-    private BeforeHook(UnsafeBlock block, boolean justOnce) {
+    private Hook(UnsafeBlock block, boolean justOnce) {
         this.block = block;
         this.justOnce = justOnce;
         this.onceAlready = false;

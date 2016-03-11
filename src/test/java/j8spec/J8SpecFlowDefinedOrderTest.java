@@ -7,8 +7,11 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static j8spec.J8Spec.afterAll;
+import static j8spec.J8Spec.afterEach;
 import static j8spec.J8Spec.beforeAll;
 import static j8spec.J8Spec.beforeEach;
+import static j8spec.J8Spec.context;
 import static j8spec.J8Spec.describe;
 import static j8spec.J8Spec.fcontext;
 import static j8spec.J8Spec.fdescribe;
@@ -54,9 +57,17 @@ public class J8SpecFlowDefinedOrderTest {
 
     @DefinedOrder
     static class OddHookOrderSpec {{
-        it("block 1", () -> log.add("block 1"));
-        beforeAll(() -> log.add("before all 1"));
+        afterAll(() -> log.add("after all 1"));
+        afterEach(() -> log.add("after each 1"));
+        context("context A", () -> {
+            afterAll(() -> log.add("after all A 1"));
+            afterEach(() -> log.add("after each A 1"));
+            it("block 1", () -> log.add("block A 1"));
+            beforeEach(() -> log.add("before each A 1"));
+            beforeAll(() -> log.add("before all A 1"));
+        });
         beforeEach(() -> log.add("before each 1"));
+        beforeAll(() -> log.add("before all 1"));
     }}
 
     @DefinedOrder
@@ -200,13 +211,23 @@ public class J8SpecFlowDefinedOrderTest {
     }
 
     @Test
-    public void respects_hook_order_even_when_they_are_defined_after() throws Throwable {
+    public void respects_hook_order() throws Throwable {
         executeSpec(OddHookOrderSpec.class);
 
         assertThat(log, is(asList(
             "before all 1",
+            "before all A 1",
+
             "before each 1",
-            "block 1"
+            "before each A 1",
+
+            "block A 1",
+
+            "after each A 1",
+            "after each 1",
+
+            "after all A 1",
+            "after all 1"
         )));
     }
 
