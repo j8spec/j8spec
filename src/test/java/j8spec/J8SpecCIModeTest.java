@@ -87,7 +87,7 @@ public class J8SpecCIModeTest {
         read(XcontextSpec.class);
     }
 
-    @Test(expected = Exceptions.OperationNotAllowedInCIMode.class)
+    @Test(expected = Exceptions.HardCodedSeedNotAllowedInCIMode.class)
     public void does_not_allow_hard_coded_seed_when_ci_mode_enabled() {
         read(HardCodedSeedSpec.class);
     }
