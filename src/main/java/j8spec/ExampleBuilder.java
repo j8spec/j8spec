@@ -93,7 +93,8 @@ final class ExampleBuilder extends BlockDefinitionVisitor {
                 .afterEachHooks(asHooks(afterEachBlocks))
                 .afterAllHooks(asHooks(afterAllBlocks))
                 .block(block)
-                .expectedException(config.expectedException());
+                .expectedException(config.expectedException())
+                .timeout(config.timeout(), config.timeoutUnit());
         }
 
         examples.add(builder.build());

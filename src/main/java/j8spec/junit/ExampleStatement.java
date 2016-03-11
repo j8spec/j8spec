@@ -2,6 +2,7 @@ package j8spec.junit;
 
 import j8spec.Example;
 import org.junit.internal.runners.statements.ExpectException;
+import org.junit.internal.runners.statements.FailOnTimeout;
 import org.junit.runners.model.Statement;
 
 final class ExampleStatement extends Statement {
@@ -13,6 +14,12 @@ final class ExampleStatement extends Statement {
 
         if (example.isExpectedToThrowAnException()) {
             statement = new ExpectException(statement, example.expected());
+        }
+
+        if (example.shouldFailOnTimeout()) {
+            statement = FailOnTimeout.builder()
+                .withTimeout(example.timeout(), example.timeoutUnit())
+                .build(statement);
         }
 
         return statement;
