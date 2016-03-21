@@ -149,7 +149,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     }
 
     /**
-     * Runs this block and associated setup code.
+     * Runs this example and associated hooks.
      * @since 2.0.0
      */
     @Override
@@ -172,7 +172,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     }
 
     /**
-     * @return textual description of all outer "describe" blocks
+     * @return textual description of all outer example groups
      * @since 2.0.0
      */
     public List<String> containerDescriptions() {
@@ -180,7 +180,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     }
 
     /**
-     * @return <code>true</code> if this block should be ignored, <code>false</code> otherwise
+     * @return <code>true</code> if this example should be ignored, <code>false</code> otherwise
      * @since 2.0.0
      */
     public boolean shouldBeIgnored() {
@@ -188,7 +188,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     }
 
     /**
-     * @return exception class this block is expected to throw, <code>null</code> otherwise
+     * @return exception class this example is expected to throw, <code>null</code> otherwise
      * @see #isExpectedToThrowAnException()
      * @since 2.0.0
      */
@@ -197,7 +197,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     }
 
     /**
-     * @return <code>true</code> if this block is expected to throw an exception, <code>false</code> otherwise
+     * @return <code>true</code> if this example is expected to throw an exception, <code>false</code> otherwise
      * @see #expected()
      * @since 2.0.0
      */
@@ -205,14 +205,29 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         return expectedException != null;
     }
 
+    /**
+     * @return <code>true</code> if this example is expected to fail if it takes to long, <code>false</code> otherwise
+     * @see #timeout()
+     * @since 3.0.0
+     */
     public boolean shouldFailOnTimeout() {
         return timeout != 0;
     }
 
+    /**
+     * @return time to wait before timing out the example
+     * @see #timeoutUnit()
+     * @since 3.0.0
+     */
     public long timeout() {
         return timeout;
     }
 
+    /**
+     * @return the time unit for the {@link #timeout()}
+     * @see #timeout()
+     * @since 3.0.0
+     */
     public TimeUnit timeoutUnit() {
         return timeoutUnit;
     }

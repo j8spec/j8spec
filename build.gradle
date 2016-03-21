@@ -26,6 +26,10 @@ dependencies {
     testCompile group: 'org.mockito',   name: 'mockito-core',   version: '1.10.19'
 }
 
+javadoc {
+    options.addStringOption "link", "http://docs.oracle.com/javase/8/docs/api/"
+}
+
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from 'build/docs/javadoc'

@@ -9,6 +9,9 @@ package j8spec;
 @FunctionalInterface
 public interface UnsafeBlock {
 
+    /**
+     * No operation block.
+     */
     UnsafeBlock NOOP = () -> {};
 
     /**
