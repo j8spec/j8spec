@@ -10,6 +10,10 @@ import static j8spec.BlockExecutionFlag.DEFAULT;
  */
 public final class ExampleConfiguration {
 
+    /**
+     * Example configuration builder.
+     * @since 3.0.0
+     */
     public static final class Builder {
 
         private String description;

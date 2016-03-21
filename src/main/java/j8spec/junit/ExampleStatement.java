@@ -9,7 +9,7 @@ final class ExampleStatement extends Statement {
 
     private final Example example;
 
-    public static Statement newStatement(Example example) {
+    static Statement newStatement(Example example) {
         Statement statement = new ExampleStatement(example);
 
         if (example.isExpectedToThrowAnException()) {

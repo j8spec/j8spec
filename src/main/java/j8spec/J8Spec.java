@@ -23,14 +23,14 @@ public final class J8Spec {
     private static final ThreadLocal<ExampleGroupContext> contexts = new ThreadLocal<>();
 
     /**
-     * Defines a new "describe" block.
+     * Defines a new example group.
      *
-     * @param description textual description of the new block
-     * @param block code that defines inner blocks, like "describe", "it", etc - this code is executed
-     *             immediately
+     * @param description textual description of the example group
+     * @param block code that defines inner examples or example groups, like "describe", "it", etc - this code is
+     *              executed immediately
      * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
-     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
-     * defined already
+     * @throws Exceptions.BlockAlreadyDefined if another example group with the same description in the same
+     * context has been defined already
      * @since 1.0.0
      */
     public static synchronized void describe(String description, SafeBlock block) {
@@ -45,12 +45,12 @@ public final class J8Spec {
     /**
      * Alias for {@link #describe(String, SafeBlock)}.
      *
-     * @param description textual description of the new block
-     * @param block code that defines inner blocks, like "describe", "it", etc - this code is executed
-     *             immediately
+     * @param description textual description of the example group
+     * @param block code that defines inner examples and example groups, like "describe", "it", etc - this code is
+     *              executed immediately
      * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
-     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
-     * defined already
+     * @throws Exceptions.BlockAlreadyDefined if another example group with the same description in the same context
+     * has been defined already
      * @since 2.0.0
      */
     public static synchronized void context(String description, SafeBlock block) {
@@ -63,15 +63,16 @@ public final class J8Spec {
     }
 
     /**
-     * Defines a new ignored "describe" block.
+     * Defines a new ignored example group.
      *
-     * @param description textual description of the new block
-     * @param block code that defines inner blocks, like "describe", "it", etc - this code is executed
-     *             immediately
+     * @param description textual description of the new example group
+     * @param block code that defines inner example and example groups, like "describe", "it", etc - this code is
+     *              executed immediately
      * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
-     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
-     * defined already
-     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is <code>true</code>
+     * @throws Exceptions.BlockAlreadyDefined if another example group with the same description in the same context
+     * has been defined already
+     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is
+     * <code>true</code>
      * @since 2.0.0
      */
     public static synchronized void xdescribe(String description, SafeBlock block) {
@@ -87,13 +88,14 @@ public final class J8Spec {
     /**
      * Alias for {@link #xdescribe(String, SafeBlock)}.
      *
-     * @param description textual description of the new block
-     * @param block code that defines inner blocks, like "describe", "it", etc - this code is executed
-     *             immediately
+     * @param description textual description of the new example group
+     * @param block code that defines inner examples and example groups, like "describe", "it", etc - this code is
+     *              executed immediately
      * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
-     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
-     * defined already
-     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is <code>true</code>
+     * @throws Exceptions.BlockAlreadyDefined if another example group with the same description in the same context
+     * has been defined already
+     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is
+     * <code>true</code>
      * @since 2.0.0
      */
     public static synchronized void xcontext(String description, SafeBlock block) {
@@ -107,15 +109,16 @@ public final class J8Spec {
     }
 
     /**
-     * Defines a new focused "describe" block.
+     * Defines a new focused example group.
      *
-     * @param description textual description of the new block
-     * @param block code that defines inner blocks, like "describe", "it", etc - this code is executed
-     *             immediately
+     * @param description textual description of the new example group
+     * @param block code that defines inner examples and example groups, like "describe", "it", etc - this code is
+     *              executed immediately
      * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
-     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
-     * defined already
-     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is <code>true</code>
+     * @throws Exceptions.BlockAlreadyDefined if another example group with the same description in the same context
+     * has been defined already
+     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is
+     * <code>true</code>
      * @since 2.0.0
      */
     public static synchronized void fdescribe(String description, SafeBlock block) {
@@ -131,12 +134,12 @@ public final class J8Spec {
     /**
      * Alias for {@link #fdescribe(String, SafeBlock)}.
      *
-     * @param description textual description of the new block
-     * @param block code that defines inner blocks, like "describe", "it", etc - this code is executed
-     *             immediately
+     * @param description textual description of the example group
+     * @param block code that defines inner examples and example group, like "describe", "it", etc - this code is
+     *              executed immediately
      * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
-     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
-     * defined already
+     * @throws Exceptions.BlockAlreadyDefined if another example group with the same description in the same context
+     * has been defined already
      * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is <code>true</code>
      * @since 2.0.0
      */
@@ -151,9 +154,9 @@ public final class J8Spec {
     }
 
     /**
-     * Defines a new "before all" block.
+     * Defines a new hook to run once before all examples in the group.
      *
-     * @param block code to be executed before all "it" blocks
+     * @param block code to be executed once before all examples
      * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
      * @since 2.0.0
      */
@@ -163,9 +166,9 @@ public final class J8Spec {
     }
 
     /**
-     * Defines a new "before each" block.
+     * Defines a new hook to run before each example in the group.
      *
-     * @param block code to be executed before each "it" block
+     * @param block code to be executed before each example
      * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
      * @since 1.0.0
      */
@@ -199,9 +202,9 @@ public final class J8Spec {
     }
 
     /**
-     * Defines a new "it" block.
+     * Defines a new example.
      *
-     * @param description textual description of the new block
+     * @param description textual description of the new example
      * @param block code to be executed
      * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
      * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
@@ -213,9 +216,9 @@ public final class J8Spec {
     }
 
     /**
-     * Defines a new "it" block using custom configuration.
+     * Defines a new example group using custom configuration.
      *
-     * @param description textual description of the new block
+     * @param description textual description of the new example
      * @param collector block configuration collector
      * @param block code to be executed
      * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
@@ -252,15 +255,16 @@ public final class J8Spec {
     }
 
     /**
-     * Defines a new ignored "it" block using custom configuration.
+     * Defines a new ignored example using custom configuration.
      *
-     * @param description textual description of the new block
+     * @param description textual description of the new example
      * @param collector block configuration collector
      * @param block code to be executed
      * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
-     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
+     * @throws Exceptions.BlockAlreadyDefined if another example with the same description in the same context has been
      * defined already
-     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is <code>true</code>
+     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is
+     * <code>true</code>
      * @since 2.0.0
      */
     public static synchronized void xit(
@@ -278,14 +282,15 @@ public final class J8Spec {
     }
 
     /**
-     * Defines a new focused "it" block.
+     * Defines a new focused example group.
      *
-     * @param description textual description of the new block
+     * @param description textual description of the new example
      * @param block code to be executed
      * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
-     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
+     * @throws Exceptions.BlockAlreadyDefined if another example with the same description in the same context has been
      * defined already
-     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is <code>true</code>
+     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is
+     * <code>true</code>
      * @since 2.0.0
      */
     public static synchronized void fit(String description, UnsafeBlock block) {
@@ -293,15 +298,16 @@ public final class J8Spec {
     }
 
     /**
-     * Defines a new focused "it" block using custom configuration.
+     * Defines a new focused example using custom configuration.
      *
-     * @param description textual description of the new block
+     * @param description textual description of the new example
      * @param collector block configuration collector
      * @param block code to be executed
      * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
-     * @throws Exceptions.BlockAlreadyDefined if another block with the same description in the same context has been
+     * @throws Exceptions.BlockAlreadyDefined if another example with the same description in the same context has been
      * defined already
-     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is <code>true</code>
+     * @throws Exceptions.OperationNotAllowedInCIMode if the system property <code>j8spec.ci.mode</code> is
+     * <code>true</code>
      * @since 2.0.0
      */
     public static synchronized void fit(
@@ -331,10 +337,10 @@ public final class J8Spec {
     }
 
     /**
-     * Uses the given spec class to build and populate a {@link Example} objects.
+     * Uses the given spec class to build and populate a list of {@link Example} objects ready to be executed.
      *
      * @param specClass class with a public default constructor that contains the spec definition
-     * @return {@link Example} objects that represent the spec definition
+     * @return {@link Example} objects that represent the spec definition and can be executed
      * @throws Exceptions.SpecInitializationFailed if it is not possible to create an instance of <code>specClass</code>
      * @since 2.0.0
      */

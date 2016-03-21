@@ -25,17 +25,17 @@ public final class ExampleGroupConfiguration {
             return this;
         }
 
-        public Builder definedOrder() {
+        Builder definedOrder() {
             this.executionOrder = DEFINED;
             return this;
         }
 
-        public Builder randomOrder() {
+        Builder randomOrder() {
             this.executionOrder = RANDOM;
             return this;
         }
 
-        public Builder seed(Long seed) {
+        Builder seed(Long seed) {
             if (Boolean.valueOf(System.getProperty("j8spec.ci.mode", "false"))) {
                 throw new Exceptions.HardCodedSeedNotAllowedInCIMode();
             }

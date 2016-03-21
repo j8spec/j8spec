@@ -66,7 +66,7 @@ public final class Exceptions {
     }
 
     /**
-     * Thrown when an instance of the class that contains the spec definition cannot be instantiated.
+     * Thrown when an instance of the class that contains the spec definition cannot be created.
      * @since 3.0.0
      */
     public static class SpecInitializationFailed extends Base {
