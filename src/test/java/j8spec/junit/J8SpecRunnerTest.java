@@ -44,7 +44,10 @@ public class J8SpecRunnerTest {
         xit(BLOCK_3, newBlock(BLOCK_3));
         it(BLOCK_4, c -> c.expected(CustomException.class), newBlock(BLOCK_4));
 
-        describe("describe A", () -> it("block A.1", () -> {}));
+        describe("describe A", () -> {
+            it("block A.1", () -> {});
+            describe("describe A A", () -> it("block A.A.1", () -> {}));
+        });
 
         it("block 5", c -> c.timeout(500, MILLISECONDS), () -> Thread.sleep(1000));
     }}
@@ -100,11 +103,41 @@ public class J8SpecRunnerTest {
 
         assertThat(block4Description.getClassName(), is("j8spec.junit.J8SpecRunnerTest$SampleSpec"));
         assertThat(block4Description.getMethodName(), is(BLOCK_4));
+    }
+
+    @Test
+    public void describes_child_with_parent_context() throws InitializationError {
+        J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
+        List<Example> examples = runner.getChildren();
 
         Description blockA1Description = runner.describeChild(examples.get(4));
 
         assertThat(blockA1Description.getClassName(), is("j8spec.junit.J8SpecRunnerTest$SampleSpec"));
-        assertThat(blockA1Description.getMethodName(), is("block A.1, describe A"));
+        assertThat(blockA1Description.getMethodName(), is("describe A/block A.1"));
+
+        Description blockAA1Description = runner.describeChild(examples.get(5));
+
+        assertThat(blockAA1Description.getClassName(), is("j8spec.junit.J8SpecRunnerTest$SampleSpec"));
+        assertThat(blockAA1Description.getMethodName(), is("describe A/describe A A/block A.A.1"));
+    }
+
+    @Test
+    public void describes_child_with_parent_context_using_custom_format() throws InitializationError {
+        J8SpecRunner runner = new J8SpecRunner(SampleSpec.class);
+        List<Example> examples = runner.getChildren();
+
+        System.setProperty("j8spec.junit.description.format", "%2$s (%1$s)");
+        System.setProperty("j8spec.junit.description.separator", ", ");
+
+        Description blockA1Description = runner.describeChild(examples.get(4));
+
+        assertThat(blockA1Description.getClassName(), is("j8spec.junit.J8SpecRunnerTest$SampleSpec"));
+        assertThat(blockA1Description.getMethodName(), is("block A.1 (describe A)"));
+
+        Description blockAA1Description = runner.describeChild(examples.get(5));
+
+        assertThat(blockAA1Description.getClassName(), is("j8spec.junit.J8SpecRunnerTest$SampleSpec"));
+        assertThat(blockAA1Description.getMethodName(), is("block A.A.1 (describe A, describe A A)"));
     }
 
     @Test
@@ -257,9 +290,9 @@ public class J8SpecRunnerTest {
         RunListenerHelper listener = new RunListenerHelper();
         runNotifier.addListener(listener);
 
-        runner.runChild(examples.get(5), runNotifier);
+        runner.runChild(examples.get(6), runNotifier);
 
-        assertThat(listener.getDescription(), is(runner.describeChild(examples.get(5))));
+        assertThat(listener.getDescription(), is(runner.describeChild(examples.get(6))));
         assertThat(listener.getException(), instanceOf(TestTimedOutException.class));
     }
 }

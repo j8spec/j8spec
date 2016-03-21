@@ -8,7 +8,6 @@ import org.junit.runners.ParentRunner;
 import org.junit.runners.model.InitializationError;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -52,13 +51,19 @@ public final class J8SpecRunner extends ParentRunner<Example> {
     }
 
     private String buildChildName(Example example) {
-        List<String> name = new LinkedList<>();
-        List<String> containerDescriptions = example.containerDescriptions();
-        name.add(example.description());
-        for (int i = 1; i < containerDescriptions.size(); i++) {
-            name.add(containerDescriptions.get(i));
+        String format = System.getProperty("j8spec.junit.description.format", "%1$s/%2$s");
+        String separator = System.getProperty("j8spec.junit.description.separator", "/");
+
+        List<String> containerDescriptions = tail(example.containerDescriptions());
+        if (containerDescriptions.isEmpty()) {
+            return example.description();
         }
-        return String.join(", ", name);
+
+        return String.format(format, String.join(separator, containerDescriptions), example.description());
+    }
+
+    private List<String> tail(List<String> containerDescriptions) {
+        return containerDescriptions.subList(1, containerDescriptions.size());
     }
 
     @Override
