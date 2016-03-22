@@ -11,6 +11,8 @@
     <h1>J8Spec</h1>
     <ul>
       <li><a href="#getting-started">Getting Started</a></li>
+      <li><a href="#code-examples">Code Examples</a></li>
+      <li><a href="#system-properties">System Properties</a></li>
       <li><a href="#java-quirks">Java Quirks</a></li>
       <li><a href="#releases">Releases</a></li>
       <li><a href="#contributing">Contributing</a></li>
@@ -25,8 +27,8 @@
   </p>
 
   <p>
-  If you are not familiar with those tools, you should take some time
-  to try them out before reading on.
+  If you are not familiar with those tools, you should definitely take some time
+  to try them out.
   </p>
 
   <p>
@@ -37,8 +39,8 @@
   </div>
 
   <p>
-  Since J8Spec comes with a <a href="http://junit.org" target="#">JUnit</a> runner, it works out-of-the-box with IDEs
-  and build tools that support JUnit.
+  Since J8Spec comes with a <a href="http://junit.org" target="#">JUnit</a> runner, it works out-of-the-box
+  with IDEs and build tools that support JUnit.
   </p>
 
   <div class="screenshots">
@@ -53,7 +55,8 @@
   <h2><a name="getting-started"># getting started</a></h2>
 
   <p>
-  J8Spec is available in the <a href="http://search.maven.org/#search|ga|1|g%3A%22io.github.j8spec%22" target="#">Maven</a> central
+  J8Spec is available in the
+  <a href="http://search.maven.org/#search|ga|1|g%3A%22io.github.j8spec%22" target="#">Maven</a> central
   repository. Just add it as a test dependency and you are good to go.
   </p>
 
@@ -75,6 +78,65 @@
 
   <div class="code" data-src-file="samples/maven/pom.xml"></div>
 
+</section>
+
+<section>
+  <h2><a name="code-examples"># code examples</a></h2>
+
+  <h3>Expected Exception</h3>
+  <div class="code" data-src-file="samples/gradle/src/test/java/j8spec/examples/ExpectedExceptionExampleTest.java"></div>
+
+  <h3>Timeout</h3>
+  <div class="code" data-src-file="samples/gradle/src/test/java/j8spec/examples/TimeoutExampleTest.java"></div>
+
+  <h3>Defined Order</h3>
+  <div class="code" data-src-file="samples/gradle/src/test/java/j8spec/examples/DefinedOrderExampleTest.java"></div>
+
+  <h3>JUnit Assumptions</h3>
+  <div class="code" data-src-file="samples/gradle/src/test/java/j8spec/examples/AssumptionExampleTest.java"></div>
+
+</section>
+
+<section>
+  <h2><a name="system-properties"># system properties</a></h2>
+
+  <table>
+    <tr>
+      <th>Property</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>j8spec.ci.mode</td>
+      <td>
+        Intended to be used in the Continuous Integration environment to prevent accidental usage of
+        xdescribe, xcontext, xit, fdescribe, fcontext, and fit. Also, it will not allow a hard-coded seed
+        for the random order. Default value is false.
+      </td>
+    </tr>
+    <tr>
+      <td>j8spec.seed</td>
+      <td>
+        Intended to be used while debugging a spec that fails in a particular random order.
+        Not allowed when j8spec.ci.mode is true.
+      </td>
+    </tr>
+    <tr>
+      <td>j8spec.junit.description.format</td>
+      <td>
+        When generating the each example description for JUnit, this format pattern is used.
+        The first item is the description of all containers where the example is placed. The
+        second is the example description. Default value is "%1$s/%2$s".
+        See <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Formatter.html#syntax" target="#">Format String Syntax</a> for details.
+      </td>
+    </tr>
+    <tr>
+      <td>j8spec.junit.description.separator</td>
+      <td>
+        When generating each example description for JUnit, this separator is used to compose the description
+        of all container contexts where the example is placed. Default value is "/".
+      </td>
+    </tr>
+  </table>
 </section>
 
 <section>
@@ -128,6 +190,23 @@
 
 <section>
   <h2><a name="releases"># releases</a></h2>
+
+  <h3>3.0.0</h3>
+
+  <a href="javadocs/3.0.0/index.html" target="#">API Javadoc</a>
+
+  <h4>Notes</h4>
+
+  <ul>
+    <li>random and defined order support via annotations (random is default)</li>
+    <li>timeout</li>
+    <li>after each/all hooks</li>
+    <li>spec can have code that throws checked exceptions</li>
+    <li>
+      JUnit custom description format via system properties
+      j8spec.junit.description.format and j8spec.junit.description.separator
+    </li>
+  </ul>
 
   <h3>2.0.0</h3>
 

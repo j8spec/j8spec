@@ -111,3 +111,21 @@ p.side-note {
   height: auto;
 }
 
+table {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+}
+
+tr:nth-child(even) {
+  background-color: #2F3129;
+}
+
+th {
+  padding: 5px;
+  padding-bottom: 20px;
+}
+
+td {
+  padding: 5px;
+}
