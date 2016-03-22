@@ -9,6 +9,7 @@
 
       var srcFile = $(editorElement).attr('data-src-file');
       var fileType = $(editorElement).attr('data-file-type');
+      var selectedLine = $(editorElement).attr('data-line');
       var fileExtension = fileType;
 
       if (!fileType) {
@@ -30,7 +31,8 @@
         element: editorElement,
         editor: editor,
         srcFile: srcFile,
-        fileExtension: fileExtension
+        fileExtension: fileExtension,
+        selectedLine: selectedLine
       });
     });
 
@@ -40,6 +42,7 @@
       var editor = e.editor;
       var srcFile = e.srcFile;
       var fileExtension = e.fileExtension;
+      var selectedLine = e.selectedLine || 1;
 
       $.ajax(srcFile, {
         dataType: 'text',
@@ -48,6 +51,7 @@
           var doc = editor.getSession().getDocument();
 
           editor.setValue(data, -1);
+          editor.gotoLine(selectedLine);
 
           editorElement.style.height = (fontSize + 0.1) * doc.getLength() + 'em';
           editor.resize();
