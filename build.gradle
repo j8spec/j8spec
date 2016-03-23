@@ -74,18 +74,18 @@ uploadArchives {
                 name 'j8spec'
                 description 'RSpec/Jasmine like specs with Java 8 Lambda Expressions'
 
-                url 'http://tprado.github.io/j8spec'
+                url 'http://j8spec.github.io'
 
                 scm {
-                    url 'scm:https://github.com/tprado/j8spec.git'
-                    connection 'scm:https://github.com/tprado/j8spec.git'
-                    developerConnection 'scm:https://github.com/tprado/j8spec.git'
+                    url 'scm:https://github.com/j8spec/j8spec.git'
+                    connection 'scm:https://github.com/j8spec/j8spec.git'
+                    developerConnection 'scm:https://github.com/j8spec/j8spec.git'
                 }
 
                 licenses {
                     license {
                         name 'The MIT License'
-                        url 'http://github.com/tprado/j8spec/blob/master/LICENSE'
+                        url 'http://github.com/j8spec/j8spec/blob/master/LICENSE'
                         distribution 'repo'
                     }
                 }
