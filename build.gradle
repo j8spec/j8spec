@@ -5,7 +5,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'io.github.j8spec'
-version = '3.0.0'
+version = '3.1.0-SNAPSHOT'
 ext.isReleaseBuild = !version.endsWith("SNAPSHOT")
 
 sourceCompatibility = '1.8'
@@ -72,7 +72,7 @@ uploadArchives {
 
             pom.project {
                 name 'j8spec'
-                description 'RSpec/Jasmine like specs with Java 8 Lambda Expressions'
+                description 'Library that allows tests written in Java to follow the BDD style introduced by RSpec and Jasmine.'
 
                 url 'http://j8spec.github.io'
 
