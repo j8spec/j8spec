@@ -8,15 +8,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static j8spec.Hook.newHook;
+import static j8spec.Var.var;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ExampleTest {
 
     @Test
-    public void runs_before_blocks_and_then_block() throws Throwable {
+    public void runs_before_hooks_and_then_block() throws Throwable {
         final List<String> executionOrder = new ArrayList<>();
 
         new Example.Builder()
@@ -28,13 +29,15 @@ public class ExampleTest {
             .build()
             .tryToExecute();
 
-        assertThat(executionOrder.get(0), is("beforeAll"));
-        assertThat(executionOrder.get(1), is("beforeEach"));
-        assertThat(executionOrder.get(2), is("block"));
+        assertThat(executionOrder, is(asList(
+            "beforeAll",
+            "beforeEach",
+            "block"
+        )));
     }
 
     @Test
-    public void runs_block_and_then_after_blocks() throws Throwable {
+    public void runs_block_and_then_after_hooks() throws Throwable {
         final List<String> executionOrder = new ArrayList<>();
 
         new Example.Builder()
@@ -46,13 +49,15 @@ public class ExampleTest {
             .build()
             .tryToExecute();
 
-        assertThat(executionOrder.get(0), is("block"));
-        assertThat(executionOrder.get(1), is("afterEach"));
-        assertThat(executionOrder.get(2), is("afterAll"));
+        assertThat(executionOrder, is(asList(
+            "block",
+            "afterEach",
+            "afterAll"
+        )));
     }
 
     @Test
-    public void indicates_if_it_should_be_ignored() {
+    public void indicates_if_example_should_be_ignored() {
         Example example = new Example.Builder()
             .description("example")
             .rank(new Rank(0))
@@ -96,6 +101,33 @@ public class ExampleTest {
         assertThat(blocks, is(asList(
             example1,
             example2
+        )));
+    }
+
+    @Test
+    public void initializes_variables_before_execution() throws Throwable {
+        List<Object> values = new ArrayList<>();
+
+        Var<String> stringVar = var();
+        Var<Integer> integerVar = var();
+
+        List<VarInitializer<?>> vars = new LinkedList<>();
+        vars.add(new VarInitializer<>(stringVar, () -> "value"));
+        vars.add(new VarInitializer<>(integerVar, () -> 123));
+
+        new Example.Builder()
+            .description("example")
+            .vars(vars)
+            .block(() -> {
+                values.add(var(stringVar));
+                values.add(var(integerVar));
+            })
+            .build()
+            .tryToExecute();
+
+        assertThat(values, is(asList(
+            "value",
+            123
         )));
     }
 }
