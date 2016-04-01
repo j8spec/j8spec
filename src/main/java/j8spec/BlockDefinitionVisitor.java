@@ -6,6 +6,10 @@ abstract class BlockDefinitionVisitor {
         return this;
     }
 
+    <T> BlockDefinitionVisitor varInitializer(Var<T> var, UnsafeFunction<T> initFunction) {
+        return this;
+    }
+
     BlockDefinitionVisitor beforeAll(UnsafeBlock block) {
         return this;
     }

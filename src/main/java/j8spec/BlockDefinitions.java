@@ -65,4 +65,19 @@ final class BlockDefinitions {
             visitor.afterAll(block());
         }
     }
+
+    static final class VarInitializer<T> implements BlockDefinition {
+        private final Var<T> var;
+        private final UnsafeFunction<T> initFunction;
+
+        VarInitializer(Var<T> var, UnsafeFunction<T> initFunction) {
+            this.var = var;
+            this.initFunction = initFunction;
+        }
+
+        @Override
+        public void accept(BlockDefinitionVisitor visitor) {
+            visitor.varInitializer(var, initFunction);
+        }
+    }
 }

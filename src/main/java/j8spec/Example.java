@@ -17,7 +17,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
 
         private List<String> containerDescriptions = emptyList();
         private String description;
-        private List<VarInitializer<?>> vars = emptyList();
+        private List<VarInitializer<?>> varInitializers = emptyList();
         private List<Hook> beforeAllHooks = emptyList();
         private List<Hook> beforeEachHooks = emptyList();
         private List<Hook> afterEachHooks = emptyList();
@@ -38,8 +38,8 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
             return this;
         }
 
-        Builder vars(List<VarInitializer<?>> vars) {
-            this.vars = vars;
+        Builder varInitializers(List<VarInitializer<?>> varInitializers) {
+            this.varInitializers = varInitializers;
             return this;
         }
 
@@ -93,7 +93,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
             return new Example(
                 containerDescriptions,
                 description,
-                vars,
+                varInitializers,
                 beforeAllHooks,
                 beforeEachHooks,
                 afterEachHooks,

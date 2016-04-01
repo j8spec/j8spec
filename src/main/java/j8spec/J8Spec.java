@@ -324,6 +324,19 @@ public final class J8Spec {
         contexts.get().current().addExample(config, block);
     }
 
+    /**
+     * Initializes the provided variable before executing hooks and examples.
+     *
+     * @param var variable to be initialized
+     * @param initFunction initialization function that will provide the value for the variable
+     * @param <T> the type of the value stored by <code>var</code> and returned by <code>initFunction</code>
+     * @see Var
+     * @since 3.1.0
+     */
+    public static <T> void let(Var<T> var, UnsafeFunction<T> initFunction) {
+        contexts.get().current().addVarInitializer(var, initFunction);
+    }
+
     private static void notAllowedWhenCIModeEnabled(final String methodName) {
         if (Boolean.valueOf(System.getProperty("j8spec.ci.mode", "false"))) {
             throw new Exceptions.OperationNotAllowedInCIMode(methodName);

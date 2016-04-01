@@ -2,6 +2,7 @@ package j8spec;
 
 import org.junit.Test;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import static j8spec.BlockExecutionFlag.FOCUSED;
@@ -9,6 +10,7 @@ import static j8spec.BlockExecutionFlag.IGNORED;
 import static j8spec.BlockExecutionStrategy.BLACK_LIST;
 import static j8spec.BlockExecutionStrategy.WHITE_LIST;
 import static j8spec.UnsafeBlock.NOOP;
+import static j8spec.Var.var;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -241,6 +243,100 @@ public class ExampleBuilderTest {
         List<Example> examples = builder.build();
 
         assertThat(examples.get(0).expected(), is(equalTo(Exception.class)));
+    }
+
+    @Test
+    public void initializes_variables_before_hooks() throws Throwable {
+        final List<Object> values = new LinkedList<>();
+        final Var<String> v1 = var();
+
+        execute(
+            new ExampleBuilder(BLACK_LIST)
+                .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
+                    .varInitializer(v1, () -> "value")
+                    .beforeAll(() -> values.add(var(v1)))
+                    .beforeEach(() -> values.add(var(v1)))
+                    .example(exampleConfig().description("block 1").build(), () -> values.add(var(v1)))
+                .endGroup()
+        );
+
+        assertThat(values, is(asList(
+            "value",
+            "value",
+            "value"
+        )));
+    }
+
+    @Test
+    public void initializes_variables_in_the_scope() throws Throwable {
+        final List<Object> values = new LinkedList<>();
+        final Var<String> v1 = var();
+
+        execute(
+            new ExampleBuilder(BLACK_LIST)
+                .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
+                    .beforeEach(() -> values.add(var(v1)))
+                    .startGroup(groupConfig().description("group A").definedOrder().build())
+                        .varInitializer(v1, () -> "value for group A")
+                        .example(exampleConfig().description("block 1").build(), () -> values.add(var(v1)))
+                    .endGroup()
+                    .startGroup(groupConfig().description("group B").definedOrder().build())
+                        .varInitializer(v1, () -> "value for group B")
+                        .example(exampleConfig().description("block 1").build(), () -> values.add(var(v1)))
+                    .endGroup()
+                .endGroup()
+        );
+
+        assertThat(values, is(asList(
+            "value for group A",
+            "value for group A",
+            "value for group B",
+            "value for group B"
+        )));
+    }
+
+    @Test
+    public void initializes_variables_using_last_definition() throws Throwable {
+        final List<String> values = new LinkedList<>();
+        final Var<String> v1 = var();
+        final Var<String> v2 = var();
+
+        execute(
+            new ExampleBuilder(BLACK_LIST)
+                .startGroup(groupConfig().description("SampleSpec").definedOrder().build())
+                    .varInitializer(v1, () -> "var1 initial value")
+                    .varInitializer(v2, () -> "var2 initial value")
+                    .beforeEach(() -> {
+                        values.add(var(v1));
+                        values.add(var(v2));
+                    })
+                    .startGroup(groupConfig().description("group A").definedOrder().build())
+                        .varInitializer(v1, () -> "var1 value for group A")
+                        .example(exampleConfig().description("block 1").build(), () -> {
+                            values.add(var(v1));
+                            values.add(var(v2));
+                        })
+                    .endGroup()
+                    .startGroup(groupConfig().description("group B").definedOrder().build())
+                        .example(exampleConfig().description("block 1").build(), () -> {
+                            values.add(var(v1));
+                            values.add(var(v2));
+                        })
+                    .endGroup()
+                .endGroup()
+        );
+
+        assertThat(values, is(asList(
+            "var1 value for group A",
+            "var2 initial value",
+            "var1 value for group A",
+            "var2 initial value",
+
+            "var1 initial value",
+            "var2 initial value",
+            "var1 initial value",
+            "var2 initial value"
+        )));
     }
 
     private void execute(BlockDefinitionVisitor visitor) throws Throwable {

@@ -117,7 +117,7 @@ public class ExampleTest {
 
         new Example.Builder()
             .description("example")
-            .vars(vars)
+            .varInitializers(vars)
             .block(() -> {
                 values.add(var(stringVar));
                 values.add(var(integerVar));
