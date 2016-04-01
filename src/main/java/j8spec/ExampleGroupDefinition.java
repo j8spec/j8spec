@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static j8spec.BlockExecutionFlag.DEFAULT;
+import static j8spec.BlockDefinition.visitAll;
 
 final class ExampleGroupDefinition implements BlockDefinition {
 
@@ -14,6 +15,7 @@ final class ExampleGroupDefinition implements BlockDefinition {
     private final ExampleGroupContext context;
     private final List<BlockDefinition> blockDefinitions = new LinkedList<>();
     private final List<BlockDefinition> hooks = new LinkedList<>();
+    private final List<BlockDefinition> varInitializers = new LinkedList<>();
 
     static ExampleGroupDefinition newExampleGroupDefinition(
         Class<?> specClass,
@@ -65,6 +67,10 @@ final class ExampleGroupDefinition implements BlockDefinition {
         context.restore();
     }
 
+    <T> void addVarInitializer(Var<T> var, UnsafeFunction<T> initFunction) {
+        varInitializers.add(new BlockDefinitions.VarInitializer<>(var, initFunction));
+    }
+
     void addBeforeAll(UnsafeBlock beforeAllBlock) {
         hooks.add(new BlockDefinitions.BeforeAll(beforeAllBlock));
     }
@@ -89,13 +95,9 @@ final class ExampleGroupDefinition implements BlockDefinition {
     public void accept(BlockDefinitionVisitor visitor) {
         visitor.startGroup(config);
 
-        for (BlockDefinition blockDefinition : hooks) {
-            blockDefinition.accept(visitor);
-        }
-
-        for (BlockDefinition blockDefinition : blockDefinitions) {
-            blockDefinition.accept(visitor);
-        }
+        visitAll(visitor, varInitializers);
+        visitAll(visitor, hooks);
+        visitAll(visitor, blockDefinitions);
 
         visitor.endGroup();
     }

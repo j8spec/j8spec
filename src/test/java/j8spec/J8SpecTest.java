@@ -6,20 +6,10 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.List;
 
-import static j8spec.J8Spec.afterAll;
-import static j8spec.J8Spec.afterEach;
-import static j8spec.J8Spec.beforeAll;
-import static j8spec.J8Spec.beforeEach;
-import static j8spec.J8Spec.context;
-import static j8spec.J8Spec.describe;
-import static j8spec.J8Spec.it;
-import static j8spec.J8Spec.read;
+import static j8spec.J8Spec.*;
 import static j8spec.UnsafeBlock.NOOP;
-import static j8spec.Var.var;
 import static java.util.Collections.emptyList;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class J8SpecTest {

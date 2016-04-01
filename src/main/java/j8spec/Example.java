@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
+import static j8spec.UnsafeBlock.tryToExecuteAll;
 
 /**
  * Example ready to be executed.
@@ -16,6 +17,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
 
         private List<String> containerDescriptions = emptyList();
         private String description;
+        private List<VarInitializer<?>> varInitializers = emptyList();
         private List<Hook> beforeAllHooks = emptyList();
         private List<Hook> beforeEachHooks = emptyList();
         private List<Hook> afterEachHooks = emptyList();
@@ -33,6 +35,11 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
 
         Builder description(String description) {
             this.description = description;
+            return this;
+        }
+
+        Builder varInitializers(List<VarInitializer<?>> varInitializers) {
+            this.varInitializers = varInitializers;
             return this;
         }
 
@@ -86,6 +93,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
             return new Example(
                 containerDescriptions,
                 description,
+                varInitializers,
                 beforeAllHooks,
                 beforeEachHooks,
                 afterEachHooks,
@@ -99,14 +107,9 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         }
     }
 
-    private static void tryToExecute(List<Hook> hooks) throws Throwable {
-        for (Hook hook : hooks) {
-            hook.tryToExecute();
-        }
-    }
-
     private final List<String> containerDescriptions;
     private final String description;
+    private final List<VarInitializer<?>> varInitializers;
     private final List<Hook> beforeAllHooks;
     private final List<Hook> beforeEachHooks;
     private final List<Hook> afterEachHooks;
@@ -120,6 +123,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     private Example(
         List<String> containerDescriptions,
         String description,
+        List<VarInitializer<?>> varInitializers,
         List<Hook> beforeAllHooks,
         List<Hook> beforeEachHooks,
         List<Hook> afterEachHooks,
@@ -132,6 +136,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     ) {
         this.containerDescriptions = unmodifiableList(containerDescriptions);
         this.description = description;
+        this.varInitializers = unmodifiableList(varInitializers);
         this.beforeAllHooks = beforeAllHooks;
         this.beforeEachHooks = unmodifiableList(beforeEachHooks);
         this.afterEachHooks = unmodifiableList(afterEachHooks);
@@ -154,13 +159,15 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
      */
     @Override
     public void tryToExecute() throws Throwable {
-        tryToExecute(beforeAllHooks);
-        tryToExecute(beforeEachHooks);
+        tryToExecuteAll(varInitializers);
+
+        tryToExecuteAll(beforeAllHooks);
+        tryToExecuteAll(beforeEachHooks);
 
         block.tryToExecute();
 
-        tryToExecute(afterEachHooks);
-        tryToExecute(afterAllHooks);
+        tryToExecuteAll(afterEachHooks);
+        tryToExecuteAll(afterAllHooks);
     }
 
     /**

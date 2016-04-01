@@ -18,9 +18,16 @@ final class ExampleBuilder extends BlockDefinitionVisitor {
         return result;
     }
 
+    private static List<VarInitializer<?>> allVarInitializers(Deque<List<VarInitializer<?>>> varInitializers) {
+        List<VarInitializer<?>> result = new LinkedList<>();
+        varInitializers.forEach(result::addAll);
+        return result;
+    }
+
     private final BlockExecutionStrategy executionStrategy;
     private final Deque<String> descriptions = new LinkedList<>();
     private final Deque<BlockExecutionFlag> executionFlags = new LinkedList<>();
+    private final Deque<List<VarInitializer<?>>> varInitializers = new LinkedList<>();
     private final Deque<List<Hook>> beforeAllBlocks = new LinkedList<>();
     private final Deque<List<Hook>> beforeEachBlocks = new LinkedList<>();
     private final Deque<List<Hook>> afterEachBlocks = new LinkedList<>();
@@ -43,6 +50,7 @@ final class ExampleBuilder extends BlockDefinitionVisitor {
             executionFlags.addLast(executionFlags.peekLast());
         }
 
+        varInitializers.addLast(new LinkedList<>());
         beforeAllBlocks.addLast(new LinkedList<>());
         beforeEachBlocks.addLast(new LinkedList<>());
         afterEachBlocks.addFirst(new LinkedList<>());
@@ -50,6 +58,12 @@ final class ExampleBuilder extends BlockDefinitionVisitor {
 
         rankGenerator.pushLevel(config);
 
+        return this;
+    }
+
+    @Override
+    <T> BlockDefinitionVisitor varInitializer(Var<T> var, UnsafeFunction<T> initFunction) {
+        varInitializers.peekLast().add(new VarInitializer<>(var, initFunction));
         return this;
     }
 
@@ -88,6 +102,7 @@ final class ExampleBuilder extends BlockDefinitionVisitor {
             builder.ignored();
         } else {
             builder
+                .varInitializers(allVarInitializers(varInitializers))
                 .beforeAllHooks(asHooks(beforeAllBlocks))
                 .beforeEachHooks(asHooks(beforeEachBlocks))
                 .afterEachHooks(asHooks(afterEachBlocks))
@@ -106,6 +121,7 @@ final class ExampleBuilder extends BlockDefinitionVisitor {
     BlockDefinitionVisitor endGroup() {
         descriptions.removeLast();
         executionFlags.removeLast();
+        varInitializers.removeLast();
         beforeAllBlocks.removeLast();
         beforeEachBlocks.removeLast();
         afterEachBlocks.removeFirst();

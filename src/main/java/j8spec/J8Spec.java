@@ -324,6 +324,22 @@ public final class J8Spec {
         contexts.get().current().addExample(config, block);
     }
 
+    /**
+     * Initializes the provided variable before executing hooks and examples.
+     *
+     * @param var variable to be initialized
+     * @param initFunction initialization function that will provide the value for the variable
+     * @param <T> the type of the value stored by <code>var</code> and returned by <code>initFunction</code>
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.VariableInitializerAlreadyDefined if another initializer was defined for the provided
+     * variable in the same context
+     * @since 3.1.0
+     */
+    public static <T> void let(Var<T> var, UnsafeFunction<T> initFunction) {
+        isValidContext("let");
+        contexts.get().current().addVarInitializer(var, initFunction);
+    }
+
     private static void notAllowedWhenCIModeEnabled(final String methodName) {
         if (Boolean.valueOf(System.getProperty("j8spec.ci.mode", "false"))) {
             throw new Exceptions.OperationNotAllowedInCIMode(methodName);
@@ -334,6 +350,43 @@ public final class J8Spec {
         if (contexts.get() == null) {
             throw new Exceptions.IllegalContext(methodName);
         }
+    }
+
+    /**
+     * Creates a wrapper object to allow "final" variables to have their value modified. The initial
+     * value is <code>null</code>.
+     *
+     * @param <T> type of value the variable object can store
+     * @return new variable object
+     * @since 3.1.0
+     */
+    public static <T> Var<T> var() {
+        return new Var<>();
+    }
+
+    /**
+     * Access the value stored in the given variable object.
+     *
+     * @param var variable object
+     * @param <T> type of value the variable object can store
+     * @return value stored in the variable object
+     * @since 3.1.0
+     */
+    public static <T> T var(Var<T> var) {
+        return var.value;
+    }
+
+    /**
+     * Stores the given value in the provided variable object.
+     *
+     * @param var variable object
+     * @param value value to be stored
+     * @param <T> type of value the variable object can store
+     * @return value stored in the variable object
+     * @since 3.1.0
+     */
+    public static <T> T var(Var<T> var, T value) {
+        return var.value = value;
     }
 
     /**
