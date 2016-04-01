@@ -330,10 +330,13 @@ public final class J8Spec {
      * @param var variable to be initialized
      * @param initFunction initialization function that will provide the value for the variable
      * @param <T> the type of the value stored by <code>var</code> and returned by <code>initFunction</code>
-     * @see Var
+     * @throws Exceptions.IllegalContext if called outside the context of the {@link #read(Class)} method
+     * @throws Exceptions.VariableInitializerAlreadyDefined if another initializer was defined for the provided
+     * variable in the same context
      * @since 3.1.0
      */
     public static <T> void let(Var<T> var, UnsafeFunction<T> initFunction) {
+        isValidContext("let");
         contexts.get().current().addVarInitializer(var, initFunction);
     }
 

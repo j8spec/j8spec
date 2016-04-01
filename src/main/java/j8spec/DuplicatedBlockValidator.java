@@ -9,6 +9,7 @@ final class DuplicatedBlockValidator extends BlockDefinitionVisitor {
 
     private final Deque<Set<String>> groupDescriptions = new LinkedList<>();
     private final Deque<Set<String>> exampleDescriptions = new LinkedList<>();
+    private final Deque<Set<Var<?>>> varInitializers = new LinkedList<>();
 
     @Override
     BlockDefinitionVisitor startGroup(ExampleGroupConfiguration config) {
@@ -19,6 +20,7 @@ final class DuplicatedBlockValidator extends BlockDefinitionVisitor {
             groupDescriptions.peekLast().add(config.description());
         }
         groupDescriptions.addLast(new HashSet<>());
+        varInitializers.addLast(new HashSet<>());
         exampleDescriptions.addLast(new HashSet<>());
         return this;
     }
@@ -33,8 +35,18 @@ final class DuplicatedBlockValidator extends BlockDefinitionVisitor {
     }
 
     @Override
+    <T> BlockDefinitionVisitor varInitializer(Var<T> var, UnsafeFunction<T> initFunction) {
+        if (varInitializers.peekLast().contains(var)) {
+            throw new Exceptions.VariableInitializerAlreadyDefined();
+        }
+        varInitializers.peekLast().add(var);
+        return this;
+    }
+
+    @Override
     BlockDefinitionVisitor endGroup() {
         groupDescriptions.removeLast();
+        varInitializers.removeLast();
         exampleDescriptions.removeLast();
         return this;
     }

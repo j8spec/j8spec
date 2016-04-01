@@ -3,6 +3,7 @@ package j8spec;
 import org.junit.Test;
 
 import static j8spec.UnsafeBlock.NOOP;
+import static j8spec.Var.var;
 
 public class DuplicatedBlockValidatorTest {
 
@@ -40,6 +41,18 @@ public class DuplicatedBlockValidatorTest {
                 .startGroup(groupConfig().description("group 2").build())
                     .example(exampleConfig().description("example 1").build(), NOOP)
                 .endGroup()
+            .endGroup();
+    }
+
+    @Test(expected = Exceptions.VariableInitializerAlreadyDefined.class)
+    public void indicates_if_an_initializer_has_been_defined_for_the_same_variable() {
+        Var<String> v1 = var();
+
+        validator
+            .startGroup(groupConfig().description("spec").build())
+                .varInitializer(v1, () -> "value 1")
+                .varInitializer(v1, () -> "value 2")
+                .example(exampleConfig().description("example 1").build(), NOOP)
             .endGroup();
     }
 

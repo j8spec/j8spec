@@ -24,6 +24,13 @@ public class J8SpecLetTest {
         });
     }}
 
+    static class VarInitializerOverwrittenSpec {{
+        Var<String> v1 = var();
+
+        let(v1, () -> "value 1");
+        let(v1, () -> "value 2");
+    }}
+
     private static List<String> log;
 
     @Before
@@ -36,6 +43,17 @@ public class J8SpecLetTest {
         executeSpec(SampleSpec.class);
 
         assertThat(log, is(singletonList("var is 'value'")));
+    }
+
+    @Test(expected = Exceptions.IllegalContext.class)
+    public void does_not_allow_let_method_direct_invocation() {
+        Var<String> var = var();
+        let(var, () -> "value");
+    }
+
+    @Test(expected = Exceptions.VariableInitializerAlreadyDefined.class)
+    public void does_not_allow_var_initializer_to_be_replaced() {
+        read(VarInitializerOverwrittenSpec.class);
     }
 
     private void executeSpec(Class<?> specClass) throws Throwable {
