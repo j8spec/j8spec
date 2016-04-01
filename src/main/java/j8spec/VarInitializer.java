@@ -1,15 +1,16 @@
 package j8spec;
 
+import static j8spec.J8Spec.var;
 import static java.util.Objects.isNull;
 
 class VarInitializer<T> implements UnsafeBlock {
 
-    private final Var<T> var;
+    private final Var<T> variable;
     private final UnsafeFunction<T> function;
     private T value;
 
-    VarInitializer(Var<T> var, UnsafeFunction<T> function) {
-        this.var = var;
+    VarInitializer(Var<T> variable, UnsafeFunction<T> function) {
+        this.variable = variable;
         this.function = function;
     }
 
@@ -18,6 +19,6 @@ class VarInitializer<T> implements UnsafeBlock {
         if (isNull(value)) {
             value = function.tryToGet();
         }
-        Var.var(var, value);
+        var(variable, value);
     }
 }

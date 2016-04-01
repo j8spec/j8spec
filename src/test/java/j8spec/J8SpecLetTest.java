@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static j8spec.J8Spec.*;
-import static j8spec.Var.var;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;

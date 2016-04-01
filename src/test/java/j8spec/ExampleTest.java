@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static j8spec.Hook.newHook;
-import static j8spec.Var.var;
+import static j8spec.J8Spec.var;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;

@@ -3,7 +3,7 @@ package j8spec;
 import org.junit.Test;
 
 import static j8spec.UnsafeBlock.NOOP;
-import static j8spec.Var.var;
+import static j8spec.J8Spec.var;
 
 public class DuplicatedBlockValidatorTest {
 

@@ -2,11 +2,8 @@ package j8spec;
 
 import org.junit.Test;
 
-import static j8spec.Var.var;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static j8spec.J8Spec.*;
+import static org.mockito.Mockito.*;
 
 public class VarInitializerTest {
 

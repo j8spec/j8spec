@@ -10,7 +10,7 @@ import static j8spec.BlockExecutionFlag.IGNORED;
 import static j8spec.BlockExecutionStrategy.BLACK_LIST;
 import static j8spec.BlockExecutionStrategy.WHITE_LIST;
 import static j8spec.UnsafeBlock.NOOP;
-import static j8spec.Var.var;
+import static j8spec.J8Spec.var;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.equalTo;
