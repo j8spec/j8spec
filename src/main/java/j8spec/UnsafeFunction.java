@@ -8,6 +8,6 @@ package j8spec;
  * @since 3.1.0
  */
 @FunctionalInterface
-interface UnsafeFunction<T> {
+public interface UnsafeFunction<T> {
     T tryToGet() throws Throwable;
 }
