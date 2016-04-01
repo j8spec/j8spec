@@ -26,6 +26,12 @@ dependencies {
     testCompile group: 'org.mockito',   name: 'mockito-core',   version: '1.10.19'
 }
 
+jar {
+    manifest {
+        attributes 'Sealed': 'true'
+    }
+}
+
 javadoc {
     options.addStringOption "link", "http://docs.oracle.com/javase/8/docs/api/"
 }
