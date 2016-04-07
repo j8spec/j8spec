@@ -181,28 +181,36 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         tryToExecuteAfterAllHooks();
     }
 
-    private void tryToExecuteAfterAllHooks() throws Throwable {
-        if (next == null) {
-            tryToExecuteAll(afterAllHooks);
+    private void tryToExecuteBeforeAllHooks() throws Throwable {
+        if (previous == null) {
+            tryToExecuteAll(beforeAllHooks);
         } else {
-            for (UnsafeBlock hook : afterAllHooks) {
-                if (!next.afterAllHooks.contains(hook)) {
+            for (UnsafeBlock hook : beforeAllHooks) {
+                if (!previous.hasBeforeAllHook(hook)) {
                     hook.tryToExecute();
                 }
             }
         }
     }
 
-    private void tryToExecuteBeforeAllHooks() throws Throwable {
-        if (previous == null) {
-            tryToExecuteAll(beforeAllHooks);
+    private boolean hasBeforeAllHook(UnsafeBlock hook) {
+        return beforeAllHooks.contains(hook) || previous != null && previous.hasBeforeAllHook(hook);
+    }
+
+    private void tryToExecuteAfterAllHooks() throws Throwable {
+        if (next == null) {
+            tryToExecuteAll(afterAllHooks);
         } else {
-            for (UnsafeBlock hook : beforeAllHooks) {
-                if (!previous.beforeAllHooks.contains(hook)) {
+            for (UnsafeBlock hook : afterAllHooks) {
+                if (!next.hasAfterAllHook(hook)) {
                     hook.tryToExecute();
                 }
             }
         }
+    }
+
+    private boolean hasAfterAllHook(UnsafeBlock hook) {
+        return afterAllHooks.contains(hook) || next != null && next.hasAfterAllHook(hook);
     }
 
     /**

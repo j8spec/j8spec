@@ -84,6 +84,65 @@ public class ExampleTest {
     }
 
     @Test
+    public void runs_before_all_hooks_only_once_when_hook_is_not_shared_with_the_previous_example() throws Throwable {
+        UnsafeBlock beforeAllHook = mock(UnsafeBlock.class);
+
+        Example example1 = new Example.Builder()
+            .description("example 1")
+            .beforeAllHooks(singletonList(beforeAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        Example example2 = new Example.Builder()
+            .description("example 2")
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        Example example3 = new Example.Builder()
+            .description("example 3")
+            .beforeAllHooks(singletonList(beforeAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        example2.previous(example1);
+        example3.previous(example2);
+
+        example1.tryToExecute();
+        example2.tryToExecute();
+        example3.tryToExecute();
+
+        verify(beforeAllHook, times(1)).tryToExecute();
+    }
+
+    @Test
+    public void runs_before_all_hooks_only_once_when_first_example_has_no_hook() throws Throwable {
+        UnsafeBlock beforeAllHook = mock(UnsafeBlock.class);
+
+        Example example1 = new Example.Builder()
+            .description("example 1")
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        Example example2 = new Example.Builder()
+            .description("example 2")
+            .beforeAllHooks(singletonList(beforeAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        example2.previous(example1);
+
+        example1.tryToExecute();
+        example2.tryToExecute();
+
+        verify(beforeAllHook, times(1)).tryToExecute();
+    }
+
+    @Test
     public void runs_after_all_hooks_only_once() throws Throwable {
         UnsafeBlock afterAllHook = mock(UnsafeBlock.class);
 
@@ -97,6 +156,65 @@ public class ExampleTest {
         Example example2 = new Example.Builder()
             .description("example 2")
             .afterAllHooks(singletonList(afterAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        example1.next(example2);
+
+        example1.tryToExecute();
+        example2.tryToExecute();
+
+        verify(afterAllHook, times(1)).tryToExecute();
+    }
+
+    @Test
+    public void runs_after_all_hooks_only_once_when_hook_is_not_shared_with_the_next_example() throws Throwable {
+        UnsafeBlock afterAllHook = mock(UnsafeBlock.class);
+
+        Example example1 = new Example.Builder()
+            .description("example 1")
+            .afterAllHooks(singletonList(afterAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        Example example2 = new Example.Builder()
+            .description("example 2")
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        Example example3 = new Example.Builder()
+            .description("example 2")
+            .afterAllHooks(singletonList(afterAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        example1.next(example2);
+        example2.next(example3);
+
+        example1.tryToExecute();
+        example2.tryToExecute();
+        example3.tryToExecute();
+
+        verify(afterAllHook, times(1)).tryToExecute();
+    }
+
+    @Test
+    public void runs_after_all_hooks_only_once_when_last_example_has_no_hook() throws Throwable {
+        UnsafeBlock afterAllHook = mock(UnsafeBlock.class);
+
+        Example example1 = new Example.Builder()
+            .description("example 1")
+            .afterAllHooks(singletonList(afterAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        Example example2 = new Example.Builder()
+            .description("example 2")
             .block(NOOP)
             .rank(new Rank(0))
             .build();
