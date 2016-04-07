@@ -18,10 +18,10 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         private List<String> containerDescriptions = emptyList();
         private String description;
         private List<VarInitializer<?>> varInitializers = emptyList();
-        private List<Hook> beforeAllHooks = emptyList();
-        private List<Hook> beforeEachHooks = emptyList();
-        private List<Hook> afterEachHooks = emptyList();
-        private List<Hook> afterAllHooks = emptyList();
+        private List<UnsafeBlock> beforeAllHooks = emptyList();
+        private List<UnsafeBlock> beforeEachHooks = emptyList();
+        private List<UnsafeBlock> afterEachHooks = emptyList();
+        private List<UnsafeBlock> afterAllHooks = emptyList();
         private UnsafeBlock block;
         private Class<? extends Throwable> expectedException;
         private long timeout;
@@ -43,22 +43,22 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
             return this;
         }
 
-        Builder beforeAllHooks(List<Hook> beforeAllHooks) {
+        Builder beforeAllHooks(List<UnsafeBlock> beforeAllHooks) {
             this.beforeAllHooks = beforeAllHooks;
             return this;
         }
 
-        Builder beforeEachHooks(List<Hook> beforeHooks) {
+        Builder beforeEachHooks(List<UnsafeBlock> beforeHooks) {
             this.beforeEachHooks = beforeHooks;
             return this;
         }
 
-        Builder afterEachHooks(List<Hook> afterHooks) {
+        Builder afterEachHooks(List<UnsafeBlock> afterHooks) {
             this.afterEachHooks = afterHooks;
             return this;
         }
 
-        Builder afterAllHooks(List<Hook> afterAllHooks) {
+        Builder afterAllHooks(List<UnsafeBlock> afterAllHooks) {
             this.afterAllHooks = afterAllHooks;
             return this;
         }
@@ -110,24 +110,27 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     private final List<String> containerDescriptions;
     private final String description;
     private final List<VarInitializer<?>> varInitializers;
-    private final List<Hook> beforeAllHooks;
-    private final List<Hook> beforeEachHooks;
-    private final List<Hook> afterEachHooks;
-    private final List<Hook> afterAllHooks;
+    private final List<UnsafeBlock> beforeAllHooks;
+    private final List<UnsafeBlock> beforeEachHooks;
+    private final List<UnsafeBlock> afterEachHooks;
+    private final List<UnsafeBlock> afterAllHooks;
     private final UnsafeBlock block;
     private final Class<? extends Throwable> expectedException;
     private final long timeout;
     private final TimeUnit timeoutUnit;
     private final Rank rank;
 
+    private Example previous;
+    private Example next;
+
     private Example(
         List<String> containerDescriptions,
         String description,
         List<VarInitializer<?>> varInitializers,
-        List<Hook> beforeAllHooks,
-        List<Hook> beforeEachHooks,
-        List<Hook> afterEachHooks,
-        List<Hook> afterAllHooks,
+        List<UnsafeBlock> beforeAllHooks,
+        List<UnsafeBlock> beforeEachHooks,
+        List<UnsafeBlock> afterEachHooks,
+        List<UnsafeBlock> afterAllHooks,
         UnsafeBlock block,
         Class<? extends Throwable> expectedException,
         long timeout,
@@ -148,6 +151,14 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         this.rank = rank;
     }
 
+    void previous(Example example) {
+        previous = example;
+    }
+
+    void next(Example example) {
+        next = example;
+    }
+
     @Override
     public int compareTo(Example block) {
         return rank.compareTo(block.rank);
@@ -161,13 +172,31 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     public void tryToExecute() throws Throwable {
         tryToExecuteAll(varInitializers);
 
-        tryToExecuteAll(beforeAllHooks);
+        if (previous == null) {
+            tryToExecuteAll(beforeAllHooks);
+        } else {
+            for (UnsafeBlock hook : beforeAllHooks) {
+                if (!previous.beforeAllHooks.contains(hook)) {
+                    hook.tryToExecute();
+                }
+            }
+        }
+
         tryToExecuteAll(beforeEachHooks);
 
         block.tryToExecute();
 
         tryToExecuteAll(afterEachHooks);
-        tryToExecuteAll(afterAllHooks);
+
+        if (next == null) {
+            tryToExecuteAll(afterAllHooks);
+        } else {
+            for (UnsafeBlock hook : afterAllHooks) {
+                if (!next.afterAllHooks.contains(hook)) {
+                    hook.tryToExecute();
+                }
+            }
+        }
     }
 
     /**

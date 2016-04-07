@@ -7,22 +7,10 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static j8spec.J8Spec.afterAll;
-import static j8spec.J8Spec.afterEach;
-import static j8spec.J8Spec.beforeAll;
-import static j8spec.J8Spec.beforeEach;
-import static j8spec.J8Spec.context;
-import static j8spec.J8Spec.describe;
-import static j8spec.J8Spec.fcontext;
-import static j8spec.J8Spec.fdescribe;
-import static j8spec.J8Spec.fit;
-import static j8spec.J8Spec.it;
-import static j8spec.J8Spec.read;
-import static j8spec.J8Spec.xcontext;
-import static j8spec.J8Spec.xdescribe;
-import static j8spec.J8Spec.xit;
+import static j8spec.J8Spec.*;
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.is;
+import static java.util.Collections.singletonList;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class J8SpecFlowDefinedOrderTest {
@@ -50,9 +38,19 @@ public class J8SpecFlowDefinedOrderTest {
 
             it("block A1", () -> log.add("block A1"));
             it("block A2", () -> log.add("block A2"));
+
+            afterEach(() -> log.add("describe A after each 1"));
+            afterEach(() -> log.add("describe A after each 2"));
+            afterAll(() -> log.add("describe A after all 1"));
+            afterAll(() -> log.add("describe A after all 2"));
         });
 
         it("block 3", () -> log.add("block 3"));
+
+        afterEach(() -> log.add("after each 1"));
+        afterEach(() -> log.add("after each 2"));
+        afterAll(() -> log.add("after all 1"));
+        afterAll(() -> log.add("after all 2"));
     }}
 
     @DefinedOrder
@@ -146,7 +144,7 @@ public class J8SpecFlowDefinedOrderTest {
     public void single_example_spec_flow() throws Throwable {
         executeSpec(SingleExampleSpec.class);
 
-        assertThat(log, is(asList(
+        assertThat(log, is(singletonList(
             "block 1"
         )));
     }
@@ -175,7 +173,7 @@ public class J8SpecFlowDefinedOrderTest {
     public void focused_it_spec_flow() throws Throwable {
         executeSpec(FocusedExampleSpec.class);
 
-        assertThat(log, is(asList(
+        assertThat(log, is(singletonList(
             "block 2"
         )));
     }
@@ -205,7 +203,7 @@ public class J8SpecFlowDefinedOrderTest {
     public void ignored_it_spec_flow() throws Throwable {
         executeSpec(IgnoredExampleSpec.class);
 
-        assertThat(log, is(asList(
+        assertThat(log, is(singletonList(
             "block 2"
         )));
     }
@@ -242,10 +240,14 @@ public class J8SpecFlowDefinedOrderTest {
             "before each 1",
             "before each 2",
             "block 1",
+            "after each 1",
+            "after each 2",
 
             "before each 1",
             "before each 2",
             "block 2",
+            "after each 1",
+            "after each 2",
 
             "describe A before all 1",
             "describe A before all 2",
@@ -255,16 +257,32 @@ public class J8SpecFlowDefinedOrderTest {
             "describe A before each 1",
             "describe A before each 2",
             "block A1",
+            "describe A after each 1",
+            "describe A after each 2",
+            "after each 1",
+            "after each 2",
 
             "before each 1",
             "before each 2",
             "describe A before each 1",
             "describe A before each 2",
             "block A2",
+            "describe A after each 1",
+            "describe A after each 2",
+            "after each 1",
+            "after each 2",
+
+            "describe A after all 1",
+            "describe A after all 2",
 
             "before each 1",
             "before each 2",
-            "block 3"
+            "block 3",
+            "after each 1",
+            "after each 2",
+
+            "after all 1",
+            "after all 2"
         )));
     }
 

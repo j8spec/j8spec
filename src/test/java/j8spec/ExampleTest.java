@@ -8,11 +8,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static j8spec.Hook.newHook;
-import static j8spec.J8Spec.var;
+import static j8spec.J8Spec.*;
+import static j8spec.UnsafeBlock.NOOP;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 
 public class ExampleTest {
 
@@ -54,6 +56,58 @@ public class ExampleTest {
             "afterEach",
             "afterAll"
         )));
+    }
+
+    @Test
+    public void runs_before_all_hooks_only_once() throws Throwable {
+        UnsafeBlock beforeAllHook = mock(UnsafeBlock.class);
+
+        Example example1 = new Example.Builder()
+            .description("example 1")
+            .beforeAllHooks(singletonList(beforeAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        Example example2 = new Example.Builder()
+            .description("example 2")
+            .beforeAllHooks(singletonList(beforeAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        example2.previous(example1);
+
+        example1.tryToExecute();
+        example2.tryToExecute();
+
+        verify(beforeAllHook, times(1)).tryToExecute();
+    }
+
+    @Test
+    public void runs_after_all_hooks_only_once() throws Throwable {
+        UnsafeBlock afterAllHook = mock(UnsafeBlock.class);
+
+        Example example1 = new Example.Builder()
+            .description("example 1")
+            .afterAllHooks(singletonList(afterAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        Example example2 = new Example.Builder()
+            .description("example 2")
+            .afterAllHooks(singletonList(afterAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        example1.next(example2);
+
+        example1.tryToExecute();
+        example2.tryToExecute();
+
+        verify(afterAllHook, times(1)).tryToExecute();
     }
 
     @Test
