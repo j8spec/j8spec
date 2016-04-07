@@ -1,7 +1,6 @@
 package j8spec;
 
-import static j8spec.J8Spec.var;
-import static java.util.Objects.isNull;
+import static j8spec.J8Spec.*;
 
 class VarInitializer<T> implements UnsafeBlock {
 
@@ -16,7 +15,7 @@ class VarInitializer<T> implements UnsafeBlock {
 
     @Override
     public void tryToExecute() throws Throwable {
-        if (isNull(value)) {
+        if (value == null) {
             value = function.tryToGet();
         }
         var(variable, value);
