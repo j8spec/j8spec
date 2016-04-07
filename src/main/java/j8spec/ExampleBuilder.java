@@ -8,8 +8,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import static j8spec.BlockExecutionFlag.DEFAULT;
-import static j8spec.Hook.newHook;
-import static j8spec.Hook.newOneTimeHook;
 
 final class ExampleBuilder extends BlockDefinitionVisitor {
 
@@ -70,25 +68,25 @@ final class ExampleBuilder extends BlockDefinitionVisitor {
 
     @Override
     BlockDefinitionVisitor beforeAll(UnsafeBlock block) {
-        beforeAllBlocks.peekLast().add(newOneTimeHook(block));
+        beforeAllBlocks.peekLast().add(block);
         return this;
     }
 
     @Override
     BlockDefinitionVisitor beforeEach(UnsafeBlock block) {
-        beforeEachBlocks.peekLast().add(newHook(block));
+        beforeEachBlocks.peekLast().add(block);
         return this;
     }
 
     @Override
     BlockDefinitionVisitor afterEach(UnsafeBlock block) {
-        afterEachBlocks.peekFirst().add(newHook(block));
+        afterEachBlocks.peekFirst().add(block);
         return this;
     }
 
     @Override
     BlockDefinitionVisitor afterAll(UnsafeBlock block) {
-        afterAllBlocks.peekFirst().add(newOneTimeHook(block));
+        afterAllBlocks.peekFirst().add(block);
         return this;
     }
 

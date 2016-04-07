@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static j8spec.Hook.newHook;
 import static j8spec.J8Spec.*;
 import static j8spec.UnsafeBlock.NOOP;
 import static java.util.Arrays.asList;
@@ -24,8 +23,8 @@ public class ExampleTest {
 
         new Example.Builder()
             .description("example")
-            .beforeEachHooks(singletonList(newHook(() -> executionOrder.add("beforeEach"))))
-            .beforeAllHooks(singletonList(newHook(() -> executionOrder.add("beforeAll"))))
+            .beforeEachHooks(singletonList(() -> executionOrder.add("beforeEach")))
+            .beforeAllHooks(singletonList(() -> executionOrder.add("beforeAll")))
             .block(() -> executionOrder.add("block"))
             .rank(new Rank(0))
             .build()
@@ -44,8 +43,8 @@ public class ExampleTest {
 
         new Example.Builder()
             .description("example")
-            .afterAllHooks(singletonList(newHook(() -> executionOrder.add("afterAll"))))
-            .afterEachHooks(singletonList(newHook(() -> executionOrder.add("afterEach"))))
+            .afterAllHooks(singletonList(() -> executionOrder.add("afterAll")))
+            .afterEachHooks(singletonList(() -> executionOrder.add("afterEach")))
             .block(() -> executionOrder.add("block"))
             .rank(new Rank(0))
             .build()

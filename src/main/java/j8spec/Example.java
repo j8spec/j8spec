@@ -140,10 +140,10 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         this.containerDescriptions = unmodifiableList(containerDescriptions);
         this.description = description;
         this.varInitializers = unmodifiableList(varInitializers);
-        this.beforeAllHooks = beforeAllHooks;
+        this.beforeAllHooks = unmodifiableList(beforeAllHooks);
         this.beforeEachHooks = unmodifiableList(beforeEachHooks);
         this.afterEachHooks = unmodifiableList(afterEachHooks);
-        this.afterAllHooks = afterAllHooks;
+        this.afterAllHooks = unmodifiableList(afterAllHooks);
         this.block = block;
         this.expectedException = expectedException;
         this.timeout = timeout;
@@ -172,27 +172,33 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     public void tryToExecute() throws Throwable {
         tryToExecuteAll(varInitializers);
 
-        if (previous == null) {
-            tryToExecuteAll(beforeAllHooks);
-        } else {
-            for (UnsafeBlock hook : beforeAllHooks) {
-                if (!previous.beforeAllHooks.contains(hook)) {
-                    hook.tryToExecute();
-                }
-            }
-        }
-
+        tryToExecuteBeforeAllHooks();
         tryToExecuteAll(beforeEachHooks);
 
         block.tryToExecute();
 
         tryToExecuteAll(afterEachHooks);
+        tryToExecuteAfterAllHooks();
+    }
 
+    private void tryToExecuteAfterAllHooks() throws Throwable {
         if (next == null) {
             tryToExecuteAll(afterAllHooks);
         } else {
             for (UnsafeBlock hook : afterAllHooks) {
                 if (!next.afterAllHooks.contains(hook)) {
+                    hook.tryToExecute();
+                }
+            }
+        }
+    }
+
+    private void tryToExecuteBeforeAllHooks() throws Throwable {
+        if (previous == null) {
+            tryToExecuteAll(beforeAllHooks);
+        } else {
+            for (UnsafeBlock hook : beforeAllHooks) {
+                if (!previous.beforeAllHooks.contains(hook)) {
                     hook.tryToExecute();
                 }
             }
