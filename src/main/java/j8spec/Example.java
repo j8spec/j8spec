@@ -1,11 +1,11 @@
 package j8spec;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
-import static j8spec.UnsafeBlock.tryToExecuteAll;
 
 /**
  * Example ready to be executed.
@@ -107,6 +107,12 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         }
     }
 
+    private static void tryToExecuteAll(Collection<? extends UnsafeBlock> blocks) throws Throwable {
+        for (UnsafeBlock block : blocks) {
+            block.tryToExecute();
+        }
+    }
+
     private final List<String> containerDescriptions;
     private final String description;
     private final List<VarInitializer<?>> varInitializers;
@@ -167,30 +173,31 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     public void tryToExecute() throws Throwable {
         tryToExecuteAll(varInitializers);
 
-        try {
-            tryToExecuteBeforeAllHooks();
-        } catch (Throwable throwable) {
-            beforeAllHookFailed = true;
-            throw throwable;
-        }
-
+        tryToExecuteBeforeAllHooks();
         tryToExecuteAll(beforeEachHooks);
 
-        block.tryToExecute();
+        Exceptions.MultipleFailures collector = new Exceptions.MultipleFailures();
+        collector.execute(block);
 
-        tryToExecuteAll(afterEachHooks);
-        tryToExecuteAfterAllHooks();
+        afterEachHooks.forEach(collector::execute);
+        executeAfterAllHooks(collector);
+
+        collector.rethrow();
     }
 
     private void tryToExecuteBeforeAllHooks() throws Throwable {
-        if (previous == null) {
-            tryToExecuteAll(beforeAllHooks);
-        } else {
-            for (UnsafeBlock hook : beforeAllHooks) {
-                if (!previous.hasBeforeAllHook(hook)) {
-                    hook.tryToExecute();
+        try {
+            if (previous == null) {
+                tryToExecuteAll(beforeAllHooks);
+            } else {
+                for (UnsafeBlock hook : beforeAllHooks) {
+                    if (!previous.hasBeforeAllHook(hook)) {
+                        hook.tryToExecute();
+                    }
                 }
             }
+        } finally {
+            beforeAllHookFailed = true;
         }
     }
 
@@ -198,15 +205,11 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         return beforeAllHooks.contains(hook) || previous != null && previous.hasBeforeAllHook(hook);
     }
 
-    private void tryToExecuteAfterAllHooks() throws Throwable {
+    private void executeAfterAllHooks(Exceptions.MultipleFailures collector) {
         if (next == null) {
-            tryToExecuteAll(afterAllHooks);
+            afterAllHooks.forEach(collector::execute);
         } else {
-            for (UnsafeBlock hook : afterAllHooks) {
-                if (!next.hasAfterAllHook(hook)) {
-                    hook.tryToExecute();
-                }
-            }
+            afterAllHooks.stream().filter(hook -> !next.hasAfterAllHook(hook)).forEach(collector::execute);
         }
     }
 

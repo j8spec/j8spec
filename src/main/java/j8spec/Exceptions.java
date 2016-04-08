@@ -12,13 +12,11 @@ public final class Exceptions {
      * @since 3.0.0
      */
     public static class Base extends RuntimeException {
-        Base(String message, Exception e) {
-            super(message, e);
-        }
+        Base(String message) { super(message); }
 
-        Base(String message) {
-            super(message);
-        }
+        Base(String message, Throwable cause) { super(message, cause); }
+
+        Base(String message, Throwable cause, boolean suppression) { super(message, cause, suppression, true); }
     }
 
     /**
@@ -94,4 +92,31 @@ public final class Exceptions {
             super("Illegal 'j8spec.seed' property value.", e);
         }
     }
+
+    /**
+     * Thrown when an example has multiple failures.
+     * @since 3.1.0
+     */
+    public static class MultipleFailures extends Base {
+        MultipleFailures() {
+            super("Multiple failures.", null, true);
+        }
+
+        void execute(UnsafeBlock unsafeBlock) {
+            try {
+                unsafeBlock.tryToExecute();
+            } catch (Throwable throwable) {
+                addSuppressed(throwable);
+            }
+        }
+
+        void rethrow() throws Throwable {
+            if (getSuppressed().length > 1) {
+                throw this;
+            } else if (getSuppressed().length == 1) {
+                throw getSuppressed()[0];
+            }
+        }
+    }
+
 }

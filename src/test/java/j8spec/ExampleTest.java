@@ -227,6 +227,48 @@ public class ExampleTest {
         verify(afterAllHook, times(1)).tryToExecute();
     }
 
+    @Test(expected = Exceptions.MultipleFailures.class)
+    public void collects_exceptions_from_block_and_after_hooks() throws Throwable {
+        Example example = new Example.Builder()
+            .description("example 1")
+            .afterEachHooks(asList(
+                () -> { throw new Exception("after each 1"); },
+                () -> { throw new Exception("after each 2"); }
+            ))
+            .afterAllHooks(asList(
+                () -> { throw new Exception("after all 1"); },
+                () -> { throw new Exception("after all 2"); }
+            ))
+            .block(() -> { throw new Exception("block"); })
+            .rank(new Rank(0))
+            .build();
+
+        try {
+            example.tryToExecute();
+        } catch (Exceptions.MultipleFailures e) {
+            Throwable[] suppressed = e.getSuppressed();
+
+            assertThat(suppressed[0].getMessage(), is("block"));
+            assertThat(suppressed[1].getMessage(), is("after each 1"));
+            assertThat(suppressed[2].getMessage(), is("after each 2"));
+            assertThat(suppressed[3].getMessage(), is("after all 1"));
+            assertThat(suppressed[4].getMessage(), is("after all 2"));
+
+            throw e;
+        }
+    }
+
+    @Test(expected = Exception.class)
+    public void rethrows_exception_from_block() throws Throwable {
+        Example example = new Example.Builder()
+            .description("example 1")
+            .block(() -> { throw new Exception(); })
+            .rank(new Rank(0))
+            .build();
+
+        example.tryToExecute();
+    }
+
     @Test
     public void indicates_if_example_should_be_ignored() {
         Example example = new Example.Builder()
