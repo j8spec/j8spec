@@ -101,22 +101,40 @@ public final class Exceptions {
         MultipleFailures() {
             super("Multiple failures.", null, true);
         }
+    }
+
+    static class Collector {
+        @SuppressWarnings("ThrowableInstanceNeverThrown")
+        private final Throwable throwable = new MultipleFailures();
 
         void execute(UnsafeBlock unsafeBlock) {
             try {
                 unsafeBlock.tryToExecute();
-            } catch (Throwable throwable) {
-                addSuppressed(throwable);
+            } catch (Throwable cause) {
+                throwable.addSuppressed(cause);
             }
         }
 
-        void rethrow() throws Throwable {
-            if (getSuppressed().length > 1) {
-                throw this;
-            } else if (getSuppressed().length == 1) {
-                throw getSuppressed()[0];
+        void haltInCaseOfFailure() throws Throwable {
+            if (isEmpty()) {
+                return;
             }
+
+            if (throwable.getSuppressed().length == 1) {
+                throw throwable.getSuppressed()[0];
+            }
+
+            throw throwable;
+        }
+
+        void executeOrSkip(UnsafeBlock unsafeBlocks) {
+            if (isEmpty()) {
+                execute(unsafeBlocks);
+            }
+        }
+
+        boolean isEmpty() {
+            return throwable.getSuppressed().length == 0;
         }
     }
-
 }
