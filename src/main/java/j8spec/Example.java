@@ -122,6 +122,7 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
 
     private Example previous;
     private Example next;
+    private boolean beforeAllHookFailed = false;
 
     private Example(
         List<String> containerDescriptions,
@@ -151,18 +152,12 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         this.rank = rank;
     }
 
-    void previous(Example example) {
-        previous = example;
-    }
+    void previous(Example example) { previous = example; }
 
-    void next(Example example) {
-        next = example;
-    }
+    void next(Example example) { next = example; }
 
     @Override
-    public int compareTo(Example block) {
-        return rank.compareTo(block.rank);
-    }
+    public int compareTo(Example block) { return rank.compareTo(block.rank); }
 
     /**
      * Runs this example and associated hooks.
@@ -172,7 +167,13 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     public void tryToExecute() throws Throwable {
         tryToExecuteAll(varInitializers);
 
-        tryToExecuteBeforeAllHooks();
+        try {
+            tryToExecuteBeforeAllHooks();
+        } catch (Throwable throwable) {
+            beforeAllHookFailed = true;
+            throw throwable;
+        }
+
         tryToExecuteAll(beforeEachHooks);
 
         block.tryToExecute();
@@ -217,24 +218,22 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
      * @return textual description
      * @since 2.0.0
      */
-    public String description() {
-        return description;
-    }
+    public String description() { return description; }
 
     /**
      * @return textual description of all outer example groups
      * @since 2.0.0
      */
-    public List<String> containerDescriptions() {
-        return containerDescriptions;
-    }
+    public List<String> containerDescriptions() { return containerDescriptions; }
 
     /**
      * @return <code>true</code> if this example should be ignored, <code>false</code> otherwise
      * @since 2.0.0
      */
-    public boolean shouldBeIgnored() {
-        return block == NOOP;
+    public boolean shouldBeIgnored() { return block == NOOP || hasAnyBeforeAllHookFailed(); }
+
+    private boolean hasAnyBeforeAllHookFailed() {
+        return beforeAllHookFailed || previous != null && previous.hasAnyBeforeAllHookFailed();
     }
 
     /**
@@ -242,43 +241,33 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
      * @see #isExpectedToThrowAnException()
      * @since 2.0.0
      */
-    public Class<? extends Throwable> expected() {
-        return expectedException;
-    }
+    public Class<? extends Throwable> expected() { return expectedException; }
 
     /**
      * @return <code>true</code> if this example is expected to throw an exception, <code>false</code> otherwise
      * @see #expected()
      * @since 2.0.0
      */
-    public boolean isExpectedToThrowAnException() {
-        return expectedException != null;
-    }
+    public boolean isExpectedToThrowAnException() { return expectedException != null; }
 
     /**
      * @return <code>true</code> if this example is expected to fail if it takes to long, <code>false</code> otherwise
      * @see #timeout()
      * @since 3.0.0
      */
-    public boolean shouldFailOnTimeout() {
-        return timeout != 0;
-    }
+    public boolean shouldFailOnTimeout() { return timeout != 0; }
 
     /**
      * @return time to wait before timing out the example
      * @see #timeoutUnit()
      * @since 3.0.0
      */
-    public long timeout() {
-        return timeout;
-    }
+    public long timeout() { return timeout; }
 
     /**
      * @return the time unit for the {@link #timeout()}
      * @see #timeout()
      * @since 3.0.0
      */
-    public TimeUnit timeoutUnit() {
-        return timeoutUnit;
-    }
+    public TimeUnit timeoutUnit() { return timeoutUnit; }
 }

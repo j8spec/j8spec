@@ -239,6 +239,31 @@ public class ExampleTest {
     }
 
     @Test
+    public void indicates_if_example_should_be_ignored_when_before_all_hook_fails() throws Throwable {
+        UnsafeBlock beforeAllHook = () -> { throw new Exception(); };
+
+        Example example1 = new Example.Builder()
+            .description("example 1")
+            .beforeAllHooks(singletonList(beforeAllHook))
+            .block(() -> {})
+            .rank(new Rank(0))
+            .build();
+
+        Example example2 = new Example.Builder()
+            .description("example 2")
+            .beforeAllHooks(singletonList(beforeAllHook))
+            .block(() -> {})
+            .rank(new Rank(0))
+            .build();
+
+        example2.previous(example1);
+
+        try { example1.tryToExecute(); } catch (Throwable ignored) {}
+
+        assertThat(example2.shouldBeIgnored(), is(true));
+    }
+
+    @Test
     public void indicates_if_example_should_not_be_ignored() {
         Example example = new Example.Builder()
             .description("example")
