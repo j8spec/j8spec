@@ -2,6 +2,7 @@ package j8spec;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
@@ -11,6 +12,8 @@ import static java.util.Collections.unmodifiableList;
  * @since 3.0.0
  */
 public final class Example implements UnsafeBlock, Comparable<Example> {
+
+    private static final Predicate<UnsafeBlock> ALL = whatever -> true;
 
     static final class Builder {
 
@@ -167,41 +170,31 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         Exceptions.Collector collector = new Exceptions.Collector();
 
         varInitializers.forEach(collector::executeOrSkip);
-        collector.haltInCaseOfFailure();
+        collector.haltOnFailure();
 
-        tryToExecuteBeforeAllHooks(collector);
-        collector.haltInCaseOfFailure();
+        beforeAllHooks.stream().filter(firstChance()).forEach(collector::executeOrSkip);
+        beforeAllHookFailed = !collector.isEmpty();
+        collector.haltOnFailure();
 
         beforeEachHooks.forEach(collector::executeOrSkip);
-        collector.haltInCaseOfFailure();
+        collector.haltOnFailure();
 
         collector.execute(block);
-
         afterEachHooks.forEach(collector::execute);
-        executeAfterAllHooks(collector);
-
-        collector.haltInCaseOfFailure();
+        afterAllHooks.stream().filter(lastChance()).forEach(collector::execute);
+        collector.haltOnFailure();
     }
 
-    private void tryToExecuteBeforeAllHooks(Exceptions.Collector collector) {
-        if (previous == null) {
-            beforeAllHooks.forEach(collector::executeOrSkip);
-        } else {
-            beforeAllHooks.stream().filter(hook -> !previous.hasBeforeAllHook(hook)).forEach(collector::executeOrSkip);
-        }
-        beforeAllHookFailed = !collector.isEmpty();
+    private Predicate<UnsafeBlock> firstChance() {
+        return previous == null ? ALL : hook -> !previous.hasBeforeAllHook(hook);
+    }
+
+    private Predicate<UnsafeBlock> lastChance() {
+        return next == null ? ALL : hook -> !next.hasAfterAllHook(hook);
     }
 
     private boolean hasBeforeAllHook(UnsafeBlock hook) {
         return beforeAllHooks.contains(hook) || previous != null && previous.hasBeforeAllHook(hook);
-    }
-
-    private void executeAfterAllHooks(Exceptions.Collector collector) {
-        if (next == null) {
-            afterAllHooks.forEach(collector::execute);
-        } else {
-            afterAllHooks.stream().filter(hook -> !next.hasAfterAllHook(hook)).forEach(collector::execute);
-        }
     }
 
     private boolean hasAfterAllHook(UnsafeBlock hook) {

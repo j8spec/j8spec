@@ -115,7 +115,7 @@ public final class Exceptions {
             }
         }
 
-        void haltInCaseOfFailure() throws Throwable {
+        void haltOnFailure() throws Throwable {
             if (isEmpty()) {
                 return;
             }
