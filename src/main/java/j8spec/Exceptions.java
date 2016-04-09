@@ -12,13 +12,11 @@ public final class Exceptions {
      * @since 3.0.0
      */
     public static class Base extends RuntimeException {
-        Base(String message, Exception e) {
-            super(message, e);
-        }
+        Base(String message) { super(message); }
 
-        Base(String message) {
-            super(message);
-        }
+        Base(String message, Throwable cause) { super(message, cause); }
+
+        Base(String message, Throwable cause, boolean suppression) { super(message, cause, suppression, true); }
     }
 
     /**
@@ -92,6 +90,51 @@ public final class Exceptions {
     public static class IllegalSeedProperty extends Base {
         IllegalSeedProperty(NumberFormatException e) {
             super("Illegal 'j8spec.seed' property value.", e);
+        }
+    }
+
+    /**
+     * Thrown when an example has multiple failures.
+     * @since 3.1.0
+     */
+    public static class MultipleFailures extends Base {
+        MultipleFailures() {
+            super("Multiple failures.", null, true);
+        }
+    }
+
+    static class Collector {
+        @SuppressWarnings("ThrowableInstanceNeverThrown")
+        private final Throwable throwable = new MultipleFailures();
+
+        void execute(UnsafeBlock unsafeBlock) {
+            try {
+                unsafeBlock.tryToExecute();
+            } catch (Throwable cause) {
+                throwable.addSuppressed(cause);
+            }
+        }
+
+        void haltOnFailure() throws Throwable {
+            if (isEmpty()) {
+                return;
+            }
+
+            if (throwable.getSuppressed().length == 1) {
+                throw throwable.getSuppressed()[0];
+            }
+
+            throw throwable;
+        }
+
+        void executeOrSkip(UnsafeBlock unsafeBlocks) {
+            if (isEmpty()) {
+                execute(unsafeBlocks);
+            }
+        }
+
+        boolean isEmpty() {
+            return throwable.getSuppressed().length == 0;
         }
     }
 }

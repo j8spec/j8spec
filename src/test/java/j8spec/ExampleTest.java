@@ -7,12 +7,13 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static j8spec.Hook.newHook;
-import static j8spec.J8Spec.var;
+import static j8spec.J8Spec.*;
+import static j8spec.UnsafeBlock.NOOP;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 
 public class ExampleTest {
 
@@ -22,8 +23,8 @@ public class ExampleTest {
 
         new Example.Builder()
             .description("example")
-            .beforeEachHooks(singletonList(newHook(() -> executionOrder.add("beforeEach"))))
-            .beforeAllHooks(singletonList(newHook(() -> executionOrder.add("beforeAll"))))
+            .beforeEachHooks(singletonList(() -> executionOrder.add("beforeEach")))
+            .beforeAllHooks(singletonList(() -> executionOrder.add("beforeAll")))
             .block(() -> executionOrder.add("block"))
             .rank(new Rank(0))
             .build()
@@ -42,8 +43,8 @@ public class ExampleTest {
 
         new Example.Builder()
             .description("example")
-            .afterAllHooks(singletonList(newHook(() -> executionOrder.add("afterAll"))))
-            .afterEachHooks(singletonList(newHook(() -> executionOrder.add("afterEach"))))
+            .afterAllHooks(singletonList(() -> executionOrder.add("afterAll")))
+            .afterEachHooks(singletonList(() -> executionOrder.add("afterEach")))
             .block(() -> executionOrder.add("block"))
             .rank(new Rank(0))
             .build()
@@ -57,6 +58,218 @@ public class ExampleTest {
     }
 
     @Test
+    public void runs_before_all_hooks_only_once() throws Throwable {
+        UnsafeBlock beforeAllHook = mock(UnsafeBlock.class);
+
+        Example example1 = new Example.Builder()
+            .description("example 1")
+            .beforeAllHooks(singletonList(beforeAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        Example example2 = new Example.Builder()
+            .description("example 2")
+            .beforeAllHooks(singletonList(beforeAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        example2.previous(example1);
+
+        example1.tryToExecute();
+        example2.tryToExecute();
+
+        verify(beforeAllHook, times(1)).tryToExecute();
+    }
+
+    @Test
+    public void runs_before_all_hooks_only_once_when_hook_is_not_shared_with_the_previous_example() throws Throwable {
+        UnsafeBlock beforeAllHook = mock(UnsafeBlock.class);
+
+        Example example1 = new Example.Builder()
+            .description("example 1")
+            .beforeAllHooks(singletonList(beforeAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        Example example2 = new Example.Builder()
+            .description("example 2")
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        Example example3 = new Example.Builder()
+            .description("example 3")
+            .beforeAllHooks(singletonList(beforeAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        example2.previous(example1);
+        example3.previous(example2);
+
+        example1.tryToExecute();
+        example2.tryToExecute();
+        example3.tryToExecute();
+
+        verify(beforeAllHook, times(1)).tryToExecute();
+    }
+
+    @Test
+    public void runs_before_all_hooks_only_once_when_first_example_has_no_hook() throws Throwable {
+        UnsafeBlock beforeAllHook = mock(UnsafeBlock.class);
+
+        Example example1 = new Example.Builder()
+            .description("example 1")
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        Example example2 = new Example.Builder()
+            .description("example 2")
+            .beforeAllHooks(singletonList(beforeAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        example2.previous(example1);
+
+        example1.tryToExecute();
+        example2.tryToExecute();
+
+        verify(beforeAllHook, times(1)).tryToExecute();
+    }
+
+    @Test
+    public void runs_after_all_hooks_only_once() throws Throwable {
+        UnsafeBlock afterAllHook = mock(UnsafeBlock.class);
+
+        Example example1 = new Example.Builder()
+            .description("example 1")
+            .afterAllHooks(singletonList(afterAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        Example example2 = new Example.Builder()
+            .description("example 2")
+            .afterAllHooks(singletonList(afterAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        example1.next(example2);
+
+        example1.tryToExecute();
+        example2.tryToExecute();
+
+        verify(afterAllHook, times(1)).tryToExecute();
+    }
+
+    @Test
+    public void runs_after_all_hooks_only_once_when_hook_is_not_shared_with_the_next_example() throws Throwable {
+        UnsafeBlock afterAllHook = mock(UnsafeBlock.class);
+
+        Example example1 = new Example.Builder()
+            .description("example 1")
+            .afterAllHooks(singletonList(afterAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        Example example2 = new Example.Builder()
+            .description("example 2")
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        Example example3 = new Example.Builder()
+            .description("example 2")
+            .afterAllHooks(singletonList(afterAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        example1.next(example2);
+        example2.next(example3);
+
+        example1.tryToExecute();
+        example2.tryToExecute();
+        example3.tryToExecute();
+
+        verify(afterAllHook, times(1)).tryToExecute();
+    }
+
+    @Test
+    public void runs_after_all_hooks_only_once_when_last_example_has_no_hook() throws Throwable {
+        UnsafeBlock afterAllHook = mock(UnsafeBlock.class);
+
+        Example example1 = new Example.Builder()
+            .description("example 1")
+            .afterAllHooks(singletonList(afterAllHook))
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        Example example2 = new Example.Builder()
+            .description("example 2")
+            .block(NOOP)
+            .rank(new Rank(0))
+            .build();
+
+        example1.next(example2);
+
+        example1.tryToExecute();
+        example2.tryToExecute();
+
+        verify(afterAllHook, times(1)).tryToExecute();
+    }
+
+    @Test(expected = Exceptions.MultipleFailures.class)
+    public void collects_exceptions_from_block_and_after_hooks() throws Throwable {
+        Example example = new Example.Builder()
+            .description("example 1")
+            .afterEachHooks(asList(
+                () -> { throw new Exception("after each 1"); },
+                () -> { throw new Exception("after each 2"); }
+            ))
+            .afterAllHooks(asList(
+                () -> { throw new Exception("after all 1"); },
+                () -> { throw new Exception("after all 2"); }
+            ))
+            .block(() -> { throw new Exception("block"); })
+            .rank(new Rank(0))
+            .build();
+
+        try {
+            example.tryToExecute();
+        } catch (Exceptions.MultipleFailures e) {
+            Throwable[] suppressed = e.getSuppressed();
+
+            assertThat(suppressed[0].getMessage(), is("block"));
+            assertThat(suppressed[1].getMessage(), is("after each 1"));
+            assertThat(suppressed[2].getMessage(), is("after each 2"));
+            assertThat(suppressed[3].getMessage(), is("after all 1"));
+            assertThat(suppressed[4].getMessage(), is("after all 2"));
+
+            throw e;
+        }
+    }
+
+    @Test(expected = Exception.class)
+    public void rethrows_exception_from_block() throws Throwable {
+        Example example = new Example.Builder()
+            .description("example 1")
+            .block(() -> { throw new Exception(); })
+            .rank(new Rank(0))
+            .build();
+
+        example.tryToExecute();
+    }
+
+    @Test
     public void indicates_if_example_should_be_ignored() {
         Example example = new Example.Builder()
             .description("example")
@@ -65,6 +278,31 @@ public class ExampleTest {
             .build();
 
         assertThat(example.shouldBeIgnored(), is(true));
+    }
+
+    @Test
+    public void indicates_if_example_should_be_ignored_when_before_all_hook_fails() throws Throwable {
+        UnsafeBlock beforeAllHook = () -> { throw new Exception(); };
+
+        Example example1 = new Example.Builder()
+            .description("example 1")
+            .beforeAllHooks(singletonList(beforeAllHook))
+            .block(() -> {})
+            .rank(new Rank(0))
+            .build();
+
+        Example example2 = new Example.Builder()
+            .description("example 2")
+            .beforeAllHooks(singletonList(beforeAllHook))
+            .block(() -> {})
+            .rank(new Rank(0))
+            .build();
+
+        example2.previous(example1);
+
+        try { example1.tryToExecute(); } catch (Throwable ignored) {}
+
+        assertThat(example2.shouldBeIgnored(), is(true));
     }
 
     @Test

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 
 public class VarInitializerTest {
 
+    @SuppressWarnings("unchecked")
     @Test
     public void executes_init_function_only_once() throws Throwable {
         UnsafeFunction<String> initFunction = mock(UnsafeFunction.class);

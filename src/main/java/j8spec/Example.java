@@ -2,10 +2,10 @@ package j8spec;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
-import static j8spec.UnsafeBlock.tryToExecuteAll;
 
 /**
  * Example ready to be executed.
@@ -13,15 +13,17 @@ import static j8spec.UnsafeBlock.tryToExecuteAll;
  */
 public final class Example implements UnsafeBlock, Comparable<Example> {
 
+    private static final Predicate<UnsafeBlock> ALL = whatever -> true;
+
     static final class Builder {
 
         private List<String> containerDescriptions = emptyList();
         private String description;
         private List<VarInitializer<?>> varInitializers = emptyList();
-        private List<Hook> beforeAllHooks = emptyList();
-        private List<Hook> beforeEachHooks = emptyList();
-        private List<Hook> afterEachHooks = emptyList();
-        private List<Hook> afterAllHooks = emptyList();
+        private List<UnsafeBlock> beforeAllHooks = emptyList();
+        private List<UnsafeBlock> beforeEachHooks = emptyList();
+        private List<UnsafeBlock> afterEachHooks = emptyList();
+        private List<UnsafeBlock> afterAllHooks = emptyList();
         private UnsafeBlock block;
         private Class<? extends Throwable> expectedException;
         private long timeout;
@@ -43,22 +45,22 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
             return this;
         }
 
-        Builder beforeAllHooks(List<Hook> beforeAllHooks) {
+        Builder beforeAllHooks(List<UnsafeBlock> beforeAllHooks) {
             this.beforeAllHooks = beforeAllHooks;
             return this;
         }
 
-        Builder beforeEachHooks(List<Hook> beforeHooks) {
+        Builder beforeEachHooks(List<UnsafeBlock> beforeHooks) {
             this.beforeEachHooks = beforeHooks;
             return this;
         }
 
-        Builder afterEachHooks(List<Hook> afterHooks) {
+        Builder afterEachHooks(List<UnsafeBlock> afterHooks) {
             this.afterEachHooks = afterHooks;
             return this;
         }
 
-        Builder afterAllHooks(List<Hook> afterAllHooks) {
+        Builder afterAllHooks(List<UnsafeBlock> afterAllHooks) {
             this.afterAllHooks = afterAllHooks;
             return this;
         }
@@ -110,24 +112,28 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
     private final List<String> containerDescriptions;
     private final String description;
     private final List<VarInitializer<?>> varInitializers;
-    private final List<Hook> beforeAllHooks;
-    private final List<Hook> beforeEachHooks;
-    private final List<Hook> afterEachHooks;
-    private final List<Hook> afterAllHooks;
+    private final List<UnsafeBlock> beforeAllHooks;
+    private final List<UnsafeBlock> beforeEachHooks;
+    private final List<UnsafeBlock> afterEachHooks;
+    private final List<UnsafeBlock> afterAllHooks;
     private final UnsafeBlock block;
     private final Class<? extends Throwable> expectedException;
     private final long timeout;
     private final TimeUnit timeoutUnit;
     private final Rank rank;
 
+    private Example previous;
+    private Example next;
+    private boolean beforeAllHookFailed = false;
+
     private Example(
         List<String> containerDescriptions,
         String description,
         List<VarInitializer<?>> varInitializers,
-        List<Hook> beforeAllHooks,
-        List<Hook> beforeEachHooks,
-        List<Hook> afterEachHooks,
-        List<Hook> afterAllHooks,
+        List<UnsafeBlock> beforeAllHooks,
+        List<UnsafeBlock> beforeEachHooks,
+        List<UnsafeBlock> afterEachHooks,
+        List<UnsafeBlock> afterAllHooks,
         UnsafeBlock block,
         Class<? extends Throwable> expectedException,
         long timeout,
@@ -137,10 +143,10 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         this.containerDescriptions = unmodifiableList(containerDescriptions);
         this.description = description;
         this.varInitializers = unmodifiableList(varInitializers);
-        this.beforeAllHooks = beforeAllHooks;
+        this.beforeAllHooks = unmodifiableList(beforeAllHooks);
         this.beforeEachHooks = unmodifiableList(beforeEachHooks);
         this.afterEachHooks = unmodifiableList(afterEachHooks);
-        this.afterAllHooks = afterAllHooks;
+        this.afterAllHooks = unmodifiableList(afterAllHooks);
         this.block = block;
         this.expectedException = expectedException;
         this.timeout = timeout;
@@ -148,10 +154,12 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
         this.rank = rank;
     }
 
+    void previous(Example example) { previous = example; }
+
+    void next(Example example) { next = example; }
+
     @Override
-    public int compareTo(Example block) {
-        return rank.compareTo(block.rank);
-    }
+    public int compareTo(Example block) { return rank.compareTo(block.rank); }
 
     /**
      * Runs this example and associated hooks.
@@ -159,39 +167,60 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
      */
     @Override
     public void tryToExecute() throws Throwable {
-        tryToExecuteAll(varInitializers);
+        Exceptions.Collector collector = new Exceptions.Collector();
 
-        tryToExecuteAll(beforeAllHooks);
-        tryToExecuteAll(beforeEachHooks);
+        varInitializers.forEach(collector::executeOrSkip);
+        collector.haltOnFailure();
 
-        block.tryToExecute();
+        beforeAllHooks.stream().filter(firstChance()).forEach(collector::executeOrSkip);
+        beforeAllHookFailed = !collector.isEmpty();
+        collector.haltOnFailure();
 
-        tryToExecuteAll(afterEachHooks);
-        tryToExecuteAll(afterAllHooks);
+        beforeEachHooks.forEach(collector::executeOrSkip);
+        collector.haltOnFailure();
+
+        collector.execute(block);
+        afterEachHooks.forEach(collector::execute);
+        afterAllHooks.stream().filter(lastChance()).forEach(collector::execute);
+        collector.haltOnFailure();
+    }
+
+    private Predicate<UnsafeBlock> firstChance() {
+        return previous == null ? ALL : hook -> !previous.hasBeforeAllHook(hook);
+    }
+
+    private Predicate<UnsafeBlock> lastChance() {
+        return next == null ? ALL : hook -> !next.hasAfterAllHook(hook);
+    }
+
+    private boolean hasBeforeAllHook(UnsafeBlock hook) {
+        return beforeAllHooks.contains(hook) || previous != null && previous.hasBeforeAllHook(hook);
+    }
+
+    private boolean hasAfterAllHook(UnsafeBlock hook) {
+        return afterAllHooks.contains(hook) || next != null && next.hasAfterAllHook(hook);
     }
 
     /**
      * @return textual description
      * @since 2.0.0
      */
-    public String description() {
-        return description;
-    }
+    public String description() { return description; }
 
     /**
      * @return textual description of all outer example groups
      * @since 2.0.0
      */
-    public List<String> containerDescriptions() {
-        return containerDescriptions;
-    }
+    public List<String> containerDescriptions() { return containerDescriptions; }
 
     /**
      * @return <code>true</code> if this example should be ignored, <code>false</code> otherwise
      * @since 2.0.0
      */
-    public boolean shouldBeIgnored() {
-        return block == NOOP;
+    public boolean shouldBeIgnored() { return block == NOOP || hasAnyBeforeAllHookFailed(); }
+
+    private boolean hasAnyBeforeAllHookFailed() {
+        return beforeAllHookFailed || previous != null && previous.hasAnyBeforeAllHookFailed();
     }
 
     /**
@@ -199,43 +228,33 @@ public final class Example implements UnsafeBlock, Comparable<Example> {
      * @see #isExpectedToThrowAnException()
      * @since 2.0.0
      */
-    public Class<? extends Throwable> expected() {
-        return expectedException;
-    }
+    public Class<? extends Throwable> expected() { return expectedException; }
 
     /**
      * @return <code>true</code> if this example is expected to throw an exception, <code>false</code> otherwise
      * @see #expected()
      * @since 2.0.0
      */
-    public boolean isExpectedToThrowAnException() {
-        return expectedException != null;
-    }
+    public boolean isExpectedToThrowAnException() { return expectedException != null; }
 
     /**
      * @return <code>true</code> if this example is expected to fail if it takes to long, <code>false</code> otherwise
      * @see #timeout()
      * @since 3.0.0
      */
-    public boolean shouldFailOnTimeout() {
-        return timeout != 0;
-    }
+    public boolean shouldFailOnTimeout() { return timeout != 0; }
 
     /**
      * @return time to wait before timing out the example
      * @see #timeoutUnit()
      * @since 3.0.0
      */
-    public long timeout() {
-        return timeout;
-    }
+    public long timeout() { return timeout; }
 
     /**
      * @return the time unit for the {@link #timeout()}
      * @see #timeout()
      * @since 3.0.0
      */
-    public TimeUnit timeoutUnit() {
-        return timeoutUnit;
-    }
+    public TimeUnit timeoutUnit() { return timeoutUnit; }
 }
