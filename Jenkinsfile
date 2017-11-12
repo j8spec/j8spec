@@ -1,7 +1,7 @@
 pipeline {
   agent any
   stages {
-    stage('package') {
+    stage('test') {
       steps {
         sh './gradlew test'
       }
