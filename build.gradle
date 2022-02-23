@@ -11,12 +11,6 @@ ext.isReleaseBuild = !version.endsWith("SNAPSHOT")
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
-if (isReleaseBuild) {
-    ext.'signing.keyId' = System.env.J8SPEC_SIGNING_KEY_ID
-    ext.'signing.secretKeyRingFile' = System.env.J8SPEC_SIGNING_KEY_RING_FILE
-    ext.'signing.password' = System.env.J8SPEC_SIGNING_PASSWORD
-}
-
 repositories {
     mavenCentral()
 }
@@ -54,6 +48,7 @@ artifacts {
 
 signing {
     required { isReleaseBuild }
+    useGpgCmd()
     sign configurations.archives
 }
 
